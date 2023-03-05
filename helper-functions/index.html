@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="SERP Wings" /><link rel="canonical" href="https://simply-static.netlify.app/helper-functions/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Helper Functions - simply-static-post-process</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Helper Functions";
+        var mkdocs_page_input_path = "helper-functions.md";
+        var mkdocs_page_url = "/helper-functions/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> simply-static-post-process
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorial/">Tutorial</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../simply-static-netlify/">simply-static-netlify object</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Helper Functions</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#src.helpers">src.helpers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#src.helpers.log_to_console">log_to_console()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#src.helpers.string_formatter">string_formatter()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#src.helpers.update_links">update_links()</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">simply-static-post-process</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>API &raquo;</li>
+      <li>Helper Functions</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/serpwings/simply-static-post-process/blob/main/docs/helper-functions.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="helper-functions">Helper Functions<a class="headerlink" href="#helper-functions" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="src.helpers"></a>
+  <div class="doc doc-contents first">
+  
+      <p>Simply Static Netlify Process
+https://github.com/serpwings/simply-static-post-process</p>
+<p>A Python Library to prepare and deploy static version of a WordPress Installation on Netlify (Static Hosting Service Providers).</p>
+<p>MIT License
+Copyright (c) 2023 SERP Wings <www.serpwings.com></p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED &ldquo;AS IS&rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="src.helpers.log_to_console" class="doc doc-heading">
+<code class="codehilite language-python">log_to_console(typ='INFO', message='')</code>
+
+<a href="#src.helpers.log_to_console" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>help to log text streams (input as message) to console.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>typ</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>Type of log. Default to <code>INFO</code> but can be any arbitrary value e.g. <code>ERROR</code>, <code>DEBUG</code> and etc.</p></td>
+          <td>
+                <code>&#39;INFO&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>message</code></td>
+          <td>
+                <code>str, required</code>
+          </td>
+          <td><p>message string to be logged into console.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>src/helpers.py</code></summary>
+        <pre class="codehilite"><code class="language-python">def log_to_console(typ="INFO", message=""):
+    """
+    help to log text streams (input as message) to console.
+
+    Args:
+        typ (str, optional): Type of log. Default to ``INFO`` but can be any arbitrary value e.g. ``ERROR``, ``DEBUG`` and etc.
+        message (str, required): message string to be logged into console.
+    """
+    print(f"{typ}: {message}")</code></pre>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="src.helpers.string_formatter" class="doc doc-heading">
+<code class="codehilite language-python">string_formatter(str)</code>
+
+<a href="#src.helpers.string_formatter" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>String formatter for html formatting output.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ua_name</code></td>
+          <td>
+                <code>str, required</code>
+          </td>
+          <td><p>string to be formatted.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>src/helpers.py</code></summary>
+        <pre class="codehilite"><code class="language-python">def string_formatter(str):
+    """
+    String formatter for html formatting output.
+
+    Args:
+        ua_name (str, required): string to be formatted.
+    """
+    return str</code></pre>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="src.helpers.update_links" class="doc doc-heading">
+<code class="codehilite language-python">update_links(content='', link_from='', link_to='')</code>
+
+<a href="#src.helpers.update_links" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Usefull for fixing schema or other links which simply static cannot fix.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>content</code></td>
+          <td>
+                <code>str, required</code>
+          </td>
+          <td><p>Text which you want to update links e.g. Cotent on Home Page.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>link_from</code></td>
+          <td>
+                <code>str, required</code>
+          </td>
+          <td><p>string values of link which you want to change.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>link_to</code></td>
+          <td>
+                <code>str, required</code>
+          </td>
+          <td><p>string values of links to be replaced with.</p></td>
+          <td>
+                <code>&#39;&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>src/helpers.py</code></summary>
+        <pre class="codehilite"><code class="language-python">def update_links(content="", link_from="", link_to=""):
+    """
+    Usefull for fixing schema or other links which simply static cannot fix.
+
+    Args:
+        content (str, required): Text which you want to update links e.g. Cotent on Home Page.
+        link_from (str, required): string values of link which you want to change.
+        link_to (str, required): string values of links to be replaced with.
+    """
+    if link_from and link_to and content:
+        link_from = link_from.split("://")[-1]
+        link_to = link_to.split("://")[-1]
+        return content.replace(link_from, link_to)
+    return content</code></pre>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../simply-static-netlify/" class="btn btn-neutral float-left" title="simply-static-netlify object"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>© Copyright 2023 SERP Wings</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/serpwings/simply-static-post-process" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../simply-static-netlify/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
