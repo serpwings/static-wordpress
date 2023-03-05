@@ -1,6 +1,6 @@
 # Simply Static Post Process
 
-![pyrobotstx feature image](docs/img/simply-static-netlify-deploy-workflow.png)
+![pyrobotstx feature image](img/simply-static-netlify-deploy-workflow.png)
 
 
 A Python Library to prepare and deploy a static version of a WordPress Installation on Netlify (Static Hosting Service Provider). 
