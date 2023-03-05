@@ -1,0 +1,3 @@
+[build]
+  publish = "output"
+  command = "python src/main.py"
