@@ -1,0 +1,29 @@
+name: Static WordPress to GH Pages
+on:
+  repository_dispatch:
+    types: [wordpress]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:       
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+      - run: pip install --upgrade pip && pip install -r requirements.txt
+      - run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
+           
+      - name: Dump GitHub context
+        env:
+         GITHUB_CONTEXT: ${{ toJson(github.event.client_payload) }}
+         GITHUB_CONTEXT2: ${{ toJson(github.event.client_payload.archive_name) }}
+        run: python src/main.py $GITHUB_CONTEXT
+
+      - name: Deploy Website/Documents
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
