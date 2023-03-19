@@ -321,99 +321,104 @@
         """Buidl search index by using title, body content and href of a given page"""
         helpers.log_to_console("INFO", "Start Building Search Index")
 
-        # Copy Search.js into search folder
-        source_path = Path(self.config["root"], "src/search.js")
-        target_path = Path(
-            self.output_folder, f"{self.config['pages']['search']}/search.js"
-        )
-        shutil.copyfile(source_path, target_path)
+        try:
+            # Copy Search.js into search folder
+            source_path = Path(self.config["root"], "src/search.js")
+            target_path = Path(
+                self.output_folder, f"{self.config['pages']['search']}/search.js"
+            )
+            shutil.copyfile(source_path, target_path)
 
-        # Now Process all foldre with content/index.html files
-        paths_to_pages = [
-            path.split("index.html")[0]
-            for path in glob.glob(f"{self.output_folder}/**", recursive=True)
-            if path.endswith("index.html")
-        ]
+            # Now Process all foldre with content/index.html files
+            paths_to_pages = [
+                path.split("index.html")[0]
+                for path in glob.glob(f"{self.output_folder}/**", recursive=True)
+                if path.endswith("index.html")
+            ]
 
-        search_index_output = []
+            search_index_output = []
 
-        for page_path in paths_to_pages:
-            make_title = self.config["search"]["title"]
-            make_url = self.config["search"]["url"]
-            make_text = self.config["search"]["text"]
-            make_images = self.config["search"]["images"]
-            document_path = Path(page_path, "index.html")
+            for page_path in paths_to_pages:
+                make_title = self.config["search"]["title"]
+                make_url = self.config["search"]["url"]
+                make_text = self.config["search"]["text"]
+                make_images = self.config["search"]["images"]
+                document_path = Path(page_path, "index.html")
 
-            if document_path.exists():
-                with codecs.open(document_path, "r", "utf-8") as f:
-                    contents_document_page = f.read()
-                    contents_document_page = helpers.update_links(
-                        contents_document_page,
-                        self.config["callback_home"],
-                        self.config["callback_deploy_url"],
-                    )
+                if document_path.exists():
+                    with codecs.open(document_path, "r", "utf-8") as f:
+                        contents_document_page = f.read()
+                        contents_document_page = helpers.update_links(
+                            contents_document_page,
+                            self.config["callback_home"],
+                            self.config["callback_deploy_url"],
+                        )
 
-                    soup = BeautifulSoup(contents_document_page, "lxml")
-                    # append tags only if search page is specified
-                    if "/search/" in str(document_path):
-                        script_text = [
-                            soup.new_tag(
-                                "script",
-                                src=LUNR["src"],
-                                integrity=LUNR["integrity"],
-                                crossorigin=LUNR["crossorigin"],
-                                referrerpolicy=LUNR["referrerpolicy"],
-                            ),
-                            soup.new_tag(
-                                "script",
-                                src=SEARCH_INDEX["src"],
-                            ),
-                        ]
+                        soup = BeautifulSoup(contents_document_page, "lxml")
+                        # append tags only if search page is specified
+                        if "/search/" in str(document_path):
+                            script_text = [
+                                soup.new_tag(
+                                    "script",
+                                    src=LUNR["src"],
+                                    integrity=LUNR["integrity"],
+                                    crossorigin=LUNR["crossorigin"],
+                                    referrerpolicy=LUNR["referrerpolicy"],
+                                ),
+                                soup.new_tag(
+                                    "script",
+                                    src=SEARCH_INDEX["src"],
+                                ),
+                            ]
 
-                        for script in script_text:
-                            soup.find("head").append(str(script))
+                            for script in script_text:
+                                soup.find("head").append(str(script))
 
-                    # TODO: In future add support for minification check
-                    updated_content = soup.prettify(
-                        formatter=HTMLFormatter(helpers.string_formatter)
-                    )
+                        # TODO: In future add support for minification check
+                        updated_content = soup.prettify(
+                            formatter=HTMLFormatter(helpers.string_formatter)
+                        )
 
-                    with open(document_path, "w", encoding="utf-8") as f:
-                        f.write(updated_content)
+                        with open(document_path, "w", encoding="utf-8") as f:
+                            f.write(updated_content)
 
-                    title = soup.find("title")
-                    title = title.string if title else None
-                    url = soup.find("meta", {"property": "og:url"})
-                    url = url["content"] if url else None
-                    canonical = soup.find("link", {"rel": "canonical"})
-                    if canonical:
-                        url = canonical["href"]
+                        title = soup.find("title")
+                        title = title.string if title else None
+                        url = soup.find("meta", {"property": "og:url"})
+                        url = url["content"] if url else None
+                        canonical = soup.find("link", {"rel": "canonical"})
+                        if canonical:
+                            url = canonical["href"]
 
-                    all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
-                    output = [strings for bd in all_strings for strings in bd.strings]
-                    text = " ".join(output)
+                        all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
+                        output = [strings for bd in all_strings for strings in bd.strings]
+                        text = " ".join(output)
 
-                    if url and document_path.parts[-2] not in [
-                        self.config["pages"][page] for page in self.config["pages"]
-                    ]:
-                        out = {
-                            "title": title if make_title else "",
-                            "content": text if make_text else "",
-                            "href": url if make_url else "",
-                        }
-                        search_index_output.append(out)
-                        helpers.log_to_console("INFO", url)
+                        if url and document_path.parts[-2] not in [
+                            self.config["pages"][page] for page in self.config["pages"]
+                        ]:
+                            out = {
+                                "title": title if make_title else "",
+                                "content": text if make_text else "",
+                                "href": url if make_url else "",
+                            }
+                            search_index_output.append(out)
+                            helpers.log_to_console("INFO", url)
 
-        search_index_json_file_path = Path(
-            self.output_folder,
-            self.config["pages"]["search"],
-            "lunr.json",
-        )
+            search_index_json_file_path = Path(
+                self.output_folder,
+                self.config["pages"]["search"],
+                "lunr.json",
+            )
 
-        with open(search_index_json_file_path, "w") as fl:
-            json.dump(search_index_output, fl, indent=4)
+            with open(search_index_json_file_path, "w") as fl:
+                json.dump(search_index_output, fl, indent=4)
 
-        helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+            helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+
+        except:
+
+            helpers.log_to_console("ERROR", "Search Index not Generated")
 
     def clean_directory_check(self):
         """ """
@@ -588,99 +593,104 @@
     """Buidl search index by using title, body content and href of a given page"""
     helpers.log_to_console("INFO", "Start Building Search Index")
 
-    # Copy Search.js into search folder
-    source_path = Path(self.config["root"], "src/search.js")
-    target_path = Path(
-        self.output_folder, f"{self.config['pages']['search']}/search.js"
-    )
-    shutil.copyfile(source_path, target_path)
+    try:
+        # Copy Search.js into search folder
+        source_path = Path(self.config["root"], "src/search.js")
+        target_path = Path(
+            self.output_folder, f"{self.config['pages']['search']}/search.js"
+        )
+        shutil.copyfile(source_path, target_path)
 
-    # Now Process all foldre with content/index.html files
-    paths_to_pages = [
-        path.split("index.html")[0]
-        for path in glob.glob(f"{self.output_folder}/**", recursive=True)
-        if path.endswith("index.html")
-    ]
+        # Now Process all foldre with content/index.html files
+        paths_to_pages = [
+            path.split("index.html")[0]
+            for path in glob.glob(f"{self.output_folder}/**", recursive=True)
+            if path.endswith("index.html")
+        ]
 
-    search_index_output = []
+        search_index_output = []
 
-    for page_path in paths_to_pages:
-        make_title = self.config["search"]["title"]
-        make_url = self.config["search"]["url"]
-        make_text = self.config["search"]["text"]
-        make_images = self.config["search"]["images"]
-        document_path = Path(page_path, "index.html")
+        for page_path in paths_to_pages:
+            make_title = self.config["search"]["title"]
+            make_url = self.config["search"]["url"]
+            make_text = self.config["search"]["text"]
+            make_images = self.config["search"]["images"]
+            document_path = Path(page_path, "index.html")
 
-        if document_path.exists():
-            with codecs.open(document_path, "r", "utf-8") as f:
-                contents_document_page = f.read()
-                contents_document_page = helpers.update_links(
-                    contents_document_page,
-                    self.config["callback_home"],
-                    self.config["callback_deploy_url"],
-                )
+            if document_path.exists():
+                with codecs.open(document_path, "r", "utf-8") as f:
+                    contents_document_page = f.read()
+                    contents_document_page = helpers.update_links(
+                        contents_document_page,
+                        self.config["callback_home"],
+                        self.config["callback_deploy_url"],
+                    )
 
-                soup = BeautifulSoup(contents_document_page, "lxml")
-                # append tags only if search page is specified
-                if "/search/" in str(document_path):
-                    script_text = [
-                        soup.new_tag(
-                            "script",
-                            src=LUNR["src"],
-                            integrity=LUNR["integrity"],
-                            crossorigin=LUNR["crossorigin"],
-                            referrerpolicy=LUNR["referrerpolicy"],
-                        ),
-                        soup.new_tag(
-                            "script",
-                            src=SEARCH_INDEX["src"],
-                        ),
-                    ]
+                    soup = BeautifulSoup(contents_document_page, "lxml")
+                    # append tags only if search page is specified
+                    if "/search/" in str(document_path):
+                        script_text = [
+                            soup.new_tag(
+                                "script",
+                                src=LUNR["src"],
+                                integrity=LUNR["integrity"],
+                                crossorigin=LUNR["crossorigin"],
+                                referrerpolicy=LUNR["referrerpolicy"],
+                            ),
+                            soup.new_tag(
+                                "script",
+                                src=SEARCH_INDEX["src"],
+                            ),
+                        ]
 
-                    for script in script_text:
-                        soup.find("head").append(str(script))
+                        for script in script_text:
+                            soup.find("head").append(str(script))
 
-                # TODO: In future add support for minification check
-                updated_content = soup.prettify(
-                    formatter=HTMLFormatter(helpers.string_formatter)
-                )
+                    # TODO: In future add support for minification check
+                    updated_content = soup.prettify(
+                        formatter=HTMLFormatter(helpers.string_formatter)
+                    )
 
-                with open(document_path, "w", encoding="utf-8") as f:
-                    f.write(updated_content)
+                    with open(document_path, "w", encoding="utf-8") as f:
+                        f.write(updated_content)
 
-                title = soup.find("title")
-                title = title.string if title else None
-                url = soup.find("meta", {"property": "og:url"})
-                url = url["content"] if url else None
-                canonical = soup.find("link", {"rel": "canonical"})
-                if canonical:
-                    url = canonical["href"]
+                    title = soup.find("title")
+                    title = title.string if title else None
+                    url = soup.find("meta", {"property": "og:url"})
+                    url = url["content"] if url else None
+                    canonical = soup.find("link", {"rel": "canonical"})
+                    if canonical:
+                        url = canonical["href"]
 
-                all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
-                output = [strings for bd in all_strings for strings in bd.strings]
-                text = " ".join(output)
+                    all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
+                    output = [strings for bd in all_strings for strings in bd.strings]
+                    text = " ".join(output)
 
-                if url and document_path.parts[-2] not in [
-                    self.config["pages"][page] for page in self.config["pages"]
-                ]:
-                    out = {
-                        "title": title if make_title else "",
-                        "content": text if make_text else "",
-                        "href": url if make_url else "",
-                    }
-                    search_index_output.append(out)
-                    helpers.log_to_console("INFO", url)
+                    if url and document_path.parts[-2] not in [
+                        self.config["pages"][page] for page in self.config["pages"]
+                    ]:
+                        out = {
+                            "title": title if make_title else "",
+                            "content": text if make_text else "",
+                            "href": url if make_url else "",
+                        }
+                        search_index_output.append(out)
+                        helpers.log_to_console("INFO", url)
 
-    search_index_json_file_path = Path(
-        self.output_folder,
-        self.config["pages"]["search"],
-        "lunr.json",
-    )
+        search_index_json_file_path = Path(
+            self.output_folder,
+            self.config["pages"]["search"],
+            "lunr.json",
+        )
 
-    with open(search_index_json_file_path, "w") as fl:
-        json.dump(search_index_output, fl, indent=4)
+        with open(search_index_json_file_path, "w") as fl:
+            json.dump(search_index_output, fl, indent=4)
 
-    helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")</code></pre>
+        helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+
+    except:
+
+        helpers.log_to_console("ERROR", "Search Index not Generated")</code></pre>
       </details>
   </div>
 
