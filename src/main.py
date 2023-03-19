@@ -294,7 +294,9 @@ class StaticWordPressNetlify:
                             url = canonical["href"]
 
                         all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
-                        output = [strings for bd in all_strings for strings in bd.strings]
+                        output = [
+                            strings for bd in all_strings for strings in bd.strings
+                        ]
                         text = " ".join(output)
 
                         if url and document_path.parts[-2] not in [
@@ -317,7 +319,9 @@ class StaticWordPressNetlify:
             with open(search_index_json_file_path, "w") as fl:
                 json.dump(search_index_output, fl, indent=4)
 
-            helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+            helpers.log_to_console(
+                "INFO", "Prepare Search Index for title, Url and Text"
+            )
 
         except:
 
@@ -405,25 +409,31 @@ if __name__ == "__main__":
     params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
     helpers.log_to_console("DEBUG", params)
 
+    archive_name = params["archive_name"][0]
+    callback_home = params["callback_home"][0]
+    callback_deploy_url = params["callback_deploy_url"][0]
+    page_404 = "404-error"
+    page_redirect = "redirects"
+    page_robots = "robots"
+    page_search = "search"
+
     wordpress_simply_static_zip_url = (
-        params["callback_home"][0]
-        + "/wp-content/plugins/simply-static/static-files/"
-        + params["archive_name"][0]
+        callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
     )
 
     if wordpress_simply_static_zip_url:
         configurations = {
             "root": "",
-            "callback_home": params["callback_home"][0],
-            "callback_deploy_url": params["callback_deploy_url"][0],
+            "callback_home": callback_home,
+            "callback_deploy_url": callback_deploy_url,
             "output_folder": "output",
             "zip_url": wordpress_simply_static_zip_url,
             "zip_file_name": "wordpress-simply-static.zip",
             "pages": {
-                "404": "404-error",
-                "redirect": "redirects",
-                "robots": "robots",
-                "search": "search",
+                "404": page_404,
+                "redirect": page_redirect,
+                "robots": page_robots,
+                "search": page_search,
             },
             "search": {
                 "title": "true",
