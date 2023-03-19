@@ -406,9 +406,13 @@ class StaticWordPressNetlify:
 
 if __name__ == "__main__":
 
+    import sys
+    params = json.loads(" ".join(sys.argv[1:]))
+
+    helpers.log_to_console("DEBUG-GH", params)
+
     params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
     helpers.log_to_console("DEBUG", params)
-
     archive_name = params["archive_name"][0]
     callback_home = params["callback_home"][0]
     callback_deploy_url = params["callback_deploy_url"][0]
