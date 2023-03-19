@@ -33,6 +33,7 @@ SOFTWARE.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import os
+import sys
 import glob
 import codecs
 from pathlib import Path
@@ -406,16 +407,31 @@ class StaticWordPressNetlify:
 
 if __name__ == "__main__":
 
-    import sys
-    params = json.loads(" ".join(sys.argv[1:]))
+    try:
+        params = json.loads(" ".join(sys.argv[1:]))
+        helpers.log_to_console("DEBUG-GH", params)
+    except:
+        params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
+        helpers.log_to_console("DEBUG", params)
 
-    helpers.log_to_console("DEBUG-GH", params)
+    archive_name = (
+        params["archive_name"][0]
+        if isinstance(params["archive_name"], list)
+        else params["archive_name"]
+    )
+    
+    callback_home = (
+        params["callback_home"][0]
+        if isinstance(params["callback_home"], list)
+        else params["callback_home"]
+    )
 
-    params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
-    helpers.log_to_console("DEBUG", params)
-    archive_name = params["archive_name"][0]
-    callback_home = params["callback_home"][0]
-    callback_deploy_url = params["callback_deploy_url"][0]
+    callback_deploy_url = (
+        params["callback_deploy_url"][0]
+        if isinstance(params["callback_deploy_url"], list)
+        else params["callback_deploy_url"]
+    )
+
     page_404 = "404-error"
     page_redirect = "redirects"
     page_robots = "robots"
