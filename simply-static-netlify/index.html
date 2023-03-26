@@ -391,7 +391,9 @@
                             url = canonical["href"]
 
                         all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
-                        output = [strings for bd in all_strings for strings in bd.strings]
+                        output = [
+                            strings for bd in all_strings for strings in bd.strings
+                        ]
                         text = " ".join(output)
 
                         if url and document_path.parts[-2] not in [
@@ -414,7 +416,9 @@
             with open(search_index_json_file_path, "w") as fl:
                 json.dump(search_index_output, fl, indent=4)
 
-            helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+            helpers.log_to_console(
+                "INFO", "Prepare Search Index for title, Url and Text"
+            )
 
         except:
 
@@ -663,7 +667,9 @@
                         url = canonical["href"]
 
                     all_strings = soup.body.find_all(["h1", "h2", "h3", "p"])
-                    output = [strings for bd in all_strings for strings in bd.strings]
+                    output = [
+                        strings for bd in all_strings for strings in bd.strings
+                    ]
                     text = " ".join(output)
 
                     if url and document_path.parts[-2] not in [
@@ -686,7 +692,9 @@
         with open(search_index_json_file_path, "w") as fl:
             json.dump(search_index_output, fl, indent=4)
 
-        helpers.log_to_console("INFO", "Prepare Search Index for title, Url and Text")
+        helpers.log_to_console(
+            "INFO", "Prepare Search Index for title, Url and Text"
+        )
 
     except:
 
