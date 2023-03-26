@@ -413,11 +413,11 @@ if __name__ == "__main__":
     except:
         params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
         helpers.log_to_console("DEBUG", params)
-
+    
     archive_name = (
         params["archive_name"][0]
         if isinstance(params["archive_name"], list)
-        else params["archive_name"]
+        else params["archive_name"] + ".zip"
     )
     
     callback_home = (
