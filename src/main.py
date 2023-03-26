@@ -413,35 +413,35 @@ if __name__ == "__main__":
     except:
         params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
         helpers.log_to_console("DEBUG", params)
-    
-    archive_name = (
-        params["archive_name"][0]
-        if isinstance(params["archive_name"], list)
-        else params["archive_name"] + ".zip"
-    )
-    
-    callback_home = (
-        params["callback_home"][0]
-        if isinstance(params["callback_home"], list)
-        else params["callback_home"]
-    )
 
-    callback_deploy_url = (
-        params["callback_deploy_url"][0]
-        if isinstance(params["callback_deploy_url"], list)
-        else params["callback_deploy_url"]
-    )
+    if params and all([params[prm_key] for prm_key in ["archive_name","callback_deploy_url", "callback_deploy_url"]]):
+        archive_name = (
+            params["archive_name"][0]
+            if isinstance(params["archive_name"], list)
+            else params["archive_name"]+".zip"
+        )
 
-    page_404 = "404-error"
-    page_redirect = "redirects"
-    page_robots = "robots"
-    page_search = "search"
+        callback_home = (
+            params["callback_home"][0]
+            if isinstance(params["callback_home"], list)
+            else params["callback_home"]
+        )
 
-    wordpress_simply_static_zip_url = (
-        callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
-    )
+        callback_deploy_url = (
+            params["callback_deploy_url"][0]
+            if isinstance(params["callback_deploy_url"], list)
+            else params["callback_deploy_url"]
+        )
 
-    if wordpress_simply_static_zip_url:
+        page_404 = "404-error"
+        page_redirect = "redirects"
+        page_robots = "robots"
+        page_search = "search"
+
+        wordpress_simply_static_zip_url = (
+            callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
+        )
+
         configurations = {
             "root": "",
             "callback_home": callback_home,
