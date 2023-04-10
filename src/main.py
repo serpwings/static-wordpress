@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*- #
 
 """
-Simply Static Netlify Process
+Simply Static Post Process
 https://github.com/serpwings/simply-static-post-process
 
-A Python Library to prepare and deploy static version of a WordPress Installation on Netlify (Static Hosting Service Providers).
+A Python Library to prepare and deploy static version of a WordPress Installation on any Static Web Hosting.
 
 
 MIT License
@@ -77,13 +77,13 @@ SEARCH_INDEX = {"src": "search.js"}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class StaticWordPressNetlify:
+class SimplyStaticPostProcess:
     """
-    This is a class processing Simply Static WordPress Plugin and converting it to netlify static site.
+    This is a class processing Simply Static WordPress Plugin and converting it to static site.
 
     Attributes:
         config (dic): Contains all important configurations about the class.
-        output_folder (Path): Contains Path for output folder location in Netlify
+        output_folder (Path): Contains Path for output folder location
         zip_file_path (Path): ZIP File Path to download simply-static-zip file freom remote server.
         redirect_page (Path): Contains Path of redirect page
         robots_txt_page (Path): Contains Path of robots.txt page
@@ -91,10 +91,10 @@ class StaticWordPressNetlify:
     """
 
     def __init__(self, config_=None):
-        """Initialize StaticWordPressNetlify objet with a config values.
+        """Initialize SimplyStaticPostProcess objet with a config values.
 
         Args:
-            config_ (dict, optional): contains diverse conditions for StaticWordPressNetlify object.
+            config_ (dict, optional): contains diverse conditions for SimplyStaticPostProcess object.
         """
         if config_:
             self.config = config_
@@ -414,34 +414,61 @@ if __name__ == "__main__":
         params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
         helpers.log_to_console("DEBUG", params)
 
-    if params and all([params[prm_key] for prm_key in ["archive_name","callback_deploy_url", "callback_deploy_url"]]):
-        archive_name = (
-            params["archive_name"][0]
-            if isinstance(params["archive_name"], list)
-            else params["archive_name"]+".zip"
-        )
+    archive_name = (
+        params["archive_name"][0]
+        if isinstance(params["archive_name"], list)
+        else params["archive_name"]
+    )
 
-        callback_home = (
-            params["callback_home"][0]
-            if isinstance(params["callback_home"], list)
-            else params["callback_home"]
-        )
+    callback_home = (
+        params["callback_home"][0]
+        if isinstance(params["callback_home"], list)
+        else params["callback_home"]
+    )
 
-        callback_deploy_url = (
-            params["callback_deploy_url"][0]
-            if isinstance(params["callback_deploy_url"], list)
-            else params["callback_deploy_url"]
-        )
+    callback_deploy_url = (
+        params["callback_deploy_url"][0]
+        if isinstance(params["callback_deploy_url"], list)
+        else params["callback_deploy_url"]
+    )
 
-        page_404 = "404-error"
-        page_redirect = "redirects"
-        page_robots = "robots"
-        page_search = "search"
+    page_404 = (
+        params["page_404"][0]
+        if isinstance(params["page_404"], list)
+        else params["page_404"]
+    )
 
-        wordpress_simply_static_zip_url = (
-            callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
-        )
+    page_redirects = (
+        params["page_redirects"][0]
+        if isinstance(params["page_redirects"], list)
+        else params["page_redirects"]
+    )
 
+    page_robots = (
+        params["page_robots"][0]
+        if isinstance(params["page_robots"], list)
+        else params["page_robots"]
+    )
+
+    page_search = (
+        params["page_search"][0]
+        if isinstance(params["page_search"], list)
+        else params["page_search"]
+    )
+
+    page_404 = page_404 if page_404 else "404-error"
+    page_redirects = page_redirects if page_redirects else "redirects"
+    page_robots = page_robots if page_robots else "robots"
+    page_search = page_search if page_search else "search"
+    archive_name = (
+        archive_name if archive_name.endswith(".zip") else archive_name + ".zip"
+    )
+
+    wordpress_simply_static_zip_url = (
+        callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
+    )
+
+    if wordpress_simply_static_zip_url:
         configurations = {
             "root": "",
             "callback_home": callback_home,
@@ -451,7 +478,7 @@ if __name__ == "__main__":
             "zip_file_name": "wordpress-simply-static.zip",
             "pages": {
                 "404": page_404,
-                "redirect": page_redirect,
+                "redirect": page_redirects,
                 "robots": page_robots,
                 "search": page_search,
             },
@@ -463,20 +490,21 @@ if __name__ == "__main__":
             },
         }
 
-        swpn = StaticWordPressNetlify(config_=configurations)
-        swpn.download_zip_file()
-        swpn.create_output_folder()
-        swpn.extract_zip_file()
-        swpn.fix_404_error_page()
-        swpn.fix_home_page()
-        swpn.build_search_index()
-        swpn.create_redirect_toml_file()
-        swpn.create_robots_txt()
+        helpers.log_to_console("DEBUG", configurations)
+        sspp = SimplyStaticPostProcess(config_=configurations)
+        sspp.download_zip_file()
+        sspp.create_output_folder()
+        sspp.extract_zip_file()
+        sspp.fix_404_error_page()
+        sspp.fix_home_page()
+        sspp.build_search_index()
+        sspp.create_redirect_toml_file()
+        sspp.create_robots_txt()
 
-        force_deploy = True  # TODO: Pass via simply-static-netlify-callback
+        force_deploy = True  # TODO: Pass via simply-static-github-callback
 
         if force_deploy:
-            swpn.clean_directory_check()
+            sspp.clean_directory_check()
 
     else:
         helpers.log_to_console("ERROR", "Zip File not avialable to deploy")
