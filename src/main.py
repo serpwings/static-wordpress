@@ -431,35 +431,40 @@ if __name__ == "__main__":
         if isinstance(params["callback_deploy_url"], list)
         else params["callback_deploy_url"]
     )
+    
+    page_404 = "404-error"
+    page_robots = "robots"
+    page_search = "search"
+    page_redirects = "redirects"
 
-    page_404 = (
-        params["page_404"][0]
-        if isinstance(params["page_404"], list)
-        else params["page_404"]
-    )
+    if "page_404" in params:
+        page_404 = (
+            params["page_404"][0]
+            if isinstance(params["page_404"], list)
+            else params["page_404"]
+        )
+        
+    if "page_redirects" in params: 
+        page_redirects = (
+            params["page_redirects"][0]
+            if isinstance(params["page_redirects"], list)
+            else params["page_redirects"]
+        )
 
-    page_redirects = (
-        params["page_redirects"][0]
-        if isinstance(params["page_redirects"], list)
-        else params["page_redirects"]
-    )
+    if "page_robots" in params: 
+        page_robots = (
+            params["page_robots"][0]
+            if isinstance(params["page_robots"], list)
+            else params["page_robots"]
+        )
 
-    page_robots = (
-        params["page_robots"][0]
-        if isinstance(params["page_robots"], list)
-        else params["page_robots"]
-    )
+    if "page_search" in params: 
+        page_search = (
+            params["page_search"][0]
+            if isinstance(params["page_search"], list)
+            else params["page_search"]
+        )
 
-    page_search = (
-        params["page_search"][0]
-        if isinstance(params["page_search"], list)
-        else params["page_search"]
-    )
-
-    page_404 = page_404 if page_404 else "404-error"
-    page_redirects = page_redirects if page_redirects else "redirects"
-    page_robots = page_robots if page_robots else "robots"
-    page_search = page_search if page_search else "search"
     archive_name = (
         archive_name if archive_name.endswith(".zip") else archive_name + ".zip"
     )
