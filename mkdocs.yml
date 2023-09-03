@@ -10,9 +10,6 @@ edit_uri: blob/main/docs/
 nav:
   - Home: index.md
   - Tutorial: tutorial.md
-  - API: 
-    - simply-static-netlify object: simply-static-netlify.md
-    - Helper Functions: helper-functions.md
 
 plugins:
   - search
