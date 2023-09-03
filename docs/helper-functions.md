@@ -1,4 +1,0 @@
-# Helper Functions
-
-::: src.helpers
-
