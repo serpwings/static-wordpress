@@ -1,7 +1,4 @@
-# Simply Static Post Process
-
-![Simply Static Post Process Workflow](img/simply-static-netlify-deploy-workflow.png)
-
+# Static WordPress
 
 A Python Library to prepare and deploy a static version of a WordPress Installation on Netlify (Static Hosting Service Provider). 
 
@@ -20,5 +17,5 @@ This work is a collaborative effort of [seowings](https://seowings.org/){:target
 
 ## LICENSE
 
-- Simply Static Netlify Process is released under [MIT License](https://github.com/serpwings/simply-static-post-process/blob/master/LICENSE). 
+- ``static-wordpress`` is released under [MIT License](https://github.com/serpwings/static-wordpress/blob/master/LICENSE). 
 - ``src\search.js`` is distributed without any additional licensing restrictions. Please consult ``src\search.js`` for more details.

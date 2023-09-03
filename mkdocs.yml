@@ -1,18 +1,14 @@
-site_name: simply-static-post-process
+site_name: static-wordpress
 site_description: Python Package to Create, Manipulate and Analyze Website Sitemaps
 site_author: SERP Wings
 
 site_url: https://simply-static.netlify.app
-
-repo_url: https://github.com/serpwings/simply-static-post-process
+repo_url: https://github.com/serpwings/static-wordpress
 edit_uri: blob/main/docs/
 
 nav:
   - Home: index.md
   - Tutorial: tutorial.md
-  - API: 
-    - simply-static-netlify object: simply-static-netlify.md
-    - Helper Functions: helper-functions.md
 
 plugins:
   - search
