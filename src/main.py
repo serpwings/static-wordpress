@@ -39,8 +39,8 @@ import codecs
 from pathlib import Path
 from zipfile import ZipFile
 import shutil
+import base64
 import json
-from urllib.parse import parse_qs
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORTS (3rd Party)
@@ -124,6 +124,8 @@ class SimplyStaticPostProcess:
         response = current_session.get(configurations["zip_url"], headers=headers)
 
         if response.status_code == 200:
+            import os
+
             with open(self.config["zip_file_name"], "wb") as fd:
                 for chunk in response.iter_content(chunk_size=128):
                     fd.write(chunk)
@@ -169,6 +171,18 @@ class SimplyStaticPostProcess:
 
         helpers.log_to_console("INFO", "Created robots.txt file")
 
+    def setup_output_folders(self) -> None:
+        # Copy all extract files/folders to output fold and delete the source
+        extracted_paths = glob.glob(
+            f"{self.output_folder}/**/{self.config['zip_file_name'].split('.zip')[0]}",
+            recursive=True,
+        )
+        if extracted_paths:
+            archive_ext_folder = Path(extracted_paths[0])
+            shutil.copytree(archive_ext_folder, self.output_folder, dirs_exist_ok=True)
+            zip_download_folder = archive_ext_folder.relative_to(self.output_folder)
+            shutil.rmtree(Path(f"{self.output_folder}/{zip_download_folder.parts[0]}"))
+
     def extract_zip_file(self):
         """Extract simply static zip file to ouput folder."""
         if self.output_folder.is_dir():
@@ -176,6 +190,7 @@ class SimplyStaticPostProcess:
             zf.extractall(self.output_folder)
             zf.close()
             helpers.log_to_console("INFO", "Zip File Extracted")
+            self.setup_output_folders()
         else:
             helpers.log_to_console("ERROR", "Cannot extract Zip File")
 
@@ -325,7 +340,6 @@ class SimplyStaticPostProcess:
             )
 
         except:
-
             helpers.log_to_console("ERROR", "Search Index not Generated")
 
     def clean_directory_check(self):
@@ -406,81 +420,37 @@ class SimplyStaticPostProcess:
 
 
 if __name__ == "__main__":
+    user_name = os.environ.get("user")
+    api_token = os.environ.get("token")
+    src_url = os.environ.get("src")
+    dst_url = os.environ.get("dst")
 
-    try:
-        params = json.loads(" ".join(sys.argv[1:]))
-        helpers.log_to_console("DEBUG-GH", params)
-    except:
-        params = parse_qs(os.environ.get("INCOMING_HOOK_BODY"))
-        helpers.log_to_console("DEBUG", params)
-
-    archive_name = (
-        params["archive_name"][0]
-        if isinstance(params["archive_name"], list)
-        else params["archive_name"]
-    )
-
-    callback_home = (
-        params["callback_home"][0]
-        if isinstance(params["callback_home"], list)
-        else params["callback_home"]
-    )
-
-    callback_deploy_url = (
-        params["callback_deploy_url"][0]
-        if isinstance(params["callback_deploy_url"], list)
-        else params["callback_deploy_url"]
-    )
-    
     page_404 = "404-error"
+    page_redirects = "redirect"
     page_robots = "robots"
     page_search = "search"
-    page_redirects = "redirects"
 
-    if "page_404" in params:
-        page_404 = (
-            params["page_404"][0]
-            if isinstance(params["page_404"], list)
-            else params["page_404"]
-        )
-        
-    if "page_redirects" in params: 
-        page_redirects = (
-            params["page_redirects"][0]
-            if isinstance(params["page_redirects"], list)
-            else params["page_redirects"]
-        )
+    wp_token = base64.b64encode(f"{user_name}:{api_token}".encode()).decode("utf-8")
+    ss_source = src_url + "/wp-json/simplystatic/v1/settings"
+    response = requests.get(ss_source, headers={"Authorization": "Basic " + wp_token})
 
-    if "page_robots" in params: 
-        page_robots = (
-            params["page_robots"][0]
-            if isinstance(params["page_robots"], list)
-            else params["page_robots"]
-        )
-
-    if "page_search" in params: 
-        page_search = (
-            params["page_search"][0]
-            if isinstance(params["page_search"], list)
-            else params["page_search"]
-        )
-
-    archive_name = (
-        archive_name if archive_name.endswith(".zip") else archive_name + ".zip"
-    )
-
+    ss_settings = json.loads(response.content)
+    archive_name = ss_settings["archive_name"]
     wordpress_simply_static_zip_url = (
-        callback_home + "/wp-content/plugins/simply-static/static-files/" + archive_name
+        src_url
+        + "/wp-content/uploads/simply-static/temp-files/"
+        + archive_name
+        + ".zip"
     )
 
     if wordpress_simply_static_zip_url:
         configurations = {
             "root": "",
-            "callback_home": callback_home,
-            "callback_deploy_url": callback_deploy_url,
+            "callback_home": src_url,
+            "callback_deploy_url": dst_url,
             "output_folder": "output",
             "zip_url": wordpress_simply_static_zip_url,
-            "zip_file_name": "wordpress-simply-static.zip",
+            "zip_file_name": archive_name + ".zip",
             "pages": {
                 "404": page_404,
                 "redirect": page_redirects,
