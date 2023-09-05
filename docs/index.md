@@ -2,8 +2,8 @@
 
 A Python Library to prepare and deploy a static version of a WordPress Installation on Netlify (Static Hosting Service Provider). 
 
-## How to Use simply-static-post-process?
-Please check our detailed tutorial (video/text) on [Simply Static Post Process Tutorial](https://www.seowings.org/simply-static-tutorial/){:target="_blank" rel="noopener"} to understand how it works. This package has a live documentation file on [documentation link](https://simply-static.netlify.app){:target="_blank" rel="noopener"}.
+## How to Use static-wordpress?
+Please check our detailed tutorial (video/text) on [Static WordPress Tutorial](https://www.seowings.org/simply-static-tutorial/){:target="_blank" rel="noopener"} to understand how it works. This package has a live documentation file on [documentation link](https://static-wordpress-docs.netlify.app/){:target="_blank" rel="noopener"}.
 
 ## Contributions
 

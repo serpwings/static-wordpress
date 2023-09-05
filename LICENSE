@@ -1,5 +1,5 @@
 Static Wordpress Netlify Process
-https://github.com/serpwings/simply-static-post-process
+https://github.com/serpwings/static-wordpress
 
 A Python Library to Prepare and Deploy Static version of WordPress Installation to
 Static Hosting Service Providrs (Netlify).

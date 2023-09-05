@@ -4,7 +4,7 @@ The original source code of this file is avialble at
 https://github.com/a-luna/aaronluna.dev/blob/master/static/js/search.js
 There is no lincense string attached with original file/repository. 
 
-simply-static-post-process (SERPWings) also do not claim any license of this file.
+static-wordpress (SERPWings) also do not claim any license of this file.
 Always check original source for updated Licensing information.
 */
 
