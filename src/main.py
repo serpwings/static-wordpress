@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*- #
 
 """
-Simply Static Post Process
-https://github.com/serpwings/simply-static-post-process
+Static WordPress
+https://github.com/serpwings/static-wordpress
 
 A Python Library to prepare and deploy static version of a WordPress Installation on any Static Web Hosting.
 

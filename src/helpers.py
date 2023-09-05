@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*- #
 
 """
-Simply Static Netlify Process
-https://github.com/serpwings/simply-static-post-process
+Static WordPress
+https://github.com/serpwings/static-wordpress
 
 A Python Library to prepare and deploy static version of a WordPress Installation on Netlify (Static Hosting Service Providers).
 
@@ -56,7 +56,7 @@ def log_to_console(typ="INFO", message=""):
 
 def update_links(content="", link_from="", link_to=""):
     """
-    Usefull for fixing schema or other links which simply static cannot fix.
+    Usefull for fixing schema or other links which Static-WordPress cannot fix.
 
     Args:
         content (str, required): Text which you want to update links e.g. Cotent on Home Page.
