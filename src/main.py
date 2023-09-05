@@ -41,6 +41,7 @@ from zipfile import ZipFile
 import shutil
 import base64
 import json
+import re
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORTS (3rd Party)
@@ -436,12 +437,28 @@ if __name__ == "__main__":
 
     ss_settings = json.loads(response.content)
     archive_name = ss_settings["archive_name"]
+
     wordpress_simply_static_zip_url = (
         src_url
         + "/wp-content/uploads/simply-static/temp-files/"
         + archive_name
         + ".zip"
     )
+
+    try:
+        link_regex = re.compile(
+            "((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)",
+            re.DOTALL,
+        )
+
+        for link in re.findall(
+            link_regex,
+            ss_settings["archive_status_messages"]["create_zip_archive"]["message"],
+        ):
+            wordpress_simply_static_zip_url = link[0].replace("\/", "/").split("?")[0]
+
+    except:
+        pass
 
     if wordpress_simply_static_zip_url:
         configurations = {
