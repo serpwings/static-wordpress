@@ -42,6 +42,7 @@ import shutil
 import base64
 import json
 import re
+from urllib import parse
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPORTS (3rd Party)
@@ -51,7 +52,6 @@ from bs4 import BeautifulSoup
 from bs4.formatter import HTMLFormatter
 import requests
 from requests.structures import CaseInsensitiveDict
-
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Local Imports
@@ -104,6 +104,7 @@ class SimplyStaticPostProcess:
             self.redirect_page = Path(
                 self.output_folder, self.config["pages"]["redirect"]
             )
+            self.all_redirects = self.config["pages"]["all-redirects"]
             self.robots_txt_page = Path(
                 self.output_folder, self.config["pages"]["robots"]
             )
@@ -412,6 +413,18 @@ class SimplyStaticPostProcess:
         else:
             helpers.log_to_console("WARNING", "No Redirect File found")
 
+        for redirect in self.all_redirects:
+            rules.append(
+                [
+                    f"[[redirects]]\n",
+                    f'from = "{redirect["from"]}"\n',
+                    f'to = "{redirect["to"]}"\n',
+                    f'status = {redirect["status"]}\n',
+                    "force = true\n",
+                    "\n",
+                ]
+            )
+
         netlify_toml_file = Path(self.output_folder, "netlify.toml")
 
         with open(netlify_toml_file, "w", encoding="utf-8") as f:
@@ -460,6 +473,28 @@ if __name__ == "__main__":
     except:
         pass
 
+    # redirects
+    all_redirects = []
+    try:
+        redirects_source = src_url + "/wp-json/redirection/v1/redirect"
+        red_response = requests.get(
+            redirects_source, headers={"Authorization": "Basic " + wp_token}
+        )
+
+        redirects_dict = json.loads(red_response.content)
+
+        all_redirects = [
+            {
+                "from": red["url"],
+                "to": red["action_data"]["url"],
+                "status": red["action_code"],
+                "force": True,
+            }
+            for red in redirects_dict["items"]
+        ]
+    except:
+        pass
+
     if wordpress_simply_static_zip_url:
         configurations = {
             "root": "",
@@ -473,6 +508,7 @@ if __name__ == "__main__":
                 "redirect": page_redirects,
                 "robots": page_robots,
                 "search": page_search,
+                "all-redirects": all_redirects,
             },
             "search": {
                 "title": "true",
