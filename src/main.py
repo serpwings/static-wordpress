@@ -440,7 +440,7 @@ if __name__ == "__main__":
     dst_url = os.environ.get("dst")
 
     page_404 = "404-error"
-    page_redirects = "redirect"
+    page_redirects = "redirects"
     page_robots = "robots"
     page_search = "search"
 
