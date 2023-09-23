@@ -17,5 +17,5 @@ This work is a collaborative effort of [seowings](https://seowings.org/){:target
 
 ## LICENSE
 
-- ``static-wordpress`` is released under [MIT License](https://github.com/serpwings/static-wordpress/blob/master/LICENSE). 
+- ``static-wordpress`` is released under [GPLv3+ License](https://github.com/serpwings/static-wordpress/blob/master/LICENSE). 
 - ``src\search.js`` is distributed without any additional licensing restrictions. Please consult ``src\search.js`` for more details.

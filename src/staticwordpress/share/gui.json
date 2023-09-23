@@ -1,0 +1,428 @@
+{
+    "MENUS": [
+        {
+            "name": "menu_file",
+            "text": "&File",
+            "enable": true,
+            "icon": "",
+            "parent": ""
+        },
+        {
+            "name": "menu_edit",
+            "text": "&Edit",
+            "enable": true,
+            "icon": "",
+            "parent": ""
+        },
+        {
+            "name": "menu_wordpress",
+            "text": "&WordPress",
+            "enable": false,
+            "icon": "",
+            "parent": ""
+        },
+        {
+            "name": "menu_github",
+            "text": "&GitHub",
+            "enable": false,
+            "icon": "",
+            "parent": ""
+        },
+        {
+            "name": "menu_github_repository",
+            "text": "&GitHub",
+            "enable": true,
+            "icon": "/icons/github.svg",
+            "parent": "menu_github"
+        },
+        {
+            "name": "menu_tools",
+            "text": "&Tools",
+            "enable": true,
+            "icon": "",
+            "parent": ""
+        },
+        {
+            "name": "menu_help",
+            "text": "&Help",
+            "enable": true,
+            "icon": "",
+            "parent": ""
+        }
+    ],
+    "TOOLBARS": [
+        {
+            "name": "toolbar_project",
+            "text": "Project",
+            "enable": true
+        },
+        {
+            "name": "toolbar_wordpres",
+            "text": "WordPress",
+            "enable": true
+        },
+        {
+            "name": "toolbar_github",
+            "text": "GitHub",
+            "enable": true
+        },
+        {
+            "name": "toolbar_edit",
+            "text": "Edit",
+            "enable": true
+        }
+    ],
+    "ACTIONS": [
+        {
+            "icon": "/icons/file-outline.svg",
+            "name": "action_file_project_new",
+            "visible": true,
+            "text": "&New Project",
+            "shortcut": "Ctrl+N",
+            "tooltip": "New Project (Ctrl+N)",
+            "function": "self.create_project",
+            "setCheckable": false,
+            "menu": "menu_file",
+            "seperator": false,
+            "toolbar": "toolbar_project"
+        },
+        {
+            "icon": "/icons/folder-outline.svg",
+            "name": "action_file_project_open",
+            "visible": true,
+            "text": "&Open Project",
+            "shortcut": "Ctrl+O",
+            "tooltip": "Open Project (Ctrl+O)",
+            "function": "self.open_project",
+            "setCheckable": false,
+            "menu": "menu_file",
+            "seperator": false,
+            "toolbar": "toolbar_project"
+        },
+        {
+            "icon": "/icons/content-save-outline.svg",
+            "name": "action_file_project_save",
+            "visible": true,
+            "text": "&Save Project",
+            "shortcut": "Ctrl+S",
+            "tooltip": "Save Project (Ctrl+S)",
+            "function": "self.save_project",
+            "setCheckable": false,
+            "menu": "menu_file",
+            "seperator": false,
+            "toolbar": "toolbar_project"
+        },
+        {
+            "icon": "/icons/file-document-remove-outline.svg",
+            "name": "action_file_project_close",
+            "visible": true,
+            "text": "&Close Project",
+            "shortcut": "Ctrl+X",
+            "tooltip": "Close Project (Ctrl+X)",
+            "function": "self.close_project",
+            "setCheckable": false,
+            "menu": "menu_file",
+            "seperator": true,
+            "toolbar": "toolbar_project"
+        },
+        {
+            "icon": "/icons/exit-to-app.svg",
+            "name": "action_file_exit",
+            "visible": true,
+            "text": "&Exit",
+            "shortcut": "Ctrl+Q",
+            "tooltip": "Exit (Ctrl+Q)",
+            "function": "self.close",
+            "setCheckable": false,
+            "menu": "menu_file",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/bug-outline.svg",
+            "name": "action_edit_debug",
+            "visible": true,
+            "text": "&Debug",
+            "shortcut": "F5",
+            "tooltip": "Debug (F5)",
+            "function": "self.set_debug_mode",
+            "setCheckable": true,
+            "menu": "menu_edit",
+            "seperator": false,
+            "toolbar": "toolbar_edit"
+        },
+        {
+            "icon": "/icons/person.svg",
+            "name": "action_edit_expert_mode",
+            "visible": true,
+            "text": "&Expert Mode",
+            "shortcut": "F8",
+            "tooltip": "Expert Mode (F8)",
+            "function": "self.set_expert_mode",
+            "setCheckable": true,
+            "menu": "menu_edit",
+            "seperator": false,
+            "toolbar": "toolbar_edit"
+        },
+        {
+            "icon": "/icons/configs.svg",
+            "name": "action_file_project_close",
+            "visible": true,
+            "text": "&Configurations",
+            "shortcut": "F12",
+            "tooltip": "Show Configurations (F12)",
+            "function": "self.show_configs",
+            "setCheckable": false,
+            "menu": "menu_edit",
+            "seperator": true,
+            "toolbar": "toolbar_edit"
+        },
+        {
+            "icon": "/icons/play.svg",
+            "name": "action_wordpress_batch_processing",
+            "visible": true,
+            "text": "Start &Batch Process",
+            "shortcut": "Ctrl+F6",
+            "tooltip": "Start Batch Process (Ctrl+F6)",
+            "function": "self.start_batch_process",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "seperator": false,
+            "toolbar": "toolbar_wordpres"
+        },
+        {
+            "icon": "/icons/stop.svg",
+            "name": "action_wordpress_stop_processing",
+            "visible": true,
+            "text": "&Stop Process",
+            "shortcut": "Ctrl+F7",
+            "tooltip": "Stop Current Process (Ctrl+F7)",
+            "seperator": false,
+            "function": "self.stop_process",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": "toolbar_wordpres"
+        },
+        {
+            "icon": "/icons/crawl_website.svg",
+            "name": "action_wordpress_webpages",
+            "visible": false,
+            "text": "&Crawl Webpages",
+            "shortcut": "Ctrl+1 (Ctrl+1)",
+            "tooltip": "Crawl Webpages",
+            "seperator": false,
+            "function": "self.crawl_website",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/additionals.svg",
+            "name": "action_wordpress_additional_files",
+            "visible": false,
+            "text": "Crawl &Additional Files",
+            "shortcut": "Ctrl+2",
+            "tooltip": "Crawl Additional Files (Ctrl+2)",
+            "seperator": false,
+            "function": "self.crawl_additional_files",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/search.svg",
+            "name": "action_wordpress_search_index",
+            "visible": false,
+            "text": "Prepare &Search Index",
+            "shortcut": "Ctrl+3",
+            "tooltip": "Prepare Search Index (Ctrl+3)",
+            "seperator": false,
+            "function": "self.create_search_index",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/error.svg",
+            "name": "action_wordpress_404_page",
+            "visible": false,
+            "text": "Create &404 Page",
+            "shortcut": "Ctrl+4",
+            "tooltip": "Create 404 Page (Ctrl+4)",
+            "seperator": false,
+            "function": "self.create_404_page",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/redirects.svg",
+            "name": "action_wordpress_redirects",
+            "visible": false,
+            "text": "Create &Redirects",
+            "shortcut": "Ctrl+5",
+            "tooltip": "Create Redirects (Ctrl+5)",
+            "seperator": false,
+            "function": "self.create_redirects",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/robots_txt.svg",
+            "name": "action_wordpress_robots_txt",
+            "visible": false,
+            "text": "Create Robots.&txt",
+            "shortcut": "Ctrl+6",
+            "tooltip": "Copy Robots.txt File (Ctrl+6)",
+            "seperator": false,
+            "function": "self.create_robots_txt",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/pencil-outline.svg",
+            "name": "action_github_create_repositoy",
+            "visible": true,
+            "text": "&Create on GitHub",
+            "shortcut": "Ctrl+F9",
+            "tooltip": "Create GitHub Repository (Ctrl+F9)",
+            "function": "self.create_github_repositoy",
+            "setCheckable": false,
+            "menu": "menu_github_repository",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/delete-repo.svg",
+            "name": "action_github_delete_repositoy",
+            "visible": true,
+            "text": "&Delete from GitHub",
+            "shortcut": "Ctrl+Shift+F9",
+            "tooltip": "Delete Repository on GitHub (Ctrl+Shit+F9)",
+            "function": "self.delete_github_repository",
+            "setCheckable": false,
+            "menu": "menu_github_repository",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/folder-git.svg",
+            "name": "action_github_initialize_repositoy",
+            "visible": true,
+            "text": "&Initialize Website",
+            "shortcut": "Ctrl+F10",
+            "tooltip": "Initialize Website (Ctrl+F10)",
+            "function": "self.initialize_repository",
+            "setCheckable": false,
+            "menu": "menu_github",
+            "seperator": false,
+            "toolbar": "toolbar_github"
+        },
+        {
+            "icon": "/icons/playlist-plus.svg",
+            "name": "action_github_commit_repositoy",
+            "visible": true,
+            "text": "&Update Content",
+            "shortcut": "Ctrl+F11",
+            "tooltip": "Update Content (Ctrl+F11)",
+            "function": "self.commit_repository",
+            "setCheckable": false,
+            "menu": "menu_github",
+            "seperator": false,
+            "toolbar": "toolbar_github"
+        },
+        {
+            "icon": "/icons/cloud-upload-outline.svg",
+            "name": "action_github_publish_repositoy",
+            "visible": true,
+            "text": "&Publish Website",
+            "shortcut": "Ctrl+F12",
+            "tooltip": "Publish Website (Ctrl+F12)",
+            "function": "self.publish_repository",
+            "setCheckable": false,
+            "menu": "menu_github",
+            "seperator": false,
+            "toolbar": "toolbar_github"
+        },
+        {
+            "icon": "/icons/web-remove.svg",
+            "name": "action_utilities_clear_cache",
+            "visible": true,
+            "text": "C&lear Cache",
+            "shortcut": "Ctrl+F2",
+            "tooltip": "Clear Cache  (Ctrl+F2)",
+            "seperator": false,
+            "function": "self.clear_cache",
+            "setCheckable": false,
+            "menu": "menu_tools",
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/check_project.svg",
+            "name": "action_file_check_project",
+            "visible": true,
+            "text": "&Check Project",
+            "shortcut": "Ctrl+F3",
+            "tooltip": "Check Project (Ctrl+F3)",
+            "function": "self.check_project",
+            "setCheckable": false,
+            "menu": "menu_tools",
+            "seperator": false,
+            "toolbar": false
+        },
+        {
+            "icon": "/icons/text-recognition.svg",
+            "name": "action_utilities_extract_url_from_raw_text",
+            "visible": true,
+            "text": "&Extract Urls From Text",
+            "shortcut": "Ctrl+F4",
+            "tooltip": "Extract Urls From Text  (Ctrl+F4)",
+            "function": "self.extract_url_from_raw_text",
+            "setCheckable": false,
+            "menu": "menu_tools",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/delete-outline.svg",
+            "name": "action_utilities_clean_output_folder",
+            "visible": true,
+            "text": "Clean &Output Directory",
+            "shortcut": "Ctrl+F5",
+            "tooltip": "Clean output directory (Ctrl+F5)",
+            "function": "self.clean_output_directory",
+            "setCheckable": false,
+            "menu": "menu_tools",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/help-box-outline.svg",
+            "name": "action_help_help",
+            "visible": true,
+            "text": "&Help",
+            "shortcut": "F1",
+            "tooltip": "Help",
+            "function": "self.help",
+            "setCheckable": false,
+            "menu": "menu_help",
+            "seperator": false,
+            "toolbar": ""
+        },
+        {
+            "icon": "/icons/information-variant.svg",
+            "name": "action_help_about",
+            "visible": true,
+            "text": "&About",
+            "shortcut": "Ctrl+F1",
+            "tooltip": "About",
+            "function": "self.about",
+            "setCheckable": false,
+            "menu": "menu_help",
+            "seperator": true,
+            "toolbar": ""
+        }
+    ]
+}

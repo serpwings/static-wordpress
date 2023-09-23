@@ -1,9 +1,10 @@
-site_name: static-wordpress
+site_name: staticwordpress
 site_description: Python Package to Create, Manipulate and Analyze Website Sitemaps
 site_author: SERP Wings
 
-site_url: https://simply-static.netlify.app
-repo_url: https://github.com/serpwings/static-wordpress
+site_url: https://static-wordpress-docs.netlify.app/
+
+repo_url: https://github.com/serpwings/staticwordpress
 edit_uri: blob/main/docs/
 
 nav:
