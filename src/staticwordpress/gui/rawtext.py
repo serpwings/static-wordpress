@@ -66,15 +66,19 @@ class RawTextWidget(QDialog):
         form_layout_raw_text.addRow(QLabel("Search Url:"), self.lineedit_dest_url)
         form_layout_raw_text.addRow(QLabel("Replace Url:"), self.linedit_src_url)
 
-        dialog_button_box = QDialogButtonBox(
+        button_box_dialog = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
-        dialog_button_box.accepted.connect(self.accept)
-        dialog_button_box.rejected.connect(self.reject)
+
+        pushbutton_ok_cancel = button_box_dialog.buttons()
+        pushbutton_ok_cancel[0].setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        pushbutton_ok_cancel[1].setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+        button_box_dialog.accepted.connect(self.accept)
+        button_box_dialog.rejected.connect(self.reject)
 
         vertical_layout_main = QVBoxLayout()
         vertical_layout_main.addLayout(form_layout_raw_text)
-        vertical_layout_main.addWidget(dialog_button_box)
+        vertical_layout_main.addWidget(button_box_dialog)
         self.setLayout(vertical_layout_main)
         self.setMinimumWidth(400)
         self.setWindowTitle("Processing Raw Text")
