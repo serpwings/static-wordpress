@@ -51,26 +51,6 @@ swp.add_search()
 
 Detailed documentation of all features is available at [staticwordpress documentation](https://static-wordpress-docs.netlify.app/).
 
-## TODO:
-
-Following tasks need attention. This list is without any priority.
-
-- Base Package
-    - Translations
-    - Redirects
-        - Vercel
-        - Cloudflare Pages
-        - others.  
-    - 3rd Party Crawlers
-        - Process Folder data e.g. Simply Static
-    - Search
-        - Use Builint Interace
-        - Results for paramterized urls
-- Dcoumentation
-- GUI
-    - Recent Projects
-    - Improve Progressbar
-    
 ## Contribute
 
 Pull Requests, Feature Suggestions, and collaborations are welcome.
