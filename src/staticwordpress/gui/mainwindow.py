@@ -557,7 +557,7 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.setText(
             f"Copyright {date.today().year} - SERP Wings"
             f"<br><br>{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
-            "<br><br>This work is an opensource project under GNU General Public License v3 or later (GPLv3+)"
+            "<br><br>This work is an opensource project under <br>GNU General Public License v3 or later (GPLv3+)"
             f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>"
         )
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))

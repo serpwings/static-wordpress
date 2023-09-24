@@ -57,7 +57,6 @@ from PyQt5.QtGui import QPaintEvent, QIcon
 
 from ..core.constants import (
     LANGUAGES,
-    HOST,
     REDIRECTS,
     USER_AGENT,
     CONFIGS,
@@ -344,20 +343,23 @@ class ConfigWidget(QDialog):
         self.tab_robots_txt.setLayout(vbox_layout_robots_format)
         self.tabswidget_configs.addTab(self.tab_robots_txt, "Robots.txt")
 
-        dialog_button_box = QDialogButtonBox(
+        button_box_dialog = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
-        dialog_button_box.accepted.connect(self.accept)
-        dialog_button_box.rejected.connect(self.reject)
+        pushbutton_ok_cancel = button_box_dialog.buttons()
+        pushbutton_ok_cancel[0].setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        pushbutton_ok_cancel[1].setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+        button_box_dialog.accepted.connect(self.accept)
+        button_box_dialog.rejected.connect(self.reject)
 
         self.layout = QVBoxLayout(self)
         self.layout.setSpacing(3)
         self.layout.setContentsMargins(1, 3, 3, 3)
 
         self.layout.addWidget(self.tabswidget_configs)
-        self.layout.addWidget(dialog_button_box)
+        self.layout.addWidget(button_box_dialog)
         self.setLayout(self.layout)
-        self.setFixedSize(QSize(620, 480))
+        self.setFixedWidth(620)
         self.setWindowTitle("Default Configurations")
         self.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
 
