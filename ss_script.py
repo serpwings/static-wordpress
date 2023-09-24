@@ -28,6 +28,7 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import os
+from pathlib import Path
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # INTERNAL IMPORTS
@@ -51,8 +52,8 @@ if __name__ == "__main__":
     env_search = os.environ.get("search") if os.environ.get("search") else "search"
     env_output = os.environ.get("output") if os.environ.get("output") else "output"
 
-    if not os.path.exists(env_output):
-        os.mkdir(env_output)
+    # create output path if not exists
+    Path(env_output).mkdir(parents=True, exist_ok=True)
 
     ss_zip_obj = Workflow()
     ss_zip_obj.create_project(
