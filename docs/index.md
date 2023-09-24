@@ -7,8 +7,7 @@ Python Package for Converting WordPress Installation to a Static Website.
 
 ### Windows Installer
 
-We provide an ``exe`` file of ``staticwordpress`` for the convenice of users. Please download the latest version from [release section](https://github.com/serpwings/staticwordpress/releases).
-
+We provide an ``exe`` file of ``staticwordpress`` for the convenice of users. Please download the latest version from [release section](https://github.com/serpwings/static-wordpress/releases).
 
 ### Source Code
 
