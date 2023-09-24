@@ -124,7 +124,7 @@ setup(
         ],
     },
     classifiers=[
-        "Development Status : 2 - Pre-Alpha",
+        "Development Status :: 1 - Planning",
         "Environment :: Console",
         "Environment :: X11 Applications",
         "Intended Audience :: Developers",
