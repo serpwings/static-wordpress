@@ -75,6 +75,10 @@ Following tasks need attention. This list is without any priority.
 
 Pull Requests, Feature Suggestions, and collaborations are welcome.
 
+## ICONS
+
+Icons used in this project are obtained from Google [Fonts Material Symbols](https://fonts.google.com/icons?selected=Material+Symbols+Outlined:search:FILL@0;wght@400;GRAD@0;opsz@24) 
+
 ## About Us
 
 This work is a collaborative effort of [seowings](https://www.seowings.org/), and [serpwings](https://serpwings.com/).

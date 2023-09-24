@@ -5,7 +5,7 @@ STATIC WORDPRESS: WordPress as Static Site Generator
 A Python Package for Converting WordPress Installation to a Static Website
 https://github.com/serpwings/staticwordpress
 
-    src\staticwordpress\cli\__init__.py
+    src/staticwordpress/cli/__init__.py
     
     Copyright (C) 2020-2023 Faisal Shahzad <info@serpwings.com>
 
