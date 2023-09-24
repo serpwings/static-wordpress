@@ -93,7 +93,7 @@ setup(
     author="Faisal Shahzad",
     author_email="info@serpwings.com",
     url="https://github.com/serpwings/staticwordpress",
-    download_url="https://github.com/serpwings/staticwordpress/archive/v%s.tar.gz"
+    download_url="https://github.com/serpwings/staticwordpress/releases/v%s.tar.gz"
     % __version__,
     license="GPLv3+",
     keywords=[
