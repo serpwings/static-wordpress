@@ -4,7 +4,7 @@ site_author: SERP Wings
 
 site_url: https://static-wordpress-docs.netlify.app/
 
-repo_url: https://github.com/serpwings/staticwordpress
+repo_url: https://github.com/serpwings/static-wordpress
 edit_uri: blob/main/docs/
 
 nav:
