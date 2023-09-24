@@ -43,13 +43,23 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#how-to-use-static-wordpress">How to Use static-wordpress?</a>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to-install-staticwordpress">How to Install staticwordpress?</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#windows-installer">Windows Installer</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#contributions">Contributions</a>
+    <li class="toctree-l3"><a class="reference internal" href="#source-code">Source Code</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#development">Development</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#todo">TODO:</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contribute">Contribute</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#about-us">About Us</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#license">LICENSE</a>
     </li>
     </ul>
                 </li>
@@ -82,19 +92,79 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="static-wordpress">Static WordPress<a class="headerlink" href="#static-wordpress" title="Permanent link">&para;</a></h1>
-<p>A Python Library to prepare and deploy a static version of a WordPress Installation on Netlify (Static Hosting Service Provider). </p>
-<h2 id="how-to-use-static-wordpress">How to Use static-wordpress?<a class="headerlink" href="#how-to-use-static-wordpress" title="Permanent link">&para;</a></h2>
-<p>Please check our detailed tutorial (video/text) on <a href="https://www.seowings.org/simply-static-tutorial/" rel="noopener" target="_blank">Static WordPress Tutorial</a> to understand how it works. This package has a live documentation file on <a href="https://static-wordpress-docs.netlify.app/" rel="noopener" target="_blank">documentation link</a>.</p>
-<h2 id="contributions">Contributions<a class="headerlink" href="#contributions" title="Permanent link">&para;</a></h2>
-<p>Contributions, suggestions, and comments are welcome. Please fork the repository and submit a pull request.</p>
-<h2 id="about-us">About Us<a class="headerlink" href="#about-us" title="Permanent link">&para;</a></h2>
-<p>This work is a collaborative effort of <a href="https://seowings.org/" rel="noopener" target="_blank">seowings</a> and <a href="https://serpwings.com/" rel="noopener" target="_blank">serpwings</a>.</p>
-<h2 id="license">LICENSE<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+                <h1 id="staticwordpress">staticwordpress<a class="headerlink" href="#staticwordpress" title="Permanent link">&para;</a></h1>
+<p>Python Package for Converting WordPress Installation to a Static Website.</p>
+<h2 id="how-to-install-staticwordpress">How to Install staticwordpress?<a class="headerlink" href="#how-to-install-staticwordpress" title="Permanent link">&para;</a></h2>
+<h3 id="windows-installer">Windows Installer<a class="headerlink" href="#windows-installer" title="Permanent link">&para;</a></h3>
+<p>We provide an <code>exe</code> file of <code>staticwordpress</code> for the convenice of users. Please download the latest version from <a href="https://github.com/serpwings/staticwordpress/releases">release section</a>.</p>
+<h3 id="source-code">Source Code<a class="headerlink" href="#source-code" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>static-wordpress</code> is released under <a href="https://github.com/serpwings/static-wordpress/blob/master/LICENSE">GPLv3+ License</a>. </li>
-<li><code>src\search.js</code> is distributed without any additional licensing restrictions. Please consult <code>src\search.js</code> for more details.</li>
+<li>Clone or download this repository to your computer.</li>
+<li>Create a virtual environment using <code>python -m .venv venv</code></li>
+<li>Navigate to the downloaded directory and then install all required dependencies using <code>pip install -e .</code></li>
+<li>Once all dependencies are met, then start <strong>staticwordpress</strong> by typing <code>staticwordpress</code> on commandline.</li>
 </ul>
+<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
+<p>This package is available at <code>pypi</code> and you can install it with <code>pip install staticwordpress</code> command. It will also install required additional libraries/Python Packages automatically.</p>
+<p>Once installed, you can implement customized workflows. Here is an example of post processing simply-static-zip file. </p>
+<pre class="codehilite"><code class="language-python">from staticwordpress.core.workflow import Workflow
+from staticwordpress.core.constants import SOURCE, HOST
+
+swp = Workflow()
+swp.create_project(
+        project_name_=&quot;simply-static-zip-deploy&quot;,
+        wp_user_=env_wp_user, # your wordpress username
+        wp_api_token_=env_wp_api_token, # wordpress xml api token
+        src_url_=env_src_url, # source url where WordPress is hosted
+        dst_url_=env_dst_url, # destination url where you want to host Static version
+        output_folder_=env_output, # Output folder location, where all post processed files will be saved
+        src_type_=SOURCE.ZIP, # Data Source, ZIP works perfectly right with Simply Static WordPress Plugin
+        host_type_=HOST.NETLIFY, # Host, where you want to deplyo your website.
+    )
+
+swp.download_zip_file()
+swp.setup_zip_folders()
+swp.add_404_page()
+swp.add_robots_txt()
+swp.add_redirects()
+swp.add_search()
+</code></pre>
+
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<p>Detailed documentation of all features is available at <a href="https://serpwings.com/static-wordpress/">staticwordpress documentation</a>.</p>
+<h2 id="todo">TODO:<a class="headerlink" href="#todo" title="Permanent link">&para;</a></h2>
+<p>Following tasks need attention. This list is without any priority.</p>
+<ul>
+<li>Base Package<ul>
+<li>Translations</li>
+<li>Redirects<ul>
+<li>Vercel</li>
+<li>Cloudflare Pages</li>
+<li>others.  </li>
+</ul>
+</li>
+<li>3rd Party Crawlers<ul>
+<li>Process Folder data e.g. Simply Static</li>
+</ul>
+</li>
+<li>Search<ul>
+<li>Use Builint Interace</li>
+<li>Results for paramterized urls</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Dcoumentation</li>
+<li>GUI<ul>
+<li>Recent Projects</li>
+<li>Improve Progressbar</li>
+</ul>
+</li>
+</ul>
+<h2 id="contribute">Contribute<a class="headerlink" href="#contribute" title="Permanent link">&para;</a></h2>
+<p>Pull Requests, Feature Suggestions, and collaborations are welcome.</p>
+<h2 id="about-us">About Us<a class="headerlink" href="#about-us" title="Permanent link">&para;</a></h2>
+<p>This work is a collaborative effort of <a href="https://www.seowings.org/">seowings</a>, and <a href="https://serpwings.com/">serpwings</a>.</p>
               
             </div>
           </div><footer>
@@ -148,5 +218,5 @@
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2023-09-24 00:44:44.188968+00:00
+Build Date UTC : 2023-09-24 01:02:15.615054+00:00
 -->
