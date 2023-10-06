@@ -29,8 +29,17 @@ This package is available at ``pypi`` and you can install it with ``pip install 
 Once installed, you can implement customized workflows. Here is an example of post processing simply-static-zip file. 
 
 ```python
+import logging
+
 from staticwordpress.core.workflow import Workflow
 from staticwordpress.core.constants import SOURCE, HOST
+
+# enable logging for all functions.
+logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG,
+        stream=sys.stdout,
+)
 
 swp = Workflow()
 swp.create_project(
