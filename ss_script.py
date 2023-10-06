@@ -28,7 +28,9 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import os
+import sys
 from pathlib import Path
+import logging
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # INTERNAL IMPORTS
@@ -38,6 +40,12 @@ from src.staticwordpress.core.workflow import Workflow
 from src.staticwordpress.core.constants import SOURCE, HOST
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG,
+        stream=sys.stdout,
+    )
+
     env_wp_user = os.environ.get("user")
     env_wp_api_token = os.environ.get("token")
     env_src_url = os.environ.get("src")
@@ -73,5 +81,5 @@ if __name__ == "__main__":
     ss_zip_obj.setup_zip_folders()
     ss_zip_obj.add_404_page()
     ss_zip_obj.add_robots_txt()
-    # ss_zip_obj.add_redirects() # temporarily disabled redirects #39
+    ss_zip_obj.add_redirects()
     ss_zip_obj.add_search()
