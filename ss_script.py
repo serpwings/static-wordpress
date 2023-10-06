@@ -73,5 +73,5 @@ if __name__ == "__main__":
     ss_zip_obj.setup_zip_folders()
     ss_zip_obj.add_404_page()
     ss_zip_obj.add_robots_txt()
-    ss_zip_obj.add_redirects()
+    # ss_zip_obj.add_redirects() # temporarily disabled redirects #39
     ss_zip_obj.add_search()
