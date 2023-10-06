@@ -30,12 +30,14 @@ specific language governing rights and limitations under the License.
 import json
 import requests
 import hashlib
+import logging
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 from .constants import HOST, REDIRECTS
+from .errors import SerpWingsResponseNotValid
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -83,8 +85,8 @@ class Redirects:
         pass
 
     def add_redirects(self, redirects_list_: list) -> None:
-        for redirect in redirects_list_:
-            self.add_redirect(redirect)
+        for redirect_ in redirects_list_:
+            self.add_redirect(redirect_)
 
     def save(self, output_file_, host_: HOST) -> None:
         with open(
@@ -98,25 +100,34 @@ class Redirects:
                 else:
                     f.write(redirect.as_line(True))
 
-    def get_from_plugin(self, redirects_api_path: str, wp_auth_token_: str):
-        red_response = requests.get(
-            redirects_api_path, headers={"Authorization": "Basic " + wp_auth_token_}
-        )
-
-        redirects_dict = json.loads(red_response.content)
-        for red in redirects_dict["items"]:
-            self.add_redirect(
-                redirect_=Redirect(
-                    from_=red["url"],
-                    to_=red["action_data"]["url"],
-                    status=red["action_code"],
-                    query_=None,
-                    force_=True,
-                    source_=REDIRECTS.REDIRECTION.value,
-                )
+    def get_from_plugin(self, redirects_api_path: str, wp_auth_token_: str) -> None:
+        try:
+            wp_api_response = requests.get(
+                redirects_api_path, headers={"Authorization": "Basic " + wp_auth_token_}
             )
 
-    def add_search(self, search_page: str):
+            if wp_api_response.status_code >= 400:
+                raise SerpWingsResponseNotValid
+
+            redirects_as_dict = json.loads(wp_api_response.content)
+
+            for redirect_ in redirects_as_dict["items"]:
+                self.add_redirect(
+                    redirect_=Redirect(
+                        from_=redirect_["url"],
+                        to_=redirect_["action_data"]["url"],
+                        status=redirect_["action_code"],
+                        query_=None,
+                        force_=True,
+                        source_=REDIRECTS.REDIRECTION.value,
+                    )
+                )
+        except SerpWingsResponseNotValid:
+            logging.info(
+                f"Redirects are not valid. Make sure that redirection plug is properly configured."
+            )
+
+    def add_search(self, search_page: str) -> None:
         self.add_redirect(
             Redirect(
                 from_="/*",
