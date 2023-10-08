@@ -30,6 +30,7 @@ specific language governing rights and limitations under the License.
 import sys
 import logging
 import os
+import shutil
 from pathlib import Path
 from datetime import date
 
@@ -39,21 +40,12 @@ from datetime import date
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 from PyQt5.QtWidgets import (
-    QLabel,
     QLineEdit,
     QMainWindow,
-    QTextEdit,
-    QVBoxLayout,
-    QHBoxLayout,
-    QToolButton,
     QAction,
     QApplication,
-    QDockWidget,
-    QWidget,
     QFileDialog,
     QMessageBox,
-    QComboBox,
-    QFormLayout,
     QProgressBar,
     QMenu,
     QToolBar,
@@ -69,13 +61,8 @@ from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl
 from ..core.constants import (
     VERISON,
     CONFIGS,
-    ENUMS_MAP,
     SHARE_FOLDER_PATH,
-    HOST,
-    REDIRECTS,
-    PROJECT,
     SOURCE,
-    USER_AGENT,
 )
 from ..core.project import Project
 from ..core.utils import (
@@ -85,9 +72,10 @@ from ..core.utils import (
 )
 from .workflow import WorkflowGUI
 from ..gui.logger import LoggerWidget
-from ..gui.rawtext import RawTextWidget
-from ..gui.config import ConfigWidget
-from ..gui.utils import logging_decorator, GUI_SETTINGS
+from ..gui.rawtext import RawTextDialog
+from ..gui.config import ConfigDialog
+from ..gui.project import ProjectDialog
+from ..gui.utils import GUI_SETTINGS, logging_decorator
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -100,214 +88,10 @@ class StaticWordPressGUI(QMainWindow):
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
-        self.appConfigurations.setValue("icon_path", SHARE_FOLDER_PATH)
 
         self._project = Project()
         self._bg_thread = QThread(parent=self)
         self._bg_worker = WorkflowGUI()
-
-        self.docked_widget_project_properties = QDockWidget("Project Properties", self)
-        self.docked_widget_project_properties.setMinimumSize(QSize(400, 100))
-
-        widget_project_properties = QWidget()
-        form_layout_project_properties = QFormLayout()
-
-        self.lineedit_project_name = QLineEdit()
-        self.lineedit_project_name.setObjectName("name")
-        self.lineedit_project_name.textChanged.connect(self.update_windows_title)
-        form_layout_project_properties.addRow(
-            QLabel("Project Name:"), self.lineedit_project_name
-        )
-
-        horizontal_Layout_project_scource = QHBoxLayout()
-        self.combobox_source_type = QComboBox()
-        self.combobox_source_type.setObjectName("source")
-        self.combobox_source_type.currentTextChanged.connect(self.update_windows_title)
-        self.combobox_source_type.setMinimumWidth(120)
-        self.combobox_source_type.addItems([item.value for item in list(SOURCE)])
-        horizontal_Layout_project_scource.addWidget(self.combobox_source_type)
-        horizontal_Layout_project_scource.addStretch()
-        self.combobox_user_agent = QComboBox()
-        self.combobox_user_agent.setObjectName("user-agent")
-        self.combobox_user_agent.setMinimumWidth(120)
-        self.combobox_user_agent.addItems([item.value for item in list(USER_AGENT)])
-        self.combobox_user_agent.currentTextChanged.connect(self.update_windows_title)
-        horizontal_Layout_project_scource.addWidget(QLabel("User Agent"))
-        horizontal_Layout_project_scource.addWidget(self.combobox_user_agent)
-        form_layout_project_properties.addRow(
-            QLabel("Project Source"), horizontal_Layout_project_scource
-        )
-        self.lineedit_src_url = QLineEdit()
-        self.lineedit_src_url.setObjectName("src-url")
-        self.lineedit_src_url.textChanged.connect(self.update_windows_title)
-        form_layout_project_properties.addRow(
-            QLabel("Source Url"), self.lineedit_src_url
-        )
-        self.combobox_project_destination = QComboBox()
-        self.combobox_project_destination.setObjectName("host")
-        self.combobox_project_destination.currentTextChanged.connect(
-            self.update_windows_title
-        )
-
-        self.combobox_project_destination.addItems([item.value for item in list(HOST)])
-        form_layout_project_properties.addRow(
-            QLabel("Destination Host"), self.combobox_project_destination
-        )
-
-        self.lineedit_dest_url = QLineEdit()
-        self.lineedit_dest_url.setObjectName("dst-url")
-        self.lineedit_dest_url.textChanged.connect(self.update_windows_title)
-        form_layout_project_properties.addRow(
-            QLabel("Destination Url"), self.lineedit_dest_url
-        )
-
-        horizontal_Layout_output_directory = QHBoxLayout()
-        self.lineedit_output = QLineEdit()
-        self.lineedit_output.setObjectName("output")
-        self.lineedit_output.textChanged.connect(self.update_windows_title)
-        self.toolbutton_output_directory = QToolButton()
-        self.toolbutton_output_directory.setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/three-dots.svg")
-        )
-        horizontal_Layout_output_directory.addWidget(self.lineedit_output)
-        horizontal_Layout_output_directory.addWidget(self.toolbutton_output_directory)
-        self.toolbutton_output_directory.clicked.connect(self.get_output_directory)
-        form_layout_project_properties.addRow(
-            QLabel("Output Directory"), horizontal_Layout_output_directory
-        )
-
-        vertical_layout_additional_properties = QVBoxLayout()
-        vertical_layout_additional_properties.addLayout(form_layout_project_properties)
-        widget_project_properties.setLayout(vertical_layout_additional_properties)
-        self.docked_widget_project_properties.setWidget(widget_project_properties)
-        self.docked_widget_project_properties.setFeatures(
-            QDockWidget.NoDockWidgetFeatures
-        )
-
-        self.docked_widget_project_properties.setMaximumHeight(200)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.docked_widget_project_properties)
-
-        # =============================
-        # Github Properties dock
-        # =============================
-        self.docked_widget_github_properties = QDockWidget("Github Setttings", self)
-        self.docked_widget_github_properties.setMaximumHeight(100)
-
-        widget_github_properties = QWidget()
-        form_layout_github_properties = QFormLayout()
-
-        self.lineedit_gh_repo = QLineEdit()
-        self.lineedit_gh_repo.setObjectName("github-repository")
-        self.lineedit_gh_repo.textChanged.connect(self.update_windows_title)
-        form_layout_github_properties.addRow(
-            QLabel("Repository Name"), self.lineedit_gh_repo
-        )
-        self.lineedit_gh_token = QLineEdit()
-        self.lineedit_gh_token.setObjectName("github-token")
-        self.lineedit_gh_token.textChanged.connect(self.update_windows_title)
-        form_layout_github_properties.addRow(
-            QLabel("GitHub Token"), self.lineedit_gh_token
-        )
-
-        vertical_layout_github_properties = QVBoxLayout()
-        vertical_layout_github_properties.addLayout(form_layout_github_properties)
-        widget_github_properties.setLayout(vertical_layout_github_properties)
-        self.docked_widget_github_properties.setWidget(widget_github_properties)
-        self.docked_widget_github_properties.setFeatures(
-            QDockWidget.NoDockWidgetFeatures
-        )
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.docked_widget_github_properties)
-
-        # =============================
-        # Crawl Properties dock
-        # =============================
-        self.docked_widget_crawl_properties = QDockWidget("Crawl Settings", self)
-        self.docked_widget_crawl_properties.setMinimumSize(QSize(400, 100))
-
-        widget_crawl_properties = QWidget()
-        form_layout_crawl_properties = QFormLayout()
-
-        horizontal_Layout_wordpress = QHBoxLayout()
-        self.lineedit_wp_user = QLineEdit()
-        self.lineedit_wp_user.setMaximumWidth(80)
-        self.lineedit_wp_user.setObjectName("wordpress-user")
-        self.lineedit_wp_user.textChanged.connect(self.update_windows_title)
-        horizontal_Layout_wordpress.addWidget(self.lineedit_wp_user)
-        self.lineedit_wp_api_token = QLineEdit()
-        self.lineedit_wp_api_token.setObjectName("wordpress-api-token")
-        self.lineedit_wp_api_token.textChanged.connect(self.update_windows_title)
-        horizontal_Layout_wordpress.addWidget(QLabel("API Token"))
-        horizontal_Layout_wordpress.addWidget(self.lineedit_wp_api_token)
-        form_layout_crawl_properties.addRow(
-            QLabel("WordPress User"), horizontal_Layout_wordpress
-        )
-
-        horizontal_Layout_redirects = QHBoxLayout()
-        self.combobox_redirects = QComboBox()
-        self.combobox_redirects.setObjectName("redirects")
-        self.combobox_redirects.currentTextChanged.connect(self.update_windows_title)
-        self.combobox_redirects.addItems([item.value for item in list(REDIRECTS)])
-        horizontal_Layout_redirects.addWidget(self.combobox_redirects)
-        form_layout_crawl_properties.addRow(
-            QLabel("Redirects Source"), horizontal_Layout_redirects
-        )
-
-        horizontal_Layout_sitemap = QHBoxLayout()
-        self.lineedit_sitemap = QLineEdit()
-        self.lineedit_sitemap.setObjectName("sitemap")
-        self.lineedit_sitemap.textChanged.connect(self.update_windows_title)
-        self.toolbutton_output_sitemap = QToolButton()
-        self.toolbutton_output_sitemap.setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/search.svg")
-        )
-        horizontal_Layout_sitemap.addWidget(self.lineedit_sitemap)
-        horizontal_Layout_sitemap.addWidget(self.toolbutton_output_sitemap)
-        self.toolbutton_output_sitemap.clicked.connect(self.get_sitemap_location)
-        form_layout_crawl_properties.addRow(
-            QLabel("Sitemap Location"), horizontal_Layout_sitemap
-        )
-
-        horizontal_Layout_search_404 = QHBoxLayout()
-        self.lineedit_search = QLineEdit()
-        self.lineedit_search.setObjectName("search")
-        self.lineedit_search.textChanged.connect(self.update_windows_title)
-        horizontal_Layout_search_404.addWidget(self.lineedit_search)
-        horizontal_Layout_search_404.addWidget(QLabel("404 Page"))
-        self.lineedit_404_page = QLineEdit()
-        self.lineedit_404_page.setObjectName("404-error")
-        self.lineedit_404_page.textChanged.connect(self.update_windows_title)
-        horizontal_Layout_search_404.addWidget(self.lineedit_404_page)
-        form_layout_crawl_properties.addRow(
-            QLabel("Search Page"), horizontal_Layout_search_404
-        )
-
-        self.lineedit_delay = QLineEdit()
-        self.lineedit_delay.setObjectName("delay")
-        self.lineedit_delay.textChanged.connect(self.update_windows_title)
-        form_layout_crawl_properties.addRow(
-            QLabel("Delay (Seconds)"), self.lineedit_delay
-        )
-
-        form_layout_crawl_properties.addRow(QLabel("Additional Files"))
-        self.textedit_additional = QTextEdit()
-        self.textedit_additional.setObjectName("additional")
-        self.textedit_additional.textChanged.connect(self.update_windows_title)
-        form_layout_crawl_properties.addRow(self.textedit_additional)
-
-        form_layout_crawl_properties.addRow(QLabel("Exclude Patterns"))
-        self.textedit_exclude = QTextEdit()
-        self.textedit_exclude.setObjectName("exclude")
-        self.textedit_exclude.textChanged.connect(self.update_windows_title)
-        form_layout_crawl_properties.addRow(self.textedit_exclude)
-
-        vertical_layout_wp_properties = QVBoxLayout()
-        vertical_layout_wp_properties.addLayout(form_layout_crawl_properties)
-        widget_crawl_properties.setLayout(vertical_layout_wp_properties)
-        self.docked_widget_crawl_properties.setWidget(widget_crawl_properties)
-        self.docked_widget_crawl_properties.setFeatures(
-            QDockWidget.NoDockWidgetFeatures
-        )
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.docked_widget_crawl_properties)
 
         self.text_edit_logging = LoggerWidget(self)
         self.text_edit_logging.setFormatter(
@@ -315,8 +99,8 @@ class StaticWordPressGUI(QMainWindow):
         )
         logging.getLogger().addHandler(self.text_edit_logging)
         logging.getLogger().setLevel(logging.INFO)
-        self.setCentralWidget(self.text_edit_logging.plainTextEdit)
 
+        self.setCentralWidget(self.text_edit_logging.plainTextEdit)
         self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
         self.progressBar = QProgressBar()
         self.progressBar.setAlignment(Qt.AlignCenter)
@@ -415,19 +199,6 @@ class StaticWordPressGUI(QMainWindow):
 
         return inner
 
-    @is_new_project
-    @logging_decorator
-    def get_output_directory(self):
-        """"""
-        output_directory = QFileDialog.getExistingDirectory(
-            self,
-            "Select Output Directory",
-            self.appConfigurations.value("output-directory"),
-        )
-        if output_directory:
-            self.lineedit_output.setText(output_directory)
-            self.appConfigurations.setValue("output-directory", output_directory)
-
     @is_project_open
     @logging_decorator
     def clean_output_directory(self):
@@ -463,27 +234,23 @@ class StaticWordPressGUI(QMainWindow):
     def update_sitemap_location(self, sitemap_location):
         self._project.sitemap = sitemap_location
         logging.info(f"Found Sitemap location: {sitemap_location}")
-        self.update_properties_widgets()
+        self.update_widgets()
 
     @is_new_project
     @logging_decorator
     def extract_url_from_raw_text(self):
-        rtp = RawTextWidget(
+        rtp = RawTextDialog(
             src_url=self._project.src_url, dest_url=self._project.dst_url
         )
         if rtp.exec_():
             raw_text = rtp.textedit_raw_text_with_links.toPlainText()
-            current_additional_urls = self.textedit_additional.toPlainText().split("\n")
-
             if raw_text:
                 new_additional_links = extract_urls_from_raw_text(
                     raw_text, rtp.lineedit_dest_url.text(), rtp.linedit_src_url.text()
                 )
                 logging.info(f" {len(new_additional_links)} Additional Urls Found")
-                current_additional_urls += new_additional_links
-                self.textedit_additional.setText(
-                    "\n".join(set(current_additional_urls))
-                )
+                self._project.additional += new_additional_links
+                self._project.save()
 
     @is_new_project
     @logging_decorator
@@ -547,7 +314,7 @@ class StaticWordPressGUI(QMainWindow):
     @logging_decorator
     def show_configs(self):
         """Interface with System Configurations"""
-        w = ConfigWidget()
+        w = ConfigDialog()
         if w.exec_():
             logging.info("Saved/Updated Default Configurations")
 
@@ -567,39 +334,63 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.exec()
 
     @logging_decorator
-    def create_project(self):
+    def new_project(self):
         """Closing current project will automatically start a new project."""
         self.close_project()
-        self._project.create()
-        self.update_properties_widgets()
+
+        pdialog = ProjectDialog(self._project, title_="New Project")
+        if pdialog.exec_():
+            self._project = pdialog._project
+            self.appConfigurations.setValue("last-project", self._project.output)
+
+            if Path(self._project.output).is_dir():
+                self._project.path.parent.mkdir(parents=True, exist_ok=True)
+                src = Path(f"{SHARE_FOLDER_PATH}/_ignore")
+                dst = Path(f"{self._project.output}/.gitignore")
+                if src.exists():
+                    shutil.copyfile(src, dst)
+            else:
+                return
+
+            self.update_widgets()
+            logging.info("Saved/Update Project")
+            self._project.save()
 
     @logging_decorator
     def open_project(self):
         """Opening static-wordpress Project File"""
         self.close_project()
         if not self._project.is_open():
-            options = QFileDialog.Options()
-            project_path, _ = QFileDialog.getOpenFileName(
+            project_folder = QFileDialog.getExistingDirectory(
                 self,
-                "Select Static-WordPress Project File",
-                self.appConfigurations.value("last-project"),
-                "JSON Files (*.json)",
-                options=options,
+                "Select Static-WordPress Project Directory",
+                str(self.appConfigurations.value("last-project")),
+                QFileDialog.ShowDirsOnly,
             )
 
-            if project_path:
-                self._project.open(Path(project_path))
+            project_path = Path(f"{project_folder}/._data/.project.json")
 
+            if project_path.exists():
+                self._project.open(project_path)
                 if self._project.is_open():
+                    pdialog = ProjectDialog(self._project, title_="Project Properties")
+
+                    if pdialog.exec_():
+                        self._project = pdialog._project
+
                     if not self._project.is_older_version():
                         logging.warning(
                             f"Your Project was saved with an older version : {self._project.version}."
                         )
+
                     logging.info(f"Open Project {self._project.path} Successfully")
-                    self.appConfigurations.setValue("last-project", project_path)
+                    self.appConfigurations.setValue("last-project", project_folder)
             else:
                 msgBox = QMessageBox()
-                msgBox.setText(f"Project cannot be opened." f"Please try again.")
+                msgBox.setText(
+                    f"Project cannot be opened or selected path invalid."
+                    f"<br>Please try again with project folder."
+                )
                 msgBox.setWindowIcon(
                     QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
                 )
@@ -612,8 +403,19 @@ class StaticWordPressGUI(QMainWindow):
                     "No New Project Opened. Unsaved project properties will be lost."
                 )
 
-        self.update_windows_title()
-        self.update_properties_widgets()
+        self.update_widgets()
+        self._project.save()
+
+    @logging_decorator
+    def show_project(self):
+        """showing static-wordpress Project File"""
+        if self._project.is_open():
+            pdialog = ProjectDialog(self._project, title_="Current Project")
+            if pdialog.exec_():
+                self._project = pdialog._project
+
+        self._project.save()
+        self.update_widgets()
 
     @is_project_open
     @logging_decorator
@@ -629,88 +431,7 @@ class StaticWordPressGUI(QMainWindow):
         )
         if reply == QMessageBox.Yes:
             self._project = Project()
-            self.update_properties_widgets()
-            verifications = {
-                "name": None,
-                "src-url": None,
-                "wordpress-user": None,
-                "wordpress-api-token": None,
-                "sitemap": None,
-                "github-token": None,
-                "github-repository": None,
-            }
-            self.update_expert_mode_widgets(verifications)
-
-    @is_project_open
-    @logging_decorator
-    def save_project(self):
-        """Saving Current static-wordpress Project"""
-        if self.lineedit_project_name.text():
-            new_project_path = self.appConfigurations.value("last-project")
-            if self._project.is_new():
-                options = QFileDialog.Options()
-                new_project_path, _ = QFileDialog.getSaveFileName(
-                    self,
-                    "Select StaticWordPress Project File",
-                    self.appConfigurations.value("last-project"),
-                    "JSON Files (*.json)",
-                    options=options,
-                )
-                if new_project_path:
-                    self._project.path = Path(new_project_path)
-                else:
-                    return
-
-            self.appConfigurations.setValue("last-project", new_project_path)
-            self._project.name = self.lineedit_project_name.text()
-            self._project.path = Path(new_project_path)
-            self._project.src_url = self.lineedit_src_url.text()
-            self._project.sitemap = self.lineedit_sitemap.text()
-            self._project.wp_user = self.lineedit_wp_user.text()
-            self._project.wp_api_token = self.lineedit_wp_api_token.text()
-            self._project.search = self.lineedit_search.text()
-            self._project._404 = self.lineedit_404_page.text()
-            self._project.delay = float(self.lineedit_delay.text())
-            self._project.redirects = REDIRECTS[self.combobox_redirects.currentText()]
-            self._project.src_type = SOURCE[self.combobox_source_type.currentText()]
-            self._project.user_agent = USER_AGENT[
-                self.combobox_user_agent.currentText()
-            ]
-            self._project.host = HOST[self.combobox_project_destination.currentText()]
-            self._project.output = Path(self.lineedit_output.text())
-            self._project.dst_url = self.lineedit_dest_url.text()
-            self._project.gh_token = self.lineedit_gh_token.text()
-            self._project.gh_repo = self.lineedit_gh_repo.text()
-            self._project.additional = self.textedit_additional.toPlainText().split(
-                "\n"
-            )
-            self._project.exclude = self.textedit_exclude.toPlainText().split("\n")
-            if not self._project.is_older_version():
-                logging.warning(
-                    f"Your Project will be saved with new version number : {VERISON}."
-                )
-                self._project.version = VERISON
-
-            # save project
-            self._project.save()
-            if self._project.is_saved():
-                logging.info(f"Project Saved Successfully at {self._project.path}")
-                self.update_properties_widgets()
-                self.update_windows_title()
-
-    def check_project(self) -> None:
-        if self._bg_thread.isRunning():
-            self._bg_thread.quit()
-
-        self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
-        self._bg_worker.set_project(project_=self._project)
-        self._bg_worker.moveToThread(self._bg_thread)
-        self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalVerification.connect(self.update_expert_mode_widgets)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
-        self._bg_thread.started.connect(self._bg_worker.verify_project)
-        self._bg_thread.start()
+            self.update_widgets()
 
     @is_project_open
     def start_batch_process(self):
@@ -748,7 +469,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread = QThread(parent=self)
             self._bg_worker.moveToThread(self._bg_thread)
             self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-            self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+            self._bg_worker.signalProgress.connect(self.update_statusbar)
             self._bg_thread.started.connect(self._bg_worker.batch_processing)
             self._bg_thread.start()
 
@@ -764,7 +485,7 @@ class StaticWordPressGUI(QMainWindow):
 
             if reply == QMessageBox.Yes:
                 self._bg_worker.stop_calcualations()
-                self.update_statusbar_widgets("Stoping Processing", 100)
+                self.update_statusbar("Stoping Processing", 100)
 
     @is_project_open
     def crawl_website(self) -> None:
@@ -776,7 +497,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.pre_processing)
         self._bg_thread.start()
 
@@ -790,7 +511,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.crawl_additional_files)
         self._bg_thread.start()
 
@@ -804,7 +525,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_search)
         self._bg_thread.start()
 
@@ -818,7 +539,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_404_page)
         self._bg_thread.start()
 
@@ -832,7 +553,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_redirects)
         self._bg_thread.start()
 
@@ -846,7 +567,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_robots_txt)
         self._bg_thread.start()
 
@@ -861,7 +582,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.create_github_repositoy)
         self._bg_thread.start()
 
@@ -884,7 +605,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_worker.set_project(project_=self._project)
             self._bg_worker.moveToThread(self._bg_thread)
             self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-            self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+            self._bg_worker.signalProgress.connect(self.update_statusbar)
             self._bg_thread.started.connect(self._bg_worker.delete_github_repositoy)
             self._bg_thread.start()
 
@@ -899,7 +620,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.init_git_repositoy)
         self._bg_thread.start()
 
@@ -914,7 +635,7 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.commit_git_repositoy)
         self._bg_thread.start()
 
@@ -929,11 +650,11 @@ class StaticWordPressGUI(QMainWindow):
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_worker.signalProgress.connect(self.update_statusbar_widgets)
+        self._bg_worker.signalProgress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.publish_github_repositoy)
         self._bg_thread.start()
 
-    def update_statusbar_widgets(self, message_, percent_) -> None:
+    def update_statusbar(self, message_, percent_) -> None:
         if percent_ >= 0:
             self.progressBar.setValue(percent_)
             self.statusBar().showMessage(message_)
@@ -943,26 +664,7 @@ class StaticWordPressGUI(QMainWindow):
         if percent_ >= 100:
             self.progressBar.setFormat(message_)
 
-    def update_properties_widgets(self) -> None:
-        self.lineedit_project_name.setText(self._project.name)
-        self.lineedit_src_url.setText(self._project.src_url)
-        self.lineedit_sitemap.setText(self._project.sitemap)
-        self.lineedit_search.setText(self._project.search)
-        self.lineedit_404_page.setText(self._project._404)
-        self.lineedit_delay.setText(f"{self._project.delay}")
-        self.combobox_source_type.setCurrentText(self._project.src_type.value)
-        self.combobox_user_agent.setCurrentText(self._project.user_agent.value)
-        self.lineedit_output.setText(str(self._project.output))
-        self.lineedit_dest_url.setText(self._project.dst_url)
-        self.lineedit_wp_user.setText(self._project.wp_user)
-        self.lineedit_wp_api_token.setText(self._project.wp_api_token)
-        self.lineedit_gh_token.setText(self._project.gh_token)
-        self.lineedit_gh_repo.setText(self._project.gh_repo)
-        self.textedit_additional.setText("\n".join(self._project.additional))
-        self.textedit_exclude.setText("\n".join(self._project.exclude))
-        self.combobox_redirects.setCurrentText(self._project.redirects.value)
-        self.combobox_redirects.setEnabled(True)
-
+    def update_widgets(self) -> None:
         self.findChild(QMenu, "menu_github").setEnabled(self._project.has_github())
         self.findChild(QMenu, "menu_wordpress").setEnabled(
             self._project.has_wordpress()
@@ -990,71 +692,9 @@ class StaticWordPressGUI(QMainWindow):
                 self.findChild(QAction, "action_edit_expert_mode").isChecked()
             )
 
-    def update_expert_mode_widgets(self, verifications) -> None:
-        for key, value in verifications.items():
-            if value is not None:
-                bg_color = (
-                    CONFIGS["COLOR"]["SUCCESS"] if value else CONFIGS["COLOR"]["ERROR"]
-                )
-            else:
-                bg_color = value
-
-            self.findChild(QLineEdit, key).setStyleSheet(
-                f"background-color: {bg_color}"
-            )
-
-    def update_windows_title(self) -> None:
-        sender = self.sender()
-        if (
-            type(sender) in [QLineEdit, QComboBox, QTextEdit]
-            and self._project.is_open()
-        ):
-            gui_value = sender.property("text")
-
-            if type(sender) == QLineEdit:
-                gui_value = sender.property("text")
-                if sender.objectName() == "output":
-                    gui_value = Path(sender.property("text"))
-                elif sender.objectName() == "delay":
-                    try:
-                        gui_value = float(sender.property("text"))
-                    except:  # mostly value error e.g. 0.^ as input
-                        pass
-
-            elif type(sender) == QComboBox:
-                gui_value = ENUMS_MAP[sender.objectName()][
-                    sender.property("currentText")
-                ]
-            elif type(sender) == QTextEdit:
-                gui_value = [url for url in sender.toPlainText().split("\n") if url]
-
-            project_value = self._project.get(sender.objectName())
-            project_functions_dict = {
-                "github-repository": self._project.gh_repo,
-                "github-token": self._project.gh_token,
-                "wordpress-user": self._project.wp_user,
-                "wordpress-api-token": self._project.wp_api_token,
-                "src-url": self._project.src_url,
-                "source": self._project.src_type,
-                "output": self._project.output,
-                "dst-url": self._project.dst_url,
-                "404-error": self._project._404,
-            }
-
-            if sender.objectName() in project_functions_dict:
-                project_value = project_functions_dict[sender.objectName()]
-
-            if gui_value != project_value and not self._project.is_new():
-                self._project.status = PROJECT.UPDATE
-
-        status_string = (
-            f"{'' if self._project.is_saved() else '*'} {self._project.name}"
-        )
         new_window_title = (
-            f"{status_string} - {CONFIGS['APPLICATION_NAME']}  Version - {VERISON}"
+            f"{self._project.name} - {CONFIGS['APPLICATION_NAME']}  Version - {VERISON}"
         )
-        if self._project.status == PROJECT.NOT_FOUND:
-            new_window_title = f"{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
 
         self.setWindowTitle(new_window_title)
 

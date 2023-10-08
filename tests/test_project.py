@@ -34,5 +34,5 @@ from staticwordpress.core.constants import PROJECT, REDIRECTS, HOST
 def test_project_create():
     p = Project()
     assert p.status == PROJECT.NOT_FOUND
-    assert p.redirects == REDIRECTS.REDIRECTION
+    assert p.redirects == REDIRECTS.NONE
     assert p.host == HOST.NETLIFY

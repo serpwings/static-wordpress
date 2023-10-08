@@ -86,7 +86,7 @@ class Project(dict):
 
         self["wordpress"] = {"user": "", "api-token": ""}
         self["github"] = {"token": "", "repository": ""}
-        self["redirects"] = REDIRECTS.REDIRECTION
+        self["redirects"] = REDIRECTS.NONE
         self["sitemap"] = "sitemap_index.xml"
         self["search"] = "search"
         self["404"] = "404-error"
