@@ -667,7 +667,7 @@ class StaticWordPressGUI(QMainWindow):
     def update_widgets(self) -> None:
         self.findChild(QMenu, "menu_github").setEnabled(self._project.has_github())
         self.findChild(QMenu, "menu_wordpress").setEnabled(
-            self._project.has_wordpress()
+            self._project.has_wordpress() or self._project.can_crawl()
         )
         self.findChild(QToolBar, "toolbar_github").setEnabled(
             self._project.has_github()

@@ -143,7 +143,7 @@ class Project(dict):
     def can_crawl(self) -> bool:
         return all(
             [
-                self["source"]["type"] != SOURCE.CRAWL,
+                self["source"]["type"] == SOURCE.CRAWL,
                 self["source"]["url"] != "",
                 self["destination"]["output"] != "",
             ]
