@@ -78,8 +78,8 @@ from ..core.utils import is_url_valid
 
 
 class ProjectDialog(QDialog):
-    def __init__(self, project_, title_="Project Settings"):
-        super(ProjectDialog, self).__init__()
+    def __init__(self, parent, project_, title_="Project Settings"):
+        super(ProjectDialog, self).__init__(parent=parent)
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )

@@ -103,8 +103,8 @@ class ConfigTabBar(QTabBar):
 
 
 class ConfigDialog(QDialog):
-    def __init__(self):
-        super(ConfigDialog, self).__init__()
+    def __init__(self, parent=None):
+        super(ConfigDialog, self).__init__(parent=parent)
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )

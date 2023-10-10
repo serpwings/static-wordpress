@@ -240,7 +240,7 @@ class StaticWordPressGUI(QMainWindow):
     @logging_decorator
     def extract_url_from_raw_text(self):
         rtp = RawTextDialog(
-            src_url=self._project.src_url, dest_url=self._project.dst_url
+            parent=self, src_url=self._project.src_url, dest_url=self._project.dst_url
         )
         if rtp.exec_():
             raw_text = rtp.textedit_raw_text_with_links.toPlainText()
@@ -314,13 +314,13 @@ class StaticWordPressGUI(QMainWindow):
     @logging_decorator
     def show_configs(self):
         """Interface with System Configurations"""
-        w = ConfigDialog()
+        w = ConfigDialog(parent=self)
         if w.exec_():
             logging.info("Saved/Updated Default Configurations")
 
     def about(self):
         """ """
-        msgBox = QMessageBox()
+        msgBox = QMessageBox(parent=self)
         msgBox.setText(
             f"Copyright {date.today().year} - SERP Wings"
             f"<br><br>{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
@@ -338,7 +338,7 @@ class StaticWordPressGUI(QMainWindow):
         """Closing current project will automatically start a new project."""
         self.close_project()
 
-        pdialog = ProjectDialog(self._project, title_="New Project")
+        pdialog = ProjectDialog(self, self._project, title_="New Project")
         if pdialog.exec_():
             self._project = pdialog._project
             self.appConfigurations.setValue("last-project", self._project.output)
@@ -373,7 +373,9 @@ class StaticWordPressGUI(QMainWindow):
             if project_path.exists():
                 self._project.open(project_path)
                 if self._project.is_open():
-                    pdialog = ProjectDialog(self._project, title_="Project Properties")
+                    pdialog = ProjectDialog(
+                        self, self._project, title_="Project Properties"
+                    )
 
                     if pdialog.exec_():
                         self._project = pdialog._project
@@ -386,7 +388,7 @@ class StaticWordPressGUI(QMainWindow):
                     logging.info(f"Open Project {self._project.path} Successfully")
                     self.appConfigurations.setValue("last-project", project_folder)
             else:
-                msgBox = QMessageBox()
+                msgBox = QMessageBox(parent=self)
                 msgBox.setText(
                     f"Project cannot be opened or selected path invalid."
                     f"<br>Please try again with project folder."
@@ -410,7 +412,7 @@ class StaticWordPressGUI(QMainWindow):
     def show_project(self):
         """showing static-wordpress Project File"""
         if self._project.is_open():
-            pdialog = ProjectDialog(self._project, title_="Current Project")
+            pdialog = ProjectDialog(self, self._project, title_="Current Project")
             if pdialog.exec_():
                 self._project = pdialog._project
 
