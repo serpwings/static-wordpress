@@ -135,10 +135,12 @@ class Project(dict):
         )
 
     def has_github(self) -> bool:
-        return self["github"]["token"] != "" or self["github"]["repository"] != ""
+        return self["github"]["token"] != "" and self["github"]["repository"] != ""
 
     def has_wordpress(self) -> bool:
-        return self["wordpress"]["api-token"] != "" or self["wordpress"]["user"] != ""
+        return self["source"]["type"] == SOURCE.CRAWL or (
+            self["wordpress"]["api-token"] != "" and self["wordpress"]["user"] != ""
+        )
 
     def can_crawl(self) -> bool:
         return all(
