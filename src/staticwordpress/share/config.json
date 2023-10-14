@@ -44,7 +44,7 @@
         "xmlns:image": "http://www.google.com/schemas/sitemap-image/1.1"
     },
     "COLOR": {
-        "SUCCESS": "#005500",
+        "SUCCESS": "#aaff7f",
         "WARNING": "#ffff7f",
         "ERROR": "#ff557f"
     },

@@ -1,8 +1,8 @@
 {
     "MENUS": [
         {
-            "name": "menu_file",
-            "text": "&File",
+            "name": "menu_project",
+            "text": "&Project",
             "enable": true,
             "icon": "",
             "parent": ""
@@ -57,84 +57,84 @@
             "enable": true
         },
         {
+            "name": "toolbar_edit",
+            "text": "Edit",
+            "enable": true
+        },
+        {
             "name": "toolbar_wordpres",
             "text": "WordPress",
-            "enable": true
+            "enable": false
         },
         {
             "name": "toolbar_github",
             "text": "GitHub",
-            "enable": true
-        },
-        {
-            "name": "toolbar_edit",
-            "text": "Edit",
-            "enable": true
+            "enable": false
         }
     ],
     "ACTIONS": [
         {
             "icon": "/icons/file-outline.svg",
-            "name": "action_file_project_new",
+            "name": "action_project_new",
             "visible": true,
-            "text": "&New Project",
+            "text": "&New",
             "shortcut": "Ctrl+N",
-            "tooltip": "New Project (Ctrl+N)",
-            "function": "self.create_project",
+            "tooltip": "New (Ctrl+N)",
+            "function": "self.new_project",
             "setCheckable": false,
-            "menu": "menu_file",
+            "menu": "menu_project",
             "seperator": false,
             "toolbar": "toolbar_project"
         },
         {
             "icon": "/icons/folder-outline.svg",
-            "name": "action_file_project_open",
+            "name": "action_project_open",
             "visible": true,
-            "text": "&Open Project",
+            "text": "&Open",
             "shortcut": "Ctrl+O",
-            "tooltip": "Open Project (Ctrl+O)",
+            "tooltip": "Open (Ctrl+O)",
             "function": "self.open_project",
             "setCheckable": false,
-            "menu": "menu_file",
+            "menu": "menu_project",
             "seperator": false,
             "toolbar": "toolbar_project"
         },
         {
-            "icon": "/icons/content-save-outline.svg",
-            "name": "action_file_project_save",
+            "icon": "/icons/project_settings.svg",
+            "name": "action_project_settings",
             "visible": true,
-            "text": "&Save Project",
-            "shortcut": "Ctrl+S",
-            "tooltip": "Save Project (Ctrl+S)",
-            "function": "self.save_project",
+            "text": "&Settings",
+            "shortcut": "Ctrl+C",
+            "tooltip": "Check (Ctrl+C)",
+            "function": "self.show_project",
             "setCheckable": false,
-            "menu": "menu_file",
+            "menu": "menu_project",
             "seperator": false,
             "toolbar": "toolbar_project"
         },
         {
-            "icon": "/icons/file-document-remove-outline.svg",
-            "name": "action_file_project_close",
+            "icon": "/icons/project_close.svg",
+            "name": "action_project_close",
             "visible": true,
-            "text": "&Close Project",
+            "text": "&Close",
             "shortcut": "Ctrl+X",
-            "tooltip": "Close Project (Ctrl+X)",
+            "tooltip": "Close (Ctrl+X)",
             "function": "self.close_project",
             "setCheckable": false,
-            "menu": "menu_file",
+            "menu": "menu_project",
             "seperator": true,
             "toolbar": "toolbar_project"
         },
         {
             "icon": "/icons/exit-to-app.svg",
-            "name": "action_file_exit",
+            "name": "action_project_exit",
             "visible": true,
             "text": "&Exit",
             "shortcut": "Ctrl+Q",
             "tooltip": "Exit (Ctrl+Q)",
             "function": "self.close",
             "setCheckable": false,
-            "menu": "menu_file",
+            "menu": "menu_project",
             "seperator": false,
             "toolbar": ""
         },
@@ -358,19 +358,6 @@
             "setCheckable": false,
             "menu": "menu_tools",
             "toolbar": ""
-        },
-        {
-            "icon": "/icons/check_project.svg",
-            "name": "action_file_check_project",
-            "visible": true,
-            "text": "&Check Project",
-            "shortcut": "Ctrl+F3",
-            "tooltip": "Check Project (Ctrl+F3)",
-            "function": "self.check_project",
-            "setCheckable": false,
-            "menu": "menu_tools",
-            "seperator": false,
-            "toolbar": false
         },
         {
             "icon": "/icons/text-recognition.svg",

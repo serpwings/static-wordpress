@@ -97,10 +97,14 @@ class Workflow:
         output_folder_: str = "",
         custom_404_: str = "",
         custom_search_: str = "",
-        src_type_: SOURCE = SOURCE.CRAWL,
+        src_type_: SOURCE = SOURCE.ZIP,
         host_type_: HOST = HOST.NETLIFY,
     ) -> None:
         self._project.status = PROJECT.NEW
+        
+        if src_type_ == SOURCE.ZIP:
+            self._project.redirects = REDIRECTS.REDIRECTION
+        
         self._project.name = project_name_
         self._project.path = project_path_
         self._project._404 = custom_404_

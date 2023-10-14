@@ -51,9 +51,9 @@ from ..core.constants import CONFIGS, SHARE_FOLDER_PATH
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class RawTextWidget(QDialog):
-    def __init__(self, src_url: str, dest_url: str):
-        super(RawTextWidget, self).__init__()
+class RawTextDialog(QDialog):
+    def __init__(self, parent, src_url: str, dest_url: str):
+        super(RawTextDialog, self).__init__(parent=parent)
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )

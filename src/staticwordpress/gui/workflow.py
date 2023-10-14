@@ -36,7 +36,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from ..core.project import Project
 from ..core.constants import SOURCE
 from ..core.workflow import Workflow
-from .utils import logging_decorator, progress_decorator
+from ..gui.utils import logging_decorator, progress_decorator
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -125,9 +125,9 @@ def rm_dir_tree(dir_path: str = None, delete_root: bool = False) -> None:
         return
 
     for _path in dir_path.glob("**/*"):
-        if _path.is_file():
+        if _path.is_file() and _path.stem not in [".gitignore", ".project"]:
             _path.unlink()
-        elif _path.is_dir():
+        elif _path.is_dir() and _path.stem != "._data":
             shutil.rmtree(_path, onerror=rmtree_permission_error)
 
     if delete_root:
@@ -222,3 +222,12 @@ def extract_zip_file(zip_file_path: Path, output_location: Path) -> None:
     if output_location.is_dir() and zip_file_path.exists():
         with ZipFile(zip_file_path, "r") as zf:
             zf.extractall(output_location)
+
+
+def is_url_valid(url_: str) -> bool:
+    url_parsed_ = parse.urlparse(url_)
+
+    if all([url_parsed_.scheme, url_parsed_.netloc]):
+        return get_remote_content(url_parsed_, max_retires=1).status_code < 399
+
+    return False

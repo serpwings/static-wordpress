@@ -86,7 +86,7 @@ class Project(dict):
 
         self["wordpress"] = {"user": "", "api-token": ""}
         self["github"] = {"token": "", "repository": ""}
-        self["redirects"] = REDIRECTS.REDIRECTION
+        self["redirects"] = REDIRECTS.NONE
         self["sitemap"] = "sitemap_index.xml"
         self["search"] = "search"
         self["404"] = "404-error"
@@ -135,15 +135,17 @@ class Project(dict):
         )
 
     def has_github(self) -> bool:
-        return self["github"]["token"] != "" or self["github"]["repository"] != ""
+        return self["github"]["token"] != "" and self["github"]["repository"] != ""
 
     def has_wordpress(self) -> bool:
-        return self["wordpress"]["api-token"] != "" or self["wordpress"]["user"] != ""
+        return self["source"]["type"] == SOURCE.CRAWL or (
+            self["wordpress"]["api-token"] != "" and self["wordpress"]["user"] != ""
+        )
 
     def can_crawl(self) -> bool:
         return all(
             [
-                self["source"]["type"] != SOURCE.CRAWL,
+                self["source"]["type"] == SOURCE.CRAWL,
                 self["source"]["url"] != "",
                 self["destination"]["output"] != "",
             ]
