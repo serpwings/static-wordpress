@@ -54,7 +54,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QAction,
 )
-from PyQt5.QtCore import QSettings, QSize, QThread
+from PyQt5.QtCore import Qt, QSettings, QSize, QThread
 from PyQt5.QtGui import QIcon
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -451,9 +451,18 @@ class ProjectDialog(QDialog):
             )
             return super().accept()
         else:
-            QMessageBox.information(
-                self,
-                "Invalid Project Settings",
-                "Cannot create new project.<br>Please check project settings.",
-                QMessageBox.Yes,
+            msgBox = QMessageBox(parent=self)
+            msgBox.setText(
+                "Cannot start this project.<br>Please check project settings."
             )
+            msgBox.addButton(QMessageBox.Ok).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            )
+            msgBox.setWindowIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+            )
+            msgBox.setTextFormat(Qt.RichText)
+            msgBox.setWindowTitle(
+                "Invalid Project Settings",
+            )
+            msgBox.exec()

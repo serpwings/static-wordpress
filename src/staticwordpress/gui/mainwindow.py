@@ -203,13 +203,24 @@ class StaticWordPressGUI(QMainWindow):
     @logging_decorator
     def clean_output_directory(self):
         """Clean Output Directory"""
-        reply = QMessageBox.question(
-            self,
-            "Clean Output Folder Content",
-            f"Existing content in Output folder will be delete?\n {self._project.output}",
-            QMessageBox.Yes | QMessageBox.No,
+
+        msgBox = QMessageBox(parent=self)
+        msgBox.setWindowTitle("Clean Output Folder Content")
+        msgBox.setText(
+            f"Existing content in Output folder will be delete?<br> {self._project.output}",
         )
-        if reply == QMessageBox.Yes:
+        msgBox.addButton(QMessageBox.Ok).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+        )
+        msgBox.addButton(QMessageBox.Cancel).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+        )
+        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
+        msgBox.setDefaultButton(QMessageBox.Ok)
+        msgBox.setTextFormat(Qt.RichText)
+        msgBox.exec_()
+
+        if msgBox.clickedButton().text() == "&OK":
             rm_dir_tree(self._project.output)
             logging.info(
                 f"Content of output folder at {self._project.output} are deleted"
@@ -261,14 +272,24 @@ class StaticWordPressGUI(QMainWindow):
 
     def closeEvent(self, event):
         """ """
-        reply = QMessageBox.question(
-            self,
-            "Exiting static-wordpress",
-            "Do you really want to exit?.\nAny unsaved changes will be lost!",
-            QMessageBox.Yes | QMessageBox.No,
+        msgBox = QMessageBox(parent=self)
+        msgBox.setWindowTitle(f"Exiting {CONFIGS['APPLICATION_NAME']}")
+        msgBox.setIcon(QMessageBox.Question)
+        msgBox.setText(
+            "Do you really want to exit?.<br>Any unsaved changes will be lost!",
         )
+        msgBox.addButton(QMessageBox.Ok).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+        )
+        msgBox.addButton(QMessageBox.Cancel).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+        )
+        msgBox.setDefaultButton(QMessageBox.Ok)
+        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
+        msgBox.setTextFormat(Qt.RichText)
+        msgBox.exec_()
 
-        if reply == QMessageBox.Yes:
+        if msgBox.clickedButton().text() == "&OK":
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
                 del self._bg_thread
@@ -327,10 +348,12 @@ class StaticWordPressGUI(QMainWindow):
             "<br><br>This work is an opensource project under <br>GNU General Public License v3 or later (GPLv3+)"
             f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>"
         )
+        msgBox.addButton(QMessageBox.Ok).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+        )
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         msgBox.setTextFormat(Qt.RichText)
         msgBox.setWindowTitle("About Us")
-        msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec()
 
     @logging_decorator
@@ -393,12 +416,14 @@ class StaticWordPressGUI(QMainWindow):
                     f"Project cannot be opened or selected path invalid."
                     f"<br>Please try again with project folder."
                 )
+                msgBox.addButton(QMessageBox.Ok).setIcon(
+                    QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+                )
                 msgBox.setWindowIcon(
                     QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
                 )
                 msgBox.setTextFormat(Qt.RichText)
                 msgBox.setWindowTitle("Open Project")
-                msgBox.setStandardButtons(QMessageBox.Ok)
                 msgBox.exec()
 
                 logging.info(
@@ -425,28 +450,51 @@ class StaticWordPressGUI(QMainWindow):
         """Assign new project and old properties will be lost.
         Default is assigned as CLOSED project
         """
-        reply = QMessageBox.question(
-            self,
-            "Close Existing Project",
-            "Are you sure to close current project and open new one?.\n All existing project properties will be lost!",
-            QMessageBox.Yes | QMessageBox.No,
+        msgBox = QMessageBox(parent=self)
+        msgBox.setWindowTitle("Close Existing Project")
+        msgBox.setText(
+            "Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
         )
-        if reply == QMessageBox.Yes:
+        msgBox.addButton(QMessageBox.Ok).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+        )
+        msgBox.addButton(QMessageBox.Cancel).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+        )
+        msgBox.setDefaultButton(QMessageBox.Ok)
+        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
+        msgBox.setTextFormat(Qt.RichText)
+        msgBox.exec_()
+
+        if msgBox.clickedButton().text() == "&OK":
             self._project = Project()
             self.update_widgets()
 
     @is_project_open
     def start_batch_process(self):
         """Start Crawling"""
-        if not self._project.output.exists():
-            reply = QMessageBox.question(
-                self,
-                f"Output Folder",
-                f"Following Output Folder doesnt not exit?.\n{self._project.output}\nDo You want to create it now?",
-                QMessageBox.Yes | QMessageBox.No,
-            )
 
-            if reply == QMessageBox.Yes:
+        if not self._project.output.exists():
+            msgBox = QMessageBox(parent=self)
+            msgBox.setIcon(QMessageBox.Question)
+            msgBox.setWindowTitle("Output Folder")
+            msgBox.setText(
+                f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
+            )
+            msgBox.addButton(QMessageBox.Ok).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            )
+            msgBox.addButton(QMessageBox.Cancel).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+            )
+            msgBox.setWindowIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+            )
+            msgBox.setDefaultButton(QMessageBox.Ok)
+            msgBox.setTextFormat(Qt.RichText)
+            msgBox.exec_()
+
+            if msgBox.clickedButton().text() == "&OK":
                 os.mkdir(self._project.output)
             else:
                 return
@@ -459,13 +507,26 @@ class StaticWordPressGUI(QMainWindow):
 
             if self._project.src_type == SOURCE.ZIP:
                 if not self._bg_worker._work_flow.verify_simply_static():
-                    reply = QMessageBox.question(
-                        self,
-                        f"ZIP File Missing",
-                        f"ZIP File not found. Please check your project configurations?",
-                        QMessageBox.Yes,
+                    msgBox = QMessageBox(parent=self)
+                    msgBox.setWindowTitle("ZIP File Missing")
+                    msgBox.setIcon(QMessageBox.Question)
+                    msgBox.setText(
+                        "ZIP File not found. Please check your project configurations?",
                     )
-                    if reply == QMessageBox.Yes:
+                    msgBox.addButton(QMessageBox.Ok).setIcon(
+                        QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+                    )
+                    msgBox.addButton(QMessageBox.Cancel).setIcon(
+                        QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+                    )
+                    msgBox.setWindowIcon(
+                        QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+                    )
+                    msgBox.setDefaultButton(QMessageBox.Ok)
+                    msgBox.setTextFormat(Qt.RichText)
+                    msgBox.exec_()
+
+                    if msgBox.clickedButton().text() == "&OK":
                         return
 
             self._bg_thread = QThread(parent=self)
@@ -478,14 +539,25 @@ class StaticWordPressGUI(QMainWindow):
     @is_project_open
     def stop_process(self) -> None:
         if self._bg_worker.is_running():
-            reply = QMessageBox.question(
-                self,
-                "Stop Crawling Process",
-                "Do you really want to Stop Crawling Thrad?",
-                QMessageBox.Yes | QMessageBox.No,
+            msgBox = QMessageBox(parent=self)
+            msgBox.setWindowTitle("Stop Crawling Process")
+            msgBox.setText(
+                "Do you really want to Stop Crawling Thread?",
             )
+            msgBox.addButton(QMessageBox.Ok).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            )
+            msgBox.addButton(QMessageBox.Cancel).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+            )
+            msgBox.setWindowIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+            )
+            msgBox.setTextFormat(Qt.RichText)
+            msgBox.setDefaultButton(QMessageBox.Ok)
+            msgBox.exec_()
 
-            if reply == QMessageBox.Yes:
+            if msgBox.clickedButton().text() == "&OK":
                 self._bg_worker.stop_calcualations()
                 self.update_statusbar("Stoping Processing", 100)
 
@@ -591,14 +663,24 @@ class StaticWordPressGUI(QMainWindow):
     @is_project_open
     def delete_github_repository(self) -> None:
         """"""
-        reply = QMessageBox.question(
-            self,
-            "Deleting Repository on GitHub",
-            f"Do you really want to delete {self._project.gh_repo} on GitHub?\nThis deletion is not reversible.",
-            QMessageBox.Yes | QMessageBox.No,
-        )
 
-        if reply == QMessageBox.Yes:
+        msgBox = QMessageBox(parent=self)
+        msgBox.setWindowTitle("Deleting Repository on GitHub")
+        msgBox.setText(
+            f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
+        )
+        msgBox.addButton(QMessageBox.Ok).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+        )
+        msgBox.addButton(QMessageBox.Cancel).setIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
+        )
+        msgBox.setDefaultButton(QMessageBox.Ok)
+        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
+        msgBox.setTextFormat(Qt.RichText)
+        msgBox.exec_()
+
+        if msgBox.clickedButton().text() == "&OK":
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 
