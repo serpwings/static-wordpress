@@ -107,6 +107,11 @@ class Project(dict):
         return self["version"] == VERISON
 
     def is_open(self) -> bool:
+        """Check if a Project is Open
+
+        Returns:
+            bool: True/False if a Porject is already open.
+        """
         return all(
             [
                 self.status
