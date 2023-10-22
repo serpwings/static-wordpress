@@ -71,6 +71,7 @@ from ..core.constants import (
 )
 
 from ..core.utils import is_url_valid
+from ..gui.workflow import WorkflowGUI
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -83,6 +84,9 @@ class ProjectDialog(QDialog):
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
+
+        self._bg_thread = QThread(parent=self)
+        self._bg_worker = WorkflowGUI()
 
         self._project = project_
         vertical_layout_project = QVBoxLayout()
@@ -231,6 +235,7 @@ class ProjectDialog(QDialog):
         self.toolbutton_output_sitemap.setIcon(
             QIcon(f"{SHARE_FOLDER_PATH}/icons/search.svg")
         )
+        self.toolbutton_output_sitemap.clicked.connect(self.get_sitemap_location)
         horizontal_Layout_sitemap.addWidget(self.lineedit_sitemap)
         horizontal_Layout_sitemap.addWidget(self.toolbutton_output_sitemap)
         form_layout_static_website_properties.addRow(
@@ -379,6 +384,22 @@ class ProjectDialog(QDialog):
             self.lineedit_output.setText(output_directory)
             self.appConfigurations.setValue("last-project", output_directory)
 
+    def get_sitemap_location(self):
+        if self._bg_thread.isRunning():
+            self._bg_thread.quit()
+
+        self._bg_thread = QThread(parent=self)
+        self._bg_worker = WorkflowGUI()
+        self._bg_worker.set_project(project_=self._project)
+        self._bg_worker.moveToThread(self._bg_thread)
+        self._bg_thread.finished.connect(self._bg_worker.deleteLater)
+        self._bg_thread.started.connect(self._bg_worker.find_sitemap)
+        self._bg_worker.signalSitemapLocation.connect(self.update_sitemap_location)
+        self._bg_thread.start()
+
+    def update_sitemap_location(self, sitemap_location):
+        self.lineedit_sitemap.setText(sitemap_location)
+
     def check_project(self):
         """"""
         # TODO: Add checks for WP_API and Gh_API and if not present then disable them.
@@ -413,8 +434,22 @@ class ProjectDialog(QDialog):
                 f"background-color: {CONFIGS['COLOR']['ERROR']}"
             )
 
+    def reject(self) -> None:
+        if self._bg_thread.isRunning():
+            self._bg_thread.quit()
+            del self._bg_thread
+            del self._bg_worker
+
+        return super().reject()
+
     def accept(self) -> None:
         """"""
+
+        if self._bg_thread.isRunning():
+            self._bg_thread.quit()
+            del self._bg_thread
+            del self._bg_worker
+
         if all(
             [
                 self.lineedit_project_name.text(),
