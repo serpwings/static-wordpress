@@ -22,6 +22,7 @@ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
 specific language governing rights and limitations under the License.
 </LICENSE_BLOCK>
 """
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # STANDARD LIBARY IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,7 +53,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QFileDialog,
     QPushButton,
-    QAction,
 )
 from PyQt5.QtCore import Qt, QSettings, QSize, QThread
 from PyQt5.QtGui import QIcon
@@ -70,6 +70,7 @@ from ..core.constants import (
     HOST,
 )
 
+from ..core.project import Project
 from ..core.utils import is_url_valid
 from ..gui.workflow import WorkflowGUI
 
@@ -85,10 +86,10 @@ class ProjectDialog(QDialog):
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
 
+        self._project = project_
         self._bg_thread = QThread(parent=self)
         self._bg_worker = WorkflowGUI()
 
-        self._project = project_
         vertical_layout_project = QVBoxLayout()
         groupbox_general_settings = QGroupBox("General Settings")
         form_layout_general_settings = QFormLayout()
@@ -458,7 +459,16 @@ class ProjectDialog(QDialog):
                 Path(self.lineedit_output.text()).is_dir(),
             ]
         ):
-            self._project.create()
+            logging.info(f"Current Project: {self.lineedit_output.text()} is valid")
+            logging.info(f"Current Url: {self.lineedit_src_url.text()} is valid")
+            logging.info(
+                f"Current Project Path: {self.lineedit_output.text()} is valid"
+            )
+
+            if not self._project.is_open():
+                self._project = Project()
+                self._project.create()
+
             self._project.output = Path(self.lineedit_output.text())
             self._project.path = Path(f"{self._project.output}/._data/.project.json")
             self._project.name = self.lineedit_project_name.text()
@@ -486,6 +496,8 @@ class ProjectDialog(QDialog):
             )
             return super().accept()
         else:
+            logging.info(f"Current Project Settings are not valid.")
+
             msgBox = QMessageBox(parent=self)
             msgBox.setText(
                 "Cannot start this project.<br>Please check project settings."

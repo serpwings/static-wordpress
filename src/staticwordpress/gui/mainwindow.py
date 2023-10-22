@@ -422,9 +422,21 @@ class StaticWordPressGUI(QMainWindow):
             pdialog = ProjectDialog(self, self._project, title_="Current Project")
             if pdialog.exec_():
                 self._project = pdialog._project
-
-        self._project.save()
-        self.update_widgets()
+            self._project.save()
+            self.update_widgets()
+        else:
+            msgBox = QMessageBox(parent=self)
+            msgBox.setText(f"No Project Available.")
+            msgBox.addButton(QMessageBox.Ok).setIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            )
+            msgBox.setWindowIcon(
+                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+            )
+            msgBox.setTextFormat(Qt.RichText)
+            msgBox.setWindowTitle("Project Settings")
+            msgBox.exec()
+            logging.info("No New Project found.")
 
     @is_project_open
     @logging_decorator
