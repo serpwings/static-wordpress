@@ -209,43 +209,23 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.setText(
             f"Existing content in Output folder will be delete?<br> {self._project.output}",
         )
-        msgBox.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        msgBox.addButton(QMessageBox.Cancel).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-        )
+        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+        msgBox.setDefaultButton(pushbuttonOk)
+
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
-        msgBox.setDefaultButton(QMessageBox.Ok)
         msgBox.setTextFormat(Qt.RichText)
         msgBox.exec_()
 
-        if msgBox.clickedButton().text() == "&OK":
+        if msgBox.clickedButton() == pushbuttonOk:
             rm_dir_tree(self._project.output)
             logging.info(
                 f"Content of output folder at {self._project.output} are deleted"
             )
-
-    @is_new_project
-    @logging_decorator
-    def get_sitemap_location(self):
-        """ """
-        if self._bg_thread.isRunning():
-            self._bg_thread.quit()
-
-        self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
-        self._bg_worker.set_project(project_=self._project)
-        self._bg_worker.moveToThread(self._bg_thread)
-        self._bg_thread.finished.connect(self._bg_worker.deleteLater)
-        self._bg_thread.started.connect(self._bg_worker.find_sitemap)
-        self._bg_worker.signalSitemapLocation.connect(self.update_sitemap_location)
-        self._bg_thread.start()
-
-    def update_sitemap_location(self, sitemap_location):
-        self._project.sitemap = sitemap_location
-        logging.info(f"Found Sitemap location: {sitemap_location}")
-        self.update_widgets()
 
     @is_new_project
     @logging_decorator
@@ -278,18 +258,20 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.setText(
             "Do you really want to exit?.<br>Any unsaved changes will be lost!",
         )
-        msgBox.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        msgBox.addButton(QMessageBox.Cancel).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-        )
-        msgBox.setDefaultButton(QMessageBox.Ok)
+
+        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+        msgBox.setDefaultButton(pushbuttonOk)
+
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         msgBox.setTextFormat(Qt.RichText)
         msgBox.exec_()
 
-        if msgBox.clickedButton().text() == "&OK":
+        if msgBox.clickedButton() == pushbuttonOk:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
                 del self._bg_thread
@@ -431,7 +413,7 @@ class StaticWordPressGUI(QMainWindow):
                 )
 
         self.update_widgets()
-        self._project.save()
+        # self._project.save()
 
     @logging_decorator
     def show_project(self):
@@ -455,18 +437,19 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.setText(
             "Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
         )
-        msgBox.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        msgBox.addButton(QMessageBox.Cancel).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-        )
-        msgBox.setDefaultButton(QMessageBox.Ok)
+        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+        msgBox.setDefaultButton(pushbuttonOk)
+
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         msgBox.setTextFormat(Qt.RichText)
         msgBox.exec_()
 
-        if msgBox.clickedButton().text() == "&OK":
+        if msgBox.clickedButton() == pushbuttonOk:
             self._project = Project()
             self.update_widgets()
 
@@ -481,20 +464,21 @@ class StaticWordPressGUI(QMainWindow):
             msgBox.setText(
                 f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
             )
-            msgBox.addButton(QMessageBox.Ok).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-            )
-            msgBox.addButton(QMessageBox.Cancel).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-            )
+            pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+            pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+            pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+            pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+            msgBox.setDefaultButton(pushbuttonOk)
+
             msgBox.setWindowIcon(
                 QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
             )
-            msgBox.setDefaultButton(QMessageBox.Ok)
             msgBox.setTextFormat(Qt.RichText)
             msgBox.exec_()
 
-            if msgBox.clickedButton().text() == "&OK":
+            if msgBox.clickedButton() == pushbuttonOk:
                 os.mkdir(self._project.output)
             else:
                 return
@@ -513,20 +497,21 @@ class StaticWordPressGUI(QMainWindow):
                     msgBox.setText(
                         "ZIP File not found. Please check your project configurations?",
                     )
-                    msgBox.addButton(QMessageBox.Ok).setIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-                    )
-                    msgBox.addButton(QMessageBox.Cancel).setIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-                    )
+                    pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+                    pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+                    pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+                    pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+                    msgBox.setDefaultButton(pushbuttonOk)
+
                     msgBox.setWindowIcon(
                         QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
                     )
-                    msgBox.setDefaultButton(QMessageBox.Ok)
                     msgBox.setTextFormat(Qt.RichText)
                     msgBox.exec_()
 
-                    if msgBox.clickedButton().text() == "&OK":
+                    if msgBox.clickedButton() == pushbuttonOk:
                         return
 
             self._bg_thread = QThread(parent=self)
@@ -544,20 +529,21 @@ class StaticWordPressGUI(QMainWindow):
             msgBox.setText(
                 "Do you really want to Stop Crawling Thread?",
             )
-            msgBox.addButton(QMessageBox.Ok).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-            )
-            msgBox.addButton(QMessageBox.Cancel).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-            )
+            pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+            pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+            pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+            pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+            msgBox.setDefaultButton(pushbuttonOk)
+
             msgBox.setWindowIcon(
                 QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
             )
             msgBox.setTextFormat(Qt.RichText)
-            msgBox.setDefaultButton(QMessageBox.Ok)
             msgBox.exec_()
 
-            if msgBox.clickedButton().text() == "&OK":
+            if msgBox.clickedButton() == pushbuttonOk:
                 self._bg_worker.stop_calcualations()
                 self.update_statusbar("Stoping Processing", 100)
 
@@ -669,18 +655,19 @@ class StaticWordPressGUI(QMainWindow):
         msgBox.setText(
             f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
         )
-        msgBox.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        msgBox.addButton(QMessageBox.Cancel).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-        )
-        msgBox.setDefaultButton(QMessageBox.Ok)
+        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+
+        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+
+        msgBox.setDefaultButton(pushbuttonOk)
+
         msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         msgBox.setTextFormat(Qt.RichText)
         msgBox.exec_()
 
-        if msgBox.clickedButton().text() == "&OK":
+        if msgBox.clickedButton() == pushbuttonOk:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 
