@@ -42,7 +42,7 @@ from src.staticwordpress.core import __version__
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 python_minor_min = 8
-python_minor_max = 11
+python_minor_max = 12
 confirmed_python_versions = [
     "Programming Language :: Python :: 3.{MINOR:d}".format(MINOR=minor)
     for minor in range(python_minor_min, python_minor_max + 1)
