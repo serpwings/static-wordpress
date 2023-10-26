@@ -3,8 +3,8 @@
 Python Package for Converting WordPress Installation to a Static Website.
 
 [![build_Tests](https://github.com/serpwings/static-wordpress/actions/workflows/tests.yml/badge.svg)](https://github.com/serpwings/static-wordpress/actions/workflows/tests.yml)
-[![license](https://img.shields.io/pypi/l/staticwordpress.svg?style=flat-square "Project License: GPLv3+")](https://github.com/pleiszenburg/staticwordpress/blob/master/LICENSE)
-[![status](https://img.shields.io/pypi/status/staticwordpress.svg?style=flat-square "Project Development Status")](https://github.com/pleiszenburg/staticwordpress/milestone/1)
+[![license](https://img.shields.io/pypi/l/staticwordpress.svg?style=flat-square "Project License: GPLv3+")](https://github.com/serpwings/staticwordpress/blob/master/LICENSE)
+[![status](https://img.shields.io/pypi/status/staticwordpress.svg?style=flat-square "Project Development Status")](https://github.com/serpwings/staticwordpress/milestone/1)
 [![pypi_version](https://img.shields.io/pypi/v/staticwordpress.svg?style=flat-square "Available on PyPi - the Python Package Index")](https://pypi.python.org/pypi/staticwordpress)
 [![supported_python_versions](https://img.shields.io/pypi/pyversions/staticwordpress.svg?style=flat-square "Supported Python Version")](https://pypi.python.org/pypi/staticwordpress)
 
