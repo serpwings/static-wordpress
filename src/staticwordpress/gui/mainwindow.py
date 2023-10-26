@@ -756,7 +756,7 @@ class StaticWordPressGUI(QMainWindow):
             self._project.has_github()
         )
         self.findChild(QToolBar, "toolbar_wordpres").setEnabled(
-            self._project.has_wordpress()
+            self._project.has_wordpress() or self._project.can_crawl()
         )
 
         # update menu items
