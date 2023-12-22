@@ -65,7 +65,7 @@ class _Translator(dict):
         return self._lang
 
     @language.setter
-    def language(self, language_) -> None:
+    def language(self, language_: LANGUAGES) -> None:
         self._lang = language_
 
 

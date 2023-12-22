@@ -49,7 +49,7 @@ from requests.models import Response
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import CONFIGS, LINK_REGEX
+from ..core.constants import CONFIGS, LINK_REGEX
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -111,27 +111,27 @@ def get_clean_url(url_: str = "", path_: str = "", scheme_: str = "") -> str:
     return url_
 
 
-def rm_dir_tree(dir_path: str = None, delete_root: bool = False) -> None:
+def rm_dir_tree(dir_path_: str = None, delete_root_: bool = False) -> None:
     """Delte Directry tree at dir_path
 
     Args:
         dir_path (Path | str, optional): Path/tree which need to be remvoed.
         delete_root (bool, optional): If True then Parnt/root folder is not delted.
     """
-    if dir_path and isinstance(dir_path, str):
-        dir_path = Path(dir_path)
+    if dir_path_ and isinstance(dir_path_, str):
+        dir_path_ = Path(dir_path_)
 
-    if not dir_path.exists():
+    if not dir_path_.exists():
         return
 
-    for _path in dir_path.glob("**/*"):
+    for _path in dir_path_.glob("**/*"):
         if _path.is_file() and _path.stem not in [".gitignore", ".project"]:
             _path.unlink()
         elif _path.is_dir() and _path.stem != "._data":
             shutil.rmtree(_path, onerror=rmtree_permission_error)
 
-    if delete_root:
-        dir_path.rmdir()
+    if delete_root_:
+        dir_path_.rmdir()
 
 
 def get_mock_response(url_: str = None) -> Response:
@@ -189,7 +189,7 @@ def update_links(content: str, from_: str, to_: str) -> str:
     return content.replace(from_, to_)
 
 
-def extract_urls_from_raw_text(raw_text: str, dest_url: str, src_url: str) -> list:
+def extract_urls_from_raw_text(raw_text_: str, dest_url_: str, src_url_: str) -> list:
     """Extract Urls form a Raw Text using Regex
 
     Args:
@@ -201,27 +201,27 @@ def extract_urls_from_raw_text(raw_text: str, dest_url: str, src_url: str) -> li
         list: List of Urls extracted
     """
     new_additional_links = []
-    for link in re.findall(LINK_REGEX, raw_text):
+    for link in re.findall(LINK_REGEX, raw_text_):
         item = link[0].replace("\/", "/").split("?")[0]
         item = re.sub("\(|\)|\[|\]", "", item)
-        new_additional_link = update_links(item, dest_url, src_url)
+        new_additional_link = update_links(item, dest_url_, src_url_)
 
-        if new_additional_link and src_url in new_additional_link:
+        if new_additional_link and src_url_ in new_additional_link:
             new_additional_links.append(new_additional_link)
 
     return new_additional_links
 
 
-def extract_zip_file(zip_file_path: Path, output_location: Path) -> None:
+def extract_zip_file(zip_file_path_: Path, output_location_: Path) -> None:
     """Extract ZipFile content to output_location Path
 
     Args:
         zip_file_path (Path): Zip File Path
         output_location (Path): Ouput File Path
     """
-    if output_location.is_dir() and zip_file_path.exists():
-        with ZipFile(zip_file_path, "r") as zf:
-            zf.extractall(output_location)
+    if output_location_.is_dir() and zip_file_path_.exists():
+        with ZipFile(zip_file_path_, "r") as zf:
+            zf.extractall(output_location_)
 
 
 def is_url_valid(url_: str) -> bool:

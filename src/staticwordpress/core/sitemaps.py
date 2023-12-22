@@ -40,15 +40,15 @@ from bs4 import BeautifulSoup
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from ..core.utils import get_clean_url, get_remote_content
 from ..core.constants import CONFIGS
+from ..core.utils import get_clean_url, get_remote_content
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-def find_sitemap_location(home_url: str) -> str:
+def find_sitemap_location(home_url_: str) -> str:
     """Finding Sitemap Location Using Home Url
 
     Args:
@@ -58,13 +58,13 @@ def find_sitemap_location(home_url: str) -> str:
         str: Location of Sitemap
     """
     for sitemap_path in CONFIGS["SITEMAP"]["SEARCH_PATHS"]:
-        sitemap_url = get_clean_url(home_url, sitemap_path)
+        sitemap_url = get_clean_url(home_url_, sitemap_path)
         response = get_remote_content(sitemap_url)
         if response.status_code < 400:
             return parse.urlparse(response.url).path
 
     # robots.txt
-    robots_txt = get_clean_url(home_url, "robots.txt")
+    robots_txt = get_clean_url(home_url_, "robots.txt")
     response = get_remote_content(robots_txt)
     if response:
         for item in response.text.split("\n"):
@@ -72,7 +72,7 @@ def find_sitemap_location(home_url: str) -> str:
                 return item.split("Sitemap:")[-1].strip()
 
     # check home page for link rel=sitemap
-    response = get_remote_content(home_url)
+    response = get_remote_content(home_url_)
     if response:
         soup = BeautifulSoup(response.text, features="xml")
         for link in soup.find_all("link"):
@@ -81,7 +81,7 @@ def find_sitemap_location(home_url: str) -> str:
     return ""
 
 
-def extract_sitemap_paths(sitemap_url: str) -> list:
+def extract_sitemap_paths(sitemap_url_: str) -> list:
     """Extract Sub-Sitemap from Index Sitemap
 
     Args:
@@ -91,7 +91,7 @@ def extract_sitemap_paths(sitemap_url: str) -> list:
         list: List of Sub-Sitemaps
     """
     sitemap_paths = []
-    response = get_remote_content(sitemap_url)
+    response = get_remote_content(sitemap_url_)
     for item in response.text.split("\n"):
         if ".xsl" in item:
             st = item.find("//")

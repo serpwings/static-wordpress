@@ -81,12 +81,12 @@ class GitHub:
         return inner
 
     @check_gh_token
-    def is_token_valid(self):
+    def is_token_valid(self) -> bool:
         logging.info(f"Verifying Github Token.")
         return self._gh_object.get_user().name != ""
 
     @check_gh_token
-    def is_repo_valid(self):
+    def is_repo_valid(self) -> bool:
         logging.info(f"Verifying Github Repository.")
         return self._gh_object.get_user().get_repo(self._gh_repo) is not None
 

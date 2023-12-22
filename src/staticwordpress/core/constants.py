@@ -92,6 +92,8 @@ class HOST(ExtendedEnum):
     NETLIFY = "NETLIFY"
     # CLOUDFLARE = "CLOUDFLARE"
     # LOCALHOST = "LOCALHOST"
+    # GITHUB = "GITHUB"
+    # GITLAB = "GITLAB"
 
 
 class URL(ExtendedEnum):
