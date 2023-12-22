@@ -29,5 +29,5 @@ specific language governing rights and limitations under the License.
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class SerpWingsResponseNotValid(Exception):
+class ResponseNotValid(Exception):
     pass

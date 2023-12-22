@@ -39,14 +39,14 @@ from pathlib import Path, PosixPath, WindowsPath
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import (
+from ..core.constants import (
     PROJECT,
     REDIRECTS,
     HOST,
     SOURCE,
+    USER_AGENT,
     CONFIGS,
     VERISON,
-    USER_AGENT,
     LINK_REGEX,
 )
 

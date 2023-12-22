@@ -46,14 +46,14 @@ from bs4 import BeautifulSoup
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .search import Search
-from .github import GitHub
-from .crawler import Crawler
-from .project import Project
-from .redirects import Redirects
-from .sitemaps import find_sitemap_location, extract_sitemap_paths
-from .utils import extract_zip_file, rm_dir_tree, update_links
-from .constants import (
+from ..core.search import Search
+from ..core.github import GitHub
+from ..core.crawler import Crawler
+from ..core.project import Project
+from ..core.redirects import Redirects
+from ..core.sitemaps import find_sitemap_location, extract_sitemap_paths
+from ..core.utils import extract_zip_file, rm_dir_tree, update_links
+from ..core.constants import (
     CONFIGS,
     SHARE_FOLDER_PATH,
     URL,
@@ -101,10 +101,10 @@ class Workflow:
         host_type_: HOST = HOST.NETLIFY,
     ) -> None:
         self._project.status = PROJECT.NEW
-        
+
         if src_type_ == SOURCE.ZIP:
             self._project.redirects = REDIRECTS.REDIRECTION
-        
+
         self._project.name = project_name_
         self._project.path = project_path_
         self._project._404 = custom_404_

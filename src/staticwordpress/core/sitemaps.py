@@ -40,8 +40,8 @@ from bs4 import BeautifulSoup
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .utils import get_clean_url, get_remote_content
-from .constants import CONFIGS
+from ..core.utils import get_clean_url, get_remote_content
+from ..core.constants import CONFIGS
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS

@@ -34,7 +34,7 @@ from pathlib import Path
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import LANGUAGES, CONFIGS
+from ..core.constants import LANGUAGES, CONFIGS
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS

@@ -27,9 +27,9 @@ specific language governing rights and limitations under the License.
 # STANDARD LIBARY IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import logging
 from datetime import datetime
 from pathlib import Path
-import logging
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 3rd PARTY LIBRARY IMPORTS

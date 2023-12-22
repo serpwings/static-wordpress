@@ -40,7 +40,6 @@ from datetime import date
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 from PyQt5.QtWidgets import (
-    QLineEdit,
     QMainWindow,
     QAction,
     QApplication,
@@ -70,7 +69,7 @@ from ..core.utils import (
     get_remote_content,
     extract_urls_from_raw_text,
 )
-from .workflow import WorkflowGUI
+from ..gui.workflow import WorkflowGUI
 from ..gui.logger import LoggerWidget
 from ..gui.rawtext import RawTextDialog
 from ..gui.config import ConfigDialog

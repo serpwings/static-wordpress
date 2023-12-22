@@ -45,8 +45,8 @@ from requests.structures import CaseInsensitiveDict
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .utils import get_mock_response, get_remote_content, get_clean_url
-from .constants import CONFIGS, URL, LINK_REGEX
+from ..core.utils import get_mock_response, get_remote_content, get_clean_url
+from ..core.constants import CONFIGS, URL, LINK_REGEX
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS

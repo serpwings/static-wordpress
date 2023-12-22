@@ -36,8 +36,8 @@ import logging
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import HOST, REDIRECTS
-from .errors import SerpWingsResponseNotValid
+from ..core.constants import HOST, REDIRECTS
+from ..core.errors import ResponseNotValid
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -107,7 +107,7 @@ class Redirects:
             )
 
             if wp_api_response.status_code >= 400:
-                raise SerpWingsResponseNotValid
+                raise ResponseNotValid
 
             redirects_as_dict = json.loads(wp_api_response.content)
 
@@ -122,7 +122,7 @@ class Redirects:
                         source_=REDIRECTS.REDIRECTION.value,
                     )
                 )
-        except SerpWingsResponseNotValid:
+        except ResponseNotValid:
             logging.info(
                 f"Redirects are not valid. Make sure that redirection plug is properly configured."
             )
