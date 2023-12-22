@@ -212,24 +212,26 @@ class SWMainWindow(QMainWindow):
     def clean_output_directory(self):
         """Clean Output Directory"""
 
-        msgBox = QMessageBox(parent=self)
-        msgBox.setWindowTitle("Clean Output Folder Content")
-        msgBox.setText(
+        message_box = QMessageBox(parent=self)
+        message_box.setWindowTitle("Clean Output Folder Content")
+        message_box.setText(
             f"Existing content in Output folder will be delete?<br> {self._project.output}",
         )
-        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
-        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
+        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
 
-        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
-        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
+        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
 
-        msgBox.setDefaultButton(pushbuttonOk)
+        message_box.setDefaultButton(pushbutton_ok)
 
-        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
-        msgBox.setTextFormat(Qt.RichText)
-        msgBox.exec_()
+        message_box.setWindowIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+        )
+        message_box.setTextFormat(Qt.RichText)
+        message_box.exec_()
 
-        if msgBox.clickedButton() == pushbuttonOk:
+        if message_box.clickedButton() == pushbutton_ok:
             rm_dir_tree(self._project.output)
             logging.info(
                 f"Content of output folder at {self._project.output} are deleted"
@@ -255,7 +257,7 @@ class SWMainWindow(QMainWindow):
 
     @is_new_project
     @logging_decorator
-    def clear_cache(self):
+    def clear_crawl_cache(self):
         """Clearing Crawl Cache"""
         logging.info(f"Clearing Crawl Cache")
         get_remote_content.cache_clear()
@@ -326,7 +328,7 @@ class SWMainWindow(QMainWindow):
         if not QDesktopServices.openUrl(url):
             QMessageBox.warning(self, "Open Help URL", "Could not open Help URL")
 
-    def startIPython(self):
+    def start_ipython_console(self):
         """ """
         if self.findChild(QAction, "action_ipython_widget").isChecked():
             if self.ipython_console is None:
@@ -780,11 +782,14 @@ class SWMainWindow(QMainWindow):
             self.progress_bar.setFormat(message_)
 
     def update_widgets(self) -> None:
+        # Show Menus
         self.findChild(QMenu, "menu_github").setEnabled(self._project.has_github())
         self.findChild(QMenu, "menu_wordpress").setEnabled(
             self._project.is_open()
             and (self._project.has_wordpress() or self._project.can_crawl())
         )
+
+        # Show Toolbarss
         self.findChild(QToolBar, "toolbar_github").setEnabled(
             self._project.has_github()
         )
@@ -792,7 +797,7 @@ class SWMainWindow(QMainWindow):
             self._project.has_wordpress() or self._project.can_crawl()
         )
 
-        # update menu items
+        # Show Menubar Icons
         if self._project.src_type == SOURCE.ZIP:
             self.findChild(QAction, "action_wordpress_webpages").setText(
                 "&Download Zip File"
@@ -808,10 +813,14 @@ class SWMainWindow(QMainWindow):
                 self.findChild(QAction, "action_edit_expert_mode").isChecked()
             )
 
+        for project_tool in [
+            "action_utilities_clean_output_folder",
+        ]:
+            self.findChild(QAction, project_tool).setVisible(self._project.is_open())
+
         new_window_title = (
             f"{self._project.name} - {CONFIGS['APPLICATION_NAME']}  Version - {VERISON}"
         )
-
         self.setWindowTitle(new_window_title)
 
 

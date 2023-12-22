@@ -374,13 +374,13 @@
         },
         {
             "icon": "/icons/web-remove.svg",
-            "name": "action_utilities_clear_cache",
+            "name": "action_utilities_clear_crawl_cache",
             "visible": true,
-            "text": "C&lear Cache",
+            "text": "C&lear Crawl Cache",
             "shortcut": "Ctrl+F2",
             "tooltip": "Clear Cache  (Ctrl+F2)",
             "seperator": false,
-            "function": "self.clear_cache",
+            "function": "self.clear_crawl_cache",
             "setCheckable": false,
             "menu": "menu_tools",
             "toolbar": ""
@@ -401,7 +401,7 @@
         {
             "icon": "/icons/delete-outline.svg",
             "name": "action_utilities_clean_output_folder",
-            "visible": true,
+            "visible": false,
             "text": "Clean &Output Directory",
             "shortcut": "Ctrl+F5",
             "tooltip": "Clean output directory (Ctrl+F5)",
