@@ -177,6 +177,7 @@ class SWMainWindow(QMainWindow):
             "Loaded static-wordpress Successfully. Open/Create a Project to get started"
         )
         logging.info("".join(140 * ["-"]))
+        self.update_widgets()
         self.show()
 
     # decorators
@@ -310,7 +311,7 @@ class SWMainWindow(QMainWindow):
         for widget_name in expert_widgets:
             self.findChild(QAction, widget_name).setVisible(self.sender().isChecked())
 
-        self.findChild(QAction, "action_wordpress_additional_files").setVisible(
+        self.findChild(QAction, "action_wordpress_crawl_additional_files").setVisible(
             self.sender().isChecked() and self._project.src_type != SOURCE.ZIP
         )
 
@@ -772,7 +773,7 @@ class SWMainWindow(QMainWindow):
         self._bg_thread.started.connect(self._bg_worker.publish_github_repositoy)
         self._bg_thread.start()
 
-    def update_statusbar(self, message_, percent_) -> None:
+    def update_statusbar(self, message_: str = "", percent_: int = 0) -> None:
         if percent_ >= 0:
             self.progress_bar.setValue(percent_)
             self.statusBar().showMessage(message_)
@@ -799,7 +800,8 @@ class SWMainWindow(QMainWindow):
             self._project.has_github()
         )
         self.findChild(QToolBar, "toolbar_wordpres").setEnabled(
-            self._project.has_wordpress() or self._project.can_crawl()
+            self._project.is_open()
+            and (self._project.has_wordpress() or self._project.can_crawl())
         )
 
         # Show Menubar Icons
@@ -820,15 +822,23 @@ class SWMainWindow(QMainWindow):
                 self.findChild(QAction, "action_edit_set_expert_mode").isChecked()
             )
 
-        for project_tool in [
-            "action_tools_clean_output_folder",
-        ]:
-            self.findChild(QAction, project_tool).setVisible(self._project.is_open())
-
-        new_window_title = (
-            f"{self._project.name} - {CONFIGS['APPLICATION_NAME']}  Version - {VERISON}"
+        self.findChild(QAction, "action_wordpress_crawl_additional_files").setVisible(
+            self.findChild(QAction, "action_edit_set_expert_mode").isChecked()
         )
-        self.setWindowTitle(new_window_title)
+
+        self.findChild(QAction, "action_project_show_project_settings").setEnabled(
+            self._project.is_open()
+        )
+        self.findChild(QAction, "action_project_close_project").setEnabled(
+            self._project.is_open()
+        )
+
+        if self._project.is_open():
+            self.setWindowTitle(
+                f"{self._project.name} - {CONFIGS['APPLICATION_NAME']}  Version - {VERISON}"
+            )
+        else:
+            self.setWindowTitle(f"{CONFIGS['APPLICATION_NAME']}  Version - {VERISON}")
 
 
 def main():
