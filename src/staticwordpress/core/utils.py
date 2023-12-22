@@ -228,6 +228,12 @@ def is_url_valid(url_: str) -> bool:
     url_parsed_ = parse.urlparse(url_)
 
     if all([url_parsed_.scheme, url_parsed_.netloc]):
-        return get_remote_content(url_parsed_, max_retires=1).status_code < 399
+        from urllib.request import urlopen
 
+        # print(url_parsed_)
+        # # return get_remote_content(url_parsed_, max_retires=1).status_code < 399
+        try:
+            return urlopen(url_).getcode() < 399
+        except:
+            return False
     return False

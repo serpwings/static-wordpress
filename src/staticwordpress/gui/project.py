@@ -323,7 +323,7 @@ class ProjectDialog(QDialog):
         self.pushbutton_verify.setIcon(
             QIcon(f"{SHARE_FOLDER_PATH}/icons/check_project.svg")
         )
-        self.pushbutton_verify.clicked.connect(self.check_project)
+        self.pushbutton_verify.clicked.connect(self.verify_project_settings)
 
         self.pushbutton_save = QPushButton("&Save")
         self.pushbutton_save.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
@@ -398,10 +398,11 @@ class ProjectDialog(QDialog):
         self._bg_worker.emit_sitemap_location.connect(self.update_sitemap_location)
         self._bg_thread.start()
 
-    def update_sitemap_location(self, sitemap_location):
-        self.lineedit_sitemap.setText(sitemap_location)
+    def update_sitemap_location(self, sitemap_location_):
+        if sitemap_location_:
+            self.lineedit_sitemap.setText(sitemap_location_)
 
-    def check_project(self):
+    def verify_project_settings(self):
         """"""
         # TODO: Add checks for WP_API and Gh_API and if not present then disable them.
         # TODO: Move these checks to background thread e.g. for WP_API or  SRC_URL or SRC or DST Path
@@ -455,7 +456,7 @@ class ProjectDialog(QDialog):
             [
                 self.lineedit_project_name.text(),
                 self.lineedit_output.text(),
-                is_url_valid(self.lineedit_src_url.text()),
+                # is_url_valid(self.lineedit_src_url.text()),
                 Path(self.lineedit_output.text()).is_dir(),
             ]
         ):
