@@ -64,10 +64,10 @@ from PyQt5.QtGui import QIcon
 from ..core.constants import (
     REDIRECTS,
     USER_AGENT,
-    CONFIGS,
-    SHARE_FOLDER_PATH,
     SOURCE,
     HOST,
+    CONFIGS,
+    SHARE_FOLDER_PATH,
 )
 
 from ..core.project import Project

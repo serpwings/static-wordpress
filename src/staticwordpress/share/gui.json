@@ -38,7 +38,7 @@
         {
             "name": "menu_tools",
             "text": "&Tools",
-            "enable": true,
+            "enable": false,
             "icon": "",
             "parent": ""
         },
@@ -75,7 +75,7 @@
     "ACTIONS": [
         {
             "icon": "/icons/file-outline.svg",
-            "name": "action_project_new",
+            "name": "action_project_new_project",
             "visible": true,
             "text": "&New",
             "shortcut": "Ctrl+N",
@@ -88,7 +88,7 @@
         },
         {
             "icon": "/icons/folder-outline.svg",
-            "name": "action_project_open",
+            "name": "action_project_open_project",
             "visible": true,
             "text": "&Open",
             "shortcut": "Ctrl+O",
@@ -101,12 +101,12 @@
         },
         {
             "icon": "/icons/project_settings.svg",
-            "name": "action_project_settings",
+            "name": "action_project_show_project_settings",
             "visible": true,
             "text": "&Settings",
             "shortcut": "Ctrl+C",
             "tooltip": "Check (Ctrl+C)",
-            "function": "self.show_project",
+            "function": "self.show_project_settings",
             "setCheckable": false,
             "menu": "menu_project",
             "seperator": false,
@@ -114,7 +114,7 @@
         },
         {
             "icon": "/icons/project_close.svg",
-            "name": "action_project_close",
+            "name": "action_project_close_project",
             "visible": true,
             "text": "&Close",
             "shortcut": "Ctrl+X",
@@ -127,7 +127,7 @@
         },
         {
             "icon": "/icons/exit-to-app.svg",
-            "name": "action_project_exit",
+            "name": "action_project_close",
             "visible": true,
             "text": "&Exit",
             "shortcut": "Ctrl+Q",
@@ -153,7 +153,7 @@
         },
         {
             "icon": "/icons/python.svg",
-            "name": "action_ipython_widget",
+            "name": "action_start_ipython_console",
             "visible": true,
             "text": "&IPython",
             "shortcut": "F4",
@@ -166,7 +166,7 @@
         },
         {
             "icon": "/icons/bug-outline.svg",
-            "name": "action_edit_debug",
+            "name": "action_edit_set_debug_mode",
             "visible": true,
             "text": "&Debug",
             "shortcut": "F5",
@@ -179,7 +179,7 @@
         },
         {
             "icon": "/icons/person.svg",
-            "name": "action_edit_expert_mode",
+            "name": "action_edit_set_expert_mode",
             "visible": true,
             "text": "&Expert Mode",
             "shortcut": "F10",
@@ -192,7 +192,7 @@
         },
         {
             "icon": "/icons/configs.svg",
-            "name": "action_file_project_close",
+            "name": "action_project_show_configs",
             "visible": true,
             "text": "&Configurations",
             "shortcut": "F12",
@@ -204,47 +204,21 @@
             "toolbar": "toolbar_edit"
         },
         {
-            "icon": "/icons/play.svg",
-            "name": "action_wordpress_batch_processing",
-            "visible": true,
-            "text": "Start &Batch Process",
-            "shortcut": "Ctrl+F6",
-            "tooltip": "Start Batch Process (Ctrl+F6)",
-            "function": "self.start_batch_process",
-            "setCheckable": false,
-            "menu": "menu_wordpress",
-            "seperator": false,
-            "toolbar": "toolbar_wordpres"
-        },
-        {
-            "icon": "/icons/stop.svg",
-            "name": "action_wordpress_stop_processing",
-            "visible": true,
-            "text": "&Stop Process",
-            "shortcut": "Ctrl+F7",
-            "tooltip": "Stop Current Process (Ctrl+F7)",
-            "seperator": false,
-            "function": "self.stop_process",
-            "setCheckable": false,
-            "menu": "menu_wordpress",
-            "toolbar": "toolbar_wordpres"
-        },
-        {
             "icon": "/icons/crawl_website.svg",
-            "name": "action_wordpress_webpages",
+            "name": "action_wordpress_crawl_webpages",
             "visible": false,
-            "text": "&Crawl Webpages",
-            "shortcut": "Ctrl+1 (Ctrl+1)",
-            "tooltip": "Crawl Webpages",
+            "text": "&Crawl WebPages",
+            "shortcut": "Ctrl+1",
+            "tooltip": "Crawl WebPages (Ctrl+1)",
             "seperator": false,
-            "function": "self.crawl_website",
+            "function": "self.crawl_webpages",
             "setCheckable": false,
             "menu": "menu_wordpress",
             "toolbar": ""
         },
         {
             "icon": "/icons/additionals.svg",
-            "name": "action_wordpress_additional_files",
+            "name": "action_wordpress_crawl_additional_files",
             "visible": false,
             "text": "Crawl &Additional Files",
             "shortcut": "Ctrl+2",
@@ -257,7 +231,7 @@
         },
         {
             "icon": "/icons/search.svg",
-            "name": "action_wordpress_search_index",
+            "name": "action_wordpress_create_search_index",
             "visible": false,
             "text": "Prepare &Search Index",
             "shortcut": "Ctrl+3",
@@ -270,7 +244,7 @@
         },
         {
             "icon": "/icons/error.svg",
-            "name": "action_wordpress_404_page",
+            "name": "action_wordpress_create_404_page",
             "visible": false,
             "text": "Create &404 Page",
             "shortcut": "Ctrl+4",
@@ -283,7 +257,7 @@
         },
         {
             "icon": "/icons/redirects.svg",
-            "name": "action_wordpress_redirects",
+            "name": "action_wordpress_create_redirects",
             "visible": false,
             "text": "Create &Redirects",
             "shortcut": "Ctrl+5",
@@ -296,20 +270,46 @@
         },
         {
             "icon": "/icons/robots_txt.svg",
-            "name": "action_wordpress_robots_txt",
+            "name": "action_wordpress_create_robots_txt",
             "visible": false,
             "text": "Create Robots.&txt",
             "shortcut": "Ctrl+6",
-            "tooltip": "Copy Robots.txt File (Ctrl+6)",
-            "seperator": false,
+            "tooltip": "Create Robots.txt File (Ctrl+6)",
+            "seperator": true,
             "function": "self.create_robots_txt",
             "setCheckable": false,
             "menu": "menu_wordpress",
             "toolbar": ""
         },
         {
+            "icon": "/icons/play.svg",
+            "name": "action_wordpress_start_batch_process",
+            "visible": true,
+            "text": "Start &Batch Process",
+            "shortcut": "Ctrl+F6",
+            "tooltip": "Start Batch Process (Ctrl+F6)",
+            "function": "self.start_batch_process",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "seperator": false,
+            "toolbar": "toolbar_wordpres"
+        },
+        {
+            "icon": "/icons/stop.svg",
+            "name": "action_wordpress_stop_process",
+            "visible": true,
+            "text": "&Stop Process",
+            "shortcut": "Ctrl+F7",
+            "tooltip": "Stop Current Process (Ctrl+F7)",
+            "seperator": false,
+            "function": "self.stop_process",
+            "setCheckable": false,
+            "menu": "menu_wordpress",
+            "toolbar": "toolbar_wordpres"
+        },
+        {
             "icon": "/icons/pencil-outline.svg",
-            "name": "action_github_create_repositoy",
+            "name": "action_github_create_github_repositoy",
             "visible": true,
             "text": "&Create on GitHub",
             "shortcut": "Ctrl+F9",
@@ -322,7 +322,7 @@
         },
         {
             "icon": "/icons/delete-repo.svg",
-            "name": "action_github_delete_repositoy",
+            "name": "action_github_delete_github_repository",
             "visible": true,
             "text": "&Delete from GitHub",
             "shortcut": "Ctrl+Shift+F9",
@@ -374,7 +374,7 @@
         },
         {
             "icon": "/icons/web-remove.svg",
-            "name": "action_utilities_clear_crawl_cache",
+            "name": "action_tools_clear_crawl_cache",
             "visible": true,
             "text": "C&lear Crawl Cache",
             "shortcut": "Ctrl+F2",
@@ -387,7 +387,7 @@
         },
         {
             "icon": "/icons/text-recognition.svg",
-            "name": "action_utilities_extract_url_from_raw_text",
+            "name": "action_tools_extract_url_from_raw_text",
             "visible": true,
             "text": "&Extract Urls From Text",
             "shortcut": "Ctrl+F4",
@@ -400,7 +400,7 @@
         },
         {
             "icon": "/icons/delete-outline.svg",
-            "name": "action_utilities_clean_output_folder",
+            "name": "action_tools_clean_output_folder",
             "visible": false,
             "text": "Clean &Output Directory",
             "shortcut": "Ctrl+F5",

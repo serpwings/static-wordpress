@@ -70,13 +70,14 @@ from ..core.utils import (
     get_remote_content,
     extract_urls_from_raw_text,
 )
-from .workflow import SWWorkflowObject
-from .logger import SWLoggerWidget
-from .editor import SWIPythonWidget
-from .rawtext import SWRawTextDialog
-from .config import SWConfigDialog
-from .project import SWProjectDialog
-from .utils import GUI_SETTINGS, logging_decorator
+from ..gui.workflow import SWWorkflowObject
+from ..gui.logger import SWLoggerWidget
+from ..gui.editor import SWIPythonWidget
+from ..gui.rawtext import SWRawTextDialog
+from ..gui.config import SWConfigDialog
+from ..gui.project import SWProjectDialog
+from ..gui.utils import GUI_SETTINGS, logging_decorator
+
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -299,11 +300,11 @@ class SWMainWindow(QMainWindow):
 
     def set_expert_mode(self):
         expert_widgets = [
-            "action_wordpress_404_page",
-            "action_wordpress_redirects",
-            "action_wordpress_robots_txt",
-            "action_wordpress_search_index",
-            "action_wordpress_webpages",
+            "action_wordpress_create_404_page",
+            "action_wordpress_create_redirects",
+            "action_wordpress_create_robots_txt",
+            "action_wordpress_create_search_index",
+            "action_wordpress_crawl_webpages",
         ]
 
         for widget_name in expert_widgets:
@@ -330,7 +331,7 @@ class SWMainWindow(QMainWindow):
 
     def start_ipython_console(self):
         """ """
-        if self.findChild(QAction, "action_ipython_widget").isChecked():
+        if self.findChild(QAction, "action_start_ipython_console").isChecked():
             if self.ipython_console is None:
                 self.ipython_console = SWIPythonWidget(interface_={"iface": self})
                 self.dockwidget_ipython.setWidget(self.ipython_console)
@@ -443,7 +444,7 @@ class SWMainWindow(QMainWindow):
         # self._project.save()
 
     @logging_decorator
-    def show_project(self):
+    def show_project_settings(self):
         """showing static-wordpress Project File"""
         if self._project.is_open():
             project_dialog = SWProjectDialog(
@@ -592,7 +593,7 @@ class SWMainWindow(QMainWindow):
                 self.update_statusbar("Stoping Processing", 100)
 
     @is_project_open
-    def crawl_website(self) -> None:
+    def crawl_webpages(self) -> None:
         if self._bg_thread.isRunning():
             self._bg_thread.quit()
 
@@ -788,6 +789,10 @@ class SWMainWindow(QMainWindow):
             self._project.is_open()
             and (self._project.has_wordpress() or self._project.can_crawl())
         )
+        self.findChild(QMenu, "menu_tools").setEnabled(
+            self._project.is_open()
+            and (self._project.has_wordpress() or self._project.can_crawl())
+        )
 
         # Show Toolbarss
         self.findChild(QToolBar, "toolbar_github").setEnabled(
@@ -799,22 +804,24 @@ class SWMainWindow(QMainWindow):
 
         # Show Menubar Icons
         if self._project.src_type == SOURCE.ZIP:
-            self.findChild(QAction, "action_wordpress_webpages").setText(
+            self.findChild(QAction, "action_wordpress_crawl_webpages").setText(
                 "&Download Zip File"
             )
-            self.findChild(QAction, "action_wordpress_additional_files").setVisible(
-                False
-            )
+            self.findChild(
+                QAction, "action_wordpress_crawl_additional_files"
+            ).setVisible(False)
         else:
-            self.findChild(QAction, "action_wordpress_webpages").setText(
+            self.findChild(QAction, "action_wordpress_crawl_webpages").setText(
                 "&Crawl Webpages"
             )
-            self.findChild(QAction, "action_wordpress_additional_files").setVisible(
-                self.findChild(QAction, "action_edit_expert_mode").isChecked()
+            self.findChild(
+                QAction, "action_wordpress_crawl_additional_files"
+            ).setVisible(
+                self.findChild(QAction, "action_edit_set_expert_mode").isChecked()
             )
 
         for project_tool in [
-            "action_utilities_clean_output_folder",
+            "action_tools_clean_output_folder",
         ]:
             self.findChild(QAction, project_tool).setVisible(self._project.is_open())
 
