@@ -139,6 +139,32 @@
             "toolbar": ""
         },
         {
+            "icon": "/icons/clear_all.svg",
+            "name": "action_clear_debug_logs",
+            "visible": true,
+            "text": "&Clear All",
+            "shortcut": "F2",
+            "tooltip": "Clear All (F2)",
+            "function": "self.text_edit_logging.plaintext_edit.clear",
+            "setCheckable": false,
+            "menu": "menu_edit",
+            "seperator": true,
+            "toolbar": "toolbar_edit"
+        },
+        {
+            "icon": "/icons/python.svg",
+            "name": "action_ipython_widget",
+            "visible": true,
+            "text": "&IPython",
+            "shortcut": "F4",
+            "tooltip": "IPython (F4)",
+            "function": "self.start_ipython_console",
+            "setCheckable": true,
+            "menu": "menu_edit",
+            "seperator": false,
+            "toolbar": "toolbar_edit"
+        },
+        {
             "icon": "/icons/bug-outline.svg",
             "name": "action_edit_debug",
             "visible": true,
@@ -156,22 +182,9 @@
             "name": "action_edit_expert_mode",
             "visible": true,
             "text": "&Expert Mode",
-            "shortcut": "F8",
-            "tooltip": "Expert Mode (F8)",
-            "function": "self.set_expert_mode",
-            "setCheckable": true,
-            "menu": "menu_edit",
-            "seperator": false,
-            "toolbar": "toolbar_edit"
-        },
-        {
-            "icon": "/icons/python.svg",
-            "name": "action_ipython_widget",
-            "visible": true,
-            "text": "&IPython",
             "shortcut": "F10",
-            "tooltip": "IPython (F10)",
-            "function": "self.startIPython",
+            "tooltip": "Expert Mode (F10)",
+            "function": "self.set_expert_mode",
             "setCheckable": true,
             "menu": "menu_edit",
             "seperator": false,
@@ -187,7 +200,7 @@
             "function": "self.show_configs",
             "setCheckable": false,
             "menu": "menu_edit",
-            "seperator": true,
+            "seperator": false,
             "toolbar": "toolbar_edit"
         },
         {
