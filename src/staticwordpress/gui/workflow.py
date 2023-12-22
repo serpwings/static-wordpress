@@ -44,10 +44,10 @@ from ..gui.utils import logging_decorator, progress_decorator
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class WorkflowGUI(QObject):
-    signalSitemapLocation = pyqtSignal(str)
-    signalProgress = pyqtSignal(str, int)
-    signalVerification = pyqtSignal(dict)
+class SWWorkflowObject(QObject):
+    emit_sitemap_location = pyqtSignal(str)
+    emit_progress = pyqtSignal(str, int)
+    emit_verification = pyqtSignal(dict)
 
     _work_flow = Workflow()
 
@@ -58,7 +58,7 @@ class WorkflowGUI(QObject):
     @progress_decorator("Verifying Project Settings", 100)
     @logging_decorator
     def verify_project(self):
-        self.signalVerification.emit(
+        self.emit_verification.emit(
             {
                 "name": self._work_flow.verify_project_name(),
                 "src-url": self._work_flow.verify_src_url(),
@@ -131,7 +131,7 @@ class WorkflowGUI(QObject):
     @logging_decorator
     def find_sitemap(self) -> None:
         self._work_flow.find_sitemap()
-        self.signalSitemapLocation.emit(self._work_flow.sitemap)
+        self.emit_sitemap_location.emit(self._work_flow.sitemap)
 
     @progress_decorator("Crawling Sitemap", 100)
     @logging_decorator

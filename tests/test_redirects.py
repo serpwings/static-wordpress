@@ -35,7 +35,7 @@ def test_redirect():
     red = Redirect(
         from_="/",
         to_="https://seowings.org",
-        status=200,
+        status_=200,
         query_=None,
         force_=True,
         source_=REDIRECTS.REDIRECTION,

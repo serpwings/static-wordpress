@@ -41,15 +41,15 @@ from PyQt5.QtCore import QObject, pyqtSignal
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class LoggerWidget(logging.Handler, QObject):
-    appendPlainText = pyqtSignal(str)
+class SWLoggerWidget(logging.Handler, QObject):
+    append_text_message = pyqtSignal(str)
 
     def __init__(self, parent):
         super().__init__()
         QObject.__init__(self)
-        self.plainTextEdit = QPlainTextEdit(parent)
-        self.plainTextEdit.setReadOnly(True)
-        self.appendPlainText.connect(self.plainTextEdit.appendPlainText)
+        self.plaintext_edit = QPlainTextEdit(parent)
+        self.plaintext_edit.setReadOnly(True)
+        self.append_text_message.connect(self.plaintext_edit.appendPlainText)
 
     def emit(self, msg):
-        self.appendPlainText.emit(self.format(msg))
+        self.append_text_message.emit(self.format(msg))

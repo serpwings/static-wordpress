@@ -39,14 +39,14 @@ from pathlib import Path, PosixPath, WindowsPath
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import (
+from ..core.constants import (
     PROJECT,
     REDIRECTS,
     HOST,
     SOURCE,
+    USER_AGENT,
     CONFIGS,
     VERISON,
-    USER_AGENT,
     LINK_REGEX,
 )
 
@@ -218,16 +218,16 @@ class Project(dict):
     def save(self) -> None:
         if self.is_open() and self["path"]:
             with self["path"].open("w") as f:
-                _self_copy = deepcopy(self)
-                _self_copy["path"] = str(self["path"])
-                _self_copy["user-agent"] = self["user-agent"].value
-                _self_copy["source"]["type"] = self["source"]["type"].value
-                _self_copy["destination"]["host"] = self["destination"]["host"].value
-                _self_copy["redirects"] = self["redirects"].value
-                _self_copy["destination"]["output"] = str(self["destination"]["output"])
-                _self_copy["status"] = PROJECT.SAVED.value
+                self_copy = deepcopy(self)
+                self_copy["path"] = str(self["path"])
+                self_copy["user-agent"] = self["user-agent"].value
+                self_copy["source"]["type"] = self["source"]["type"].value
+                self_copy["destination"]["host"] = self["destination"]["host"].value
+                self_copy["redirects"] = self["redirects"].value
+                self_copy["destination"]["output"] = str(self["destination"]["output"])
+                self_copy["status"] = PROJECT.SAVED.value
 
-                json.dump(_self_copy, f, indent=4)
+                json.dump(self_copy, f, indent=4)
 
             self["status"] = PROJECT.SAVED
 
@@ -328,8 +328,8 @@ class Project(dict):
         return self["source"]["type"]
 
     @src_type.setter
-    def src_type(self, source_type_: str) -> None:
-        self["source"]["type"] = source_type_
+    def src_type(self, src_type_: str) -> None:
+        self["source"]["type"] = src_type_
 
     @property
     def src_url(self) -> str:
@@ -344,16 +344,16 @@ class Project(dict):
         return self["source"]["simply-static"]["archive"]
 
     @ss_archive.setter
-    def ss_archive(self, archive_name_: str) -> None:
-        self["source"]["simply-static"]["archive"] = archive_name_
+    def ss_archive(self, ss_archive_name_: str) -> None:
+        self["source"]["simply-static"]["archive"] = ss_archive_name_
 
     @property
     def ss_folder(self) -> str:
         return self["source"]["simply-static"]["folder"]
 
     @ss_folder.setter
-    def ss_folder(self, folder_: str) -> None:
-        self["source"]["simply-static"]["folder"] = folder_
+    def ss_folder(self, ss_folder_: str) -> None:
+        self["source"]["simply-static"]["folder"] = ss_folder_
 
     @property
     def zip_file_url(self) -> str:
@@ -450,8 +450,8 @@ class Project(dict):
         return self["search"]
 
     @search.setter
-    def search(self, search: str) -> None:
-        self["search"] = search
+    def search(self, search_: str) -> None:
+        self["search"] = search_
 
     @property
     def search_path(self) -> Path:

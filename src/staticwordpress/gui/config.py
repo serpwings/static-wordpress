@@ -69,7 +69,7 @@ from ..core.constants import (
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class ConfigTabBar(QTabBar):
+class SWConfigTabBar(QTabBar):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         return
@@ -102,15 +102,15 @@ class ConfigTabBar(QTabBar):
         return
 
 
-class ConfigDialog(QDialog):
+class SWConfigDialog(QDialog):
     def __init__(self, parent=None):
-        super(ConfigDialog, self).__init__(parent=parent)
-        self.appConfigurations = QSettings(
+        super(SWConfigDialog, self).__init__(parent=parent)
+        self.app_configurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
 
         self.tabswidget_configs = QTabWidget()
-        self.tabswidget_configs.setTabBar(ConfigTabBar())
+        self.tabswidget_configs.setTabBar(SWConfigTabBar())
         self.tabswidget_configs.setTabPosition(QTabWidget.West)
 
         self.tab_general = QWidget()
@@ -152,7 +152,7 @@ class ConfigDialog(QDialog):
         self.pushbutton_color_success = QPushButton("")
         self.pushbutton_color_success.setObjectName("success")
         self.pushbutton_color_success.setFixedWidth(80)
-        self.pushbutton_color_success.clicked.connect(self.openColorDialog)
+        self.pushbutton_color_success.clicked.connect(self.open_color_dialog)
         self.pushbutton_color_success.setStyleSheet(
             f"background-color: {CONFIGS['COLOR']['SUCCESS']}"
         )
@@ -164,7 +164,7 @@ class ConfigDialog(QDialog):
         self.pushbutton_color_warning = QPushButton("")
         self.pushbutton_color_warning.setObjectName("warning")
         self.pushbutton_color_warning.setFixedWidth(80)
-        self.pushbutton_color_warning.clicked.connect(self.openColorDialog)
+        self.pushbutton_color_warning.clicked.connect(self.open_color_dialog)
         self.pushbutton_color_warning.setStyleSheet(
             f"background-color: {CONFIGS['COLOR']['WARNING']}"
         )
@@ -176,7 +176,7 @@ class ConfigDialog(QDialog):
         self.pushbotton_color_error = QPushButton("")
         self.pushbotton_color_error.setObjectName("error")
         self.pushbotton_color_error.setFixedWidth(80)
-        self.pushbotton_color_error.clicked.connect(self.openColorDialog)
+        self.pushbotton_color_error.clicked.connect(self.open_color_dialog)
         self.pushbotton_color_error.setStyleSheet(
             f"background-color: {CONFIGS['COLOR']['ERROR']}"
         )
@@ -363,7 +363,7 @@ class ConfigDialog(QDialog):
         self.setWindowTitle("Default Configurations")
         self.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
 
-    def openColorDialog(self):
+    def open_color_dialog(self):
         color = QColorDialog.getColor()
 
         if color.isValid():

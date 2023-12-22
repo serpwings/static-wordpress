@@ -72,23 +72,23 @@ from ..core.constants import (
 
 from ..core.project import Project
 from ..core.utils import is_url_valid
-from ..gui.workflow import WorkflowGUI
+from ..gui.workflow import SWWorkflowObject
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class ProjectDialog(QDialog):
+class SWProjectDialog(QDialog):
     def __init__(self, parent, project_, title_="Project Settings"):
-        super(ProjectDialog, self).__init__(parent=parent)
+        super(SWProjectDialog, self).__init__(parent=parent)
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
 
         self._project = project_
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
 
         vertical_layout_project = QVBoxLayout()
         groupbox_general_settings = QGroupBox("General Settings")
@@ -104,7 +104,7 @@ class ProjectDialog(QDialog):
         self.lineedit_src_url.setObjectName("src-url")
         form_layout_general_settings.addRow(QLabel("Source Url"), self.lineedit_src_url)
 
-        horizontal_Layout_output_directory = QHBoxLayout()
+        horizontal_layout_output_directory = QHBoxLayout()
         self.lineedit_output = QLineEdit(str(self._project.output))
         self.lineedit_output.setObjectName("output")
         self.toolbutton_output_directory = QToolButton()
@@ -112,10 +112,10 @@ class ProjectDialog(QDialog):
             QIcon(f"{SHARE_FOLDER_PATH}/icons/three-dots.svg")
         )
         self.toolbutton_output_directory.clicked.connect(self.get_output_directory)
-        horizontal_Layout_output_directory.addWidget(self.lineedit_output)
-        horizontal_Layout_output_directory.addWidget(self.toolbutton_output_directory)
+        horizontal_layout_output_directory.addWidget(self.lineedit_output)
+        horizontal_layout_output_directory.addWidget(self.toolbutton_output_directory)
         form_layout_general_settings.addRow(
-            QLabel("Output Directory"), horizontal_Layout_output_directory
+            QLabel("Output Directory"), horizontal_layout_output_directory
         )
 
         horizontal_layout_crawl_delay_user_agent = QHBoxLayout()
@@ -169,45 +169,45 @@ class ProjectDialog(QDialog):
         widget_static_website_tab = QWidget()
         form_layout_static_website_properties = QFormLayout()
 
-        horizontal_Layout_project_scource = QHBoxLayout()
+        horizontal_layout_project_source = QHBoxLayout()
         self.combobox_source_type = QComboBox()
         self.combobox_source_type.setObjectName("source")
         self.combobox_source_type.setMinimumWidth(120)
         self.combobox_source_type.addItems([item.value for item in list(SOURCE)])
         self.combobox_source_type.setCurrentText(self._project.src_type.value)
-        horizontal_Layout_project_scource.addWidget(self.combobox_source_type)
-        horizontal_Layout_project_scource.addStretch()
+        horizontal_layout_project_source.addWidget(self.combobox_source_type)
+        horizontal_layout_project_source.addStretch()
 
         form_layout_static_website_properties.addRow(
-            QLabel("Data Source"), horizontal_Layout_project_scource
+            QLabel("Data Source"), horizontal_layout_project_source
         )
 
-        horizontal_Layout_project_redirects = QHBoxLayout()
+        horizontal_layout_project_redirects = QHBoxLayout()
         self.combobox_redirects = QComboBox()
         self.combobox_redirects.setObjectName("redirects")
         self.combobox_redirects.setMinimumWidth(120)
         self.combobox_redirects.addItems([item.value for item in list(REDIRECTS)])
         self.combobox_redirects.setCurrentText(self._project.redirects.value)
 
-        horizontal_Layout_project_redirects.addWidget(self.combobox_redirects)
-        horizontal_Layout_project_redirects.addStretch()
+        horizontal_layout_project_redirects.addWidget(self.combobox_redirects)
+        horizontal_layout_project_redirects.addStretch()
         form_layout_static_website_properties.addRow(
-            QLabel("Redirects Source"), horizontal_Layout_project_redirects
+            QLabel("Redirects Source"), horizontal_layout_project_redirects
         )
 
-        horizontal_Layout_project_destination = QHBoxLayout()
+        horizontal_layout_project_destination = QHBoxLayout()
         self.combobox_project_destination = QComboBox()
         self.combobox_project_destination.setObjectName("host")
         self.combobox_project_destination.setMinimumWidth(120)
         self.combobox_project_destination.addItems([item.value for item in list(HOST)])
         self.combobox_project_destination.setCurrentText(self._project.host.value)
 
-        horizontal_Layout_project_destination.addWidget(
+        horizontal_layout_project_destination.addWidget(
             self.combobox_project_destination
         )
-        horizontal_Layout_project_destination.addStretch()
+        horizontal_layout_project_destination.addStretch()
         form_layout_static_website_properties.addRow(
-            QLabel("Destination Host"), horizontal_Layout_project_destination
+            QLabel("Destination Host"), horizontal_layout_project_destination
         )
 
         self.lineedit_dest_url = QLineEdit(self._project.dst_url)
@@ -229,7 +229,7 @@ class ProjectDialog(QDialog):
         )
         widget_static_website_tab.setLayout(form_layout_static_website_properties)
 
-        horizontal_Layout_sitemap = QHBoxLayout()
+        horizontal_layout_sitemap = QHBoxLayout()
         self.lineedit_sitemap = QLineEdit(self._project.sitemap)
         self.lineedit_sitemap.setObjectName("sitemap")
         self.toolbutton_output_sitemap = QToolButton()
@@ -237,10 +237,10 @@ class ProjectDialog(QDialog):
             QIcon(f"{SHARE_FOLDER_PATH}/icons/search.svg")
         )
         self.toolbutton_output_sitemap.clicked.connect(self.get_sitemap_location)
-        horizontal_Layout_sitemap.addWidget(self.lineedit_sitemap)
-        horizontal_Layout_sitemap.addWidget(self.toolbutton_output_sitemap)
+        horizontal_layout_sitemap.addWidget(self.lineedit_sitemap)
+        horizontal_layout_sitemap.addWidget(self.toolbutton_output_sitemap)
         form_layout_static_website_properties.addRow(
-            QLabel("Sitemap Location"), horizontal_Layout_sitemap
+            QLabel("Sitemap Location"), horizontal_layout_sitemap
         )
 
         self.textedit_additional_urls = QTextEdit()
@@ -323,7 +323,7 @@ class ProjectDialog(QDialog):
         self.pushbutton_verify.setIcon(
             QIcon(f"{SHARE_FOLDER_PATH}/icons/check_project.svg")
         )
-        self.pushbutton_verify.clicked.connect(self.check_project)
+        self.pushbutton_verify.clicked.connect(self.verify_project_settings)
 
         self.pushbutton_save = QPushButton("&Save")
         self.pushbutton_save.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
@@ -390,21 +390,22 @@ class ProjectDialog(QDialog):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_thread.started.connect(self._bg_worker.find_sitemap)
-        self._bg_worker.signalSitemapLocation.connect(self.update_sitemap_location)
+        self._bg_worker.emit_sitemap_location.connect(self.update_sitemap_location)
         self._bg_thread.start()
 
-    def update_sitemap_location(self, sitemap_location):
-        self.lineedit_sitemap.setText(sitemap_location)
+    def update_sitemap_location(self, sitemap_location_):
+        if sitemap_location_:
+            self.lineedit_sitemap.setText(sitemap_location_)
 
-    def check_project(self):
+    def verify_project_settings(self):
         """"""
         # TODO: Add checks for WP_API and Gh_API and if not present then disable them.
-        # TODO: Move these checks to background thread
+        # TODO: Move these checks to background thread e.g. for WP_API or  SRC_URL or SRC or DST Path
         if not (self.lineedit_wp_api_token.text() and self.lineedit_wp_user.text()):
             self.combobox_redirects.setCurrentText(REDIRECTS.NONE.value)
 
@@ -455,7 +456,7 @@ class ProjectDialog(QDialog):
             [
                 self.lineedit_project_name.text(),
                 self.lineedit_output.text(),
-                is_url_valid(self.lineedit_src_url.text()),
+                # is_url_valid(self.lineedit_src_url.text()),
                 Path(self.lineedit_output.text()).is_dir(),
             ]
         ):
@@ -498,18 +499,18 @@ class ProjectDialog(QDialog):
         else:
             logging.info(f"Current Project Settings are not valid.")
 
-            msgBox = QMessageBox(parent=self)
-            msgBox.setText(
+            message_box = QMessageBox(parent=self)
+            message_box.setText(
                 "Cannot start this project.<br>Please check project settings."
             )
-            msgBox.addButton(QMessageBox.Ok).setIcon(
+            message_box.addButton(QMessageBox.Ok).setIcon(
                 QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
             )
-            msgBox.setWindowIcon(
+            message_box.setWindowIcon(
                 QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
             )
-            msgBox.setTextFormat(Qt.RichText)
-            msgBox.setWindowTitle(
+            message_box.setTextFormat(Qt.RichText)
+            message_box.setWindowTitle(
                 "Invalid Project Settings",
             )
-            msgBox.exec()
+            message_box.exec()

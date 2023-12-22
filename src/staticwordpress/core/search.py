@@ -129,7 +129,7 @@ class Search:
                 }
             )
 
-    def copy_scripts(self):
+    def copy_scripts(self) -> None:
         """Copy Search.js into search folder"""
         src = Path(f'{SHARE_FOLDER_PATH}/{CONFIGS["SEARCH"]["INDEX"]["src"]}')
         if src.exists():

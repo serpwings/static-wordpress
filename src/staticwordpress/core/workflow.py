@@ -46,14 +46,14 @@ from bs4 import BeautifulSoup
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .search import Search
-from .github import GitHub
-from .crawler import Crawler
-from .project import Project
-from .redirects import Redirects
-from .sitemaps import find_sitemap_location, extract_sitemap_paths
-from .utils import extract_zip_file, rm_dir_tree, update_links
-from .constants import (
+from ..core.search import Search
+from ..core.github import GitHub
+from ..core.crawler import Crawler
+from ..core.project import Project
+from ..core.redirects import Redirects
+from ..core.sitemaps import find_sitemap_location, extract_sitemap_paths
+from ..core.utils import extract_zip_file, rm_dir_tree, update_links
+from ..core.constants import (
     CONFIGS,
     SHARE_FOLDER_PATH,
     URL,
@@ -101,10 +101,10 @@ class Workflow:
         host_type_: HOST = HOST.NETLIFY,
     ) -> None:
         self._project.status = PROJECT.NEW
-        
+
         if src_type_ == SOURCE.ZIP:
             self._project.redirects = REDIRECTS.REDIRECTION
-        
+
         self._project.name = project_name_
         self._project.path = project_path_
         self._project._404 = custom_404_
@@ -155,22 +155,22 @@ class Workflow:
         if self._project.src_type == SOURCE.ZIP:
             self._project.update_ss()
 
-    def stop_calculations(self):
+    def stop_calculations(self) -> None:
         self._keep_running = False
         logging.warn(f"Background Processings will Stop. Please wait!")
 
-    def open_project(self):
+    def open_project(self) -> None:
         pass
 
-    def save_project(self):
+    def save_project(self) -> None:
         pass
 
-    def close_project(self):
+    def close_project(self) -> None:
         pass
 
     def download_zip_file(self) -> None:
         if self._keep_running:
-            rm_dir_tree(self._project.output, delete_root=False)
+            rm_dir_tree(self._project.output, delete_root_=False)
             self._crawler = Crawler(loc_=self._project.zip_file_url, type_=URL.ZIP)
             self._crawler.fetch()
             self._crawler.save(full_output_folder=self._project.output)
@@ -179,7 +179,7 @@ class Workflow:
         if self._keep_running:
             extract_zip_file(
                 self._project.zip_file_path,
-                output_location=Path(self._project.output),
+                output_location_=Path(self._project.output),
             )
             rm_dir_tree(Path(f"{self._project.output}/{self._project.ss_folder}"))
             extracted_paths = glob.glob(
@@ -193,7 +193,7 @@ class Workflow:
                 zip_download_folder = archive_folder.relative_to(self._project.output)
                 rm_dir_tree(
                     Path(f"{self._project.output}/{zip_download_folder.parts[0]}"),
-                    delete_root=True,
+                    delete_root_=True,
                 )
 
     def add_search(self) -> None:
@@ -246,12 +246,12 @@ class Workflow:
         if self._keep_running:
             if self._project.redirects != REDIRECTS.NONE:
                 self._redirects.get_from_plugin(
-                    redirects_api_path=self._project.redirects_api_url,
+                    redirects_api_path_=self._project.redirects_api_url,
                     wp_auth_token_=self._project.wp_auth_token,
                 )
 
             if self._project.search_path.exists():
-                self._redirects.add_search(search_page=self._project.search)
+                self._redirects.add_search(search_page_=self._project.search)
 
             redirect_ouputfile = f"{self._project.output}/{CONFIGS['REDIRECTS']['DESTINATION'][self._project.host.value]}"
             self._redirects.save(
@@ -290,12 +290,14 @@ class Workflow:
 
     def crawl_sitemap(self) -> None:
         if self._project.sitemap:
-            sitemap_paths = extract_sitemap_paths(sitemap_url=self._project.sitemap_url)
+            sitemap_paths = extract_sitemap_paths(
+                sitemap_url_=self._project.sitemap_url
+            )
             for sitemap_path in sitemap_paths:
                 if self._keep_running:
                     self.crawl_url(loc_=sitemap_path)
 
-    def crawl_url(self, loc_):
+    def crawl_url(self, loc_) -> None:
         current_url = Crawler(loc_=loc_, scheme_=self._project.scheme)
         if current_url.hash not in self._urls:
             current_url.fetch()
@@ -318,21 +320,21 @@ class Workflow:
                     self.crawl_url(internal_link)
 
     # Project Verifications
-    def verify_project_name(self):
+    def verify_project_name(self) -> bool:
         logging.info(f"Verifying Project Name!")
         return self._project.name != ""
 
-    def verify_src_url(self):
+    def verify_src_url(self) -> bool:
         logging.info(f"Verifying Source Url!")
         current_url = Crawler(loc_=self._project.src_url, scheme_=self._project.scheme)
         current_url.fetch()
         return current_url.status_code < 399  # non error status codes
 
-    def verify_output(self):
+    def verify_output(self) -> bool:
         logging.info(f"Verifying Output Folder!")
         return self._project.output.exists()
 
-    def verify_wp_user(self):
+    def verify_wp_user(self) -> bool:
         logging.info(f"Verifying WordPress User Name!")
 
         response = requests.get(
@@ -341,7 +343,7 @@ class Workflow:
         )
         return response.status_code < 399
 
-    def verify_sitemap(self):
+    def verify_sitemap(self) -> bool:
         logging.info(f"Verifying Sitemap!")
 
         response = requests.get(
@@ -350,10 +352,10 @@ class Workflow:
         )
         return response.status_code < 399
 
-    def verify_github_token(self):
+    def verify_github_token(self) -> bool:
         return self._github.is_token_valid()
 
-    def verify_github_repo(self):
+    def verify_github_repo(self) -> bool:
         return self._github.is_repo_valid()
 
     def verify_simply_static(self):
@@ -370,22 +372,22 @@ class Workflow:
         return ss_found
 
     # Github Actions
-    def create_github_repositoy(self):
+    def create_github_repositoy(self) -> None:
         if self._keep_running:
             self._github.create()
 
-    def delete_github_repositoy(self):
+    def delete_github_repositoy(self) -> None:
         if self._keep_running:
             self._github.delete()
 
-    def init_git_repositoy(self):
+    def init_git_repositoy(self) -> None:
         if self._keep_running:
             self._github.initialize()
 
-    def commit_git_repositoy(self):
+    def commit_git_repositoy(self) -> None:
         if self._keep_running:
             self._github.commit()
 
-    def publish_github_repositoy(self):
+    def publish_github_repositoy(self) -> None:
         if self._keep_running:
             self._github.publish()

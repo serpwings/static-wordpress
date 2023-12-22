@@ -36,8 +36,8 @@ import logging
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .constants import HOST, REDIRECTS
-from .errors import SerpWingsResponseNotValid
+from ..core.constants import HOST, REDIRECTS
+from ..core.errors import ResponseNotValid
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -45,11 +45,19 @@ from .errors import SerpWingsResponseNotValid
 
 
 class Redirect:
-    def __init__(self, from_, to_, query_, status, force_, source_) -> None:
+    def __init__(
+        self,
+        from_: str,
+        to_: str,
+        query_: str,
+        status_: int,
+        force_: bool,
+        source_: str,
+    ) -> None:  # source should be REDIRECTS
         self._from = from_
         self._to = to_
         self._query = query_
-        self._status = status
+        self._status = status_
         self._force = force_
         self._source = source_
         self._hash = hashlib.sha256(from_.encode("utf-8")).hexdigest()
@@ -100,14 +108,15 @@ class Redirects:
                 else:
                     f.write(redirect.as_line(True))
 
-    def get_from_plugin(self, redirects_api_path: str, wp_auth_token_: str) -> None:
+    def get_from_plugin(self, redirects_api_path_: str, wp_auth_token_: str) -> None:
         try:
             wp_api_response = requests.get(
-                redirects_api_path, headers={"Authorization": "Basic " + wp_auth_token_}
+                redirects_api_path_,
+                headers={"Authorization": "Basic " + wp_auth_token_},
             )
 
             if wp_api_response.status_code >= 400:
-                raise SerpWingsResponseNotValid
+                raise ResponseNotValid
 
             redirects_as_dict = json.loads(wp_api_response.content)
 
@@ -116,23 +125,23 @@ class Redirects:
                     redirect_=Redirect(
                         from_=redirect_["url"],
                         to_=redirect_["action_data"]["url"],
-                        status=redirect_["action_code"],
+                        status_=redirect_["action_code"],
                         query_=None,
                         force_=True,
                         source_=REDIRECTS.REDIRECTION.value,
                     )
                 )
-        except SerpWingsResponseNotValid:
+        except ResponseNotValid:
             logging.info(
                 f"Redirects are not valid. Make sure that redirection plug is properly configured."
             )
 
-    def add_search(self, search_page: str) -> None:
+    def add_search(self, search_page_: str) -> None:
         self.add_redirect(
             Redirect(
                 from_="/*",
-                to_=f"/{search_page}/",
-                status=301,
+                to_=f"/{search_page_}/",
+                status_=301,
                 query_='{s = ":s"}',
                 force_=True,
                 source_=REDIRECTS.NONE.value,

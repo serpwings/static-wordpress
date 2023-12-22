@@ -139,6 +139,32 @@
             "toolbar": ""
         },
         {
+            "icon": "/icons/clear_all.svg",
+            "name": "action_clear_debug_logs",
+            "visible": true,
+            "text": "&Clear All",
+            "shortcut": "F2",
+            "tooltip": "Clear All (F2)",
+            "function": "self.text_edit_logging.plaintext_edit.clear",
+            "setCheckable": false,
+            "menu": "menu_edit",
+            "seperator": true,
+            "toolbar": "toolbar_edit"
+        },
+        {
+            "icon": "/icons/python.svg",
+            "name": "action_ipython_widget",
+            "visible": true,
+            "text": "&IPython",
+            "shortcut": "F4",
+            "tooltip": "IPython (F4)",
+            "function": "self.start_ipython_console",
+            "setCheckable": true,
+            "menu": "menu_edit",
+            "seperator": false,
+            "toolbar": "toolbar_edit"
+        },
+        {
             "icon": "/icons/bug-outline.svg",
             "name": "action_edit_debug",
             "visible": true,
@@ -156,8 +182,8 @@
             "name": "action_edit_expert_mode",
             "visible": true,
             "text": "&Expert Mode",
-            "shortcut": "F8",
-            "tooltip": "Expert Mode (F8)",
+            "shortcut": "F10",
+            "tooltip": "Expert Mode (F10)",
             "function": "self.set_expert_mode",
             "setCheckable": true,
             "menu": "menu_edit",
@@ -174,7 +200,7 @@
             "function": "self.show_configs",
             "setCheckable": false,
             "menu": "menu_edit",
-            "seperator": true,
+            "seperator": false,
             "toolbar": "toolbar_edit"
         },
         {
@@ -348,13 +374,13 @@
         },
         {
             "icon": "/icons/web-remove.svg",
-            "name": "action_utilities_clear_cache",
+            "name": "action_utilities_clear_crawl_cache",
             "visible": true,
-            "text": "C&lear Cache",
+            "text": "C&lear Crawl Cache",
             "shortcut": "Ctrl+F2",
             "tooltip": "Clear Cache  (Ctrl+F2)",
             "seperator": false,
-            "function": "self.clear_cache",
+            "function": "self.clear_crawl_cache",
             "setCheckable": false,
             "menu": "menu_tools",
             "toolbar": ""
@@ -375,7 +401,7 @@
         {
             "icon": "/icons/delete-outline.svg",
             "name": "action_utilities_clean_output_folder",
-            "visible": true,
+            "visible": false,
             "text": "Clean &Output Directory",
             "shortcut": "Ctrl+F5",
             "tooltip": "Clean output directory (Ctrl+F5)",
