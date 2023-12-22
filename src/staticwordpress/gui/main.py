@@ -48,6 +48,7 @@ from PyQt5.QtWidgets import (
     QProgressBar,
     QMenu,
     QToolBar,
+    QDockWidget,
 )
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl
@@ -69,19 +70,20 @@ from ..core.utils import (
     get_remote_content,
     extract_urls_from_raw_text,
 )
-from ..gui.workflow import WorkflowGUI
-from ..gui.logger import LoggerWidget
-from ..gui.rawtext import RawTextDialog
-from ..gui.config import ConfigDialog
-from ..gui.project import ProjectDialog
-from ..gui.utils import GUI_SETTINGS, logging_decorator
+from .workflow import SWWorkflowObject
+from .logger import SWLoggerWidget
+from .editor import SWIPythonWidget
+from .rawtext import SWRawTextDialog
+from .config import SWConfigDialog
+from .project import SWProjectDialog
+from .utils import GUI_SETTINGS, logging_decorator
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class StaticWordPressGUI(QMainWindow):
+class SWMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.app_configurations = QSettings(
@@ -90,16 +92,16 @@ class StaticWordPressGUI(QMainWindow):
 
         self._project = Project()
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
 
-        self.text_edit_logging = LoggerWidget(self)
+        self.text_edit_logging = SWLoggerWidget(self)
         self.text_edit_logging.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
         logging.getLogger().addHandler(self.text_edit_logging)
         logging.getLogger().setLevel(logging.INFO)
-
         self.setCentralWidget(self.text_edit_logging.plaintext_edit)
+
         self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
         self.progress_bar = QProgressBar()
         self.progress_bar.setAlignment(Qt.AlignCenter)
@@ -158,6 +160,13 @@ class StaticWordPressGUI(QMainWindow):
                 current_menu.addSeparator()
             if current_toolbar:
                 current_toolbar.addAction(action)
+
+        # docked widgets
+        self.dockwidget_ipython = QDockWidget("IPython Console", self)
+        self.dockwidget_ipython.setFloating(False)
+        self.dockwidget_ipython.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_ipython)
+        self.ipython_console = None
 
         self.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         self.setWindowTitle(f"{CONFIGS['APPLICATION_NAME']} Version - {VERISON}")
@@ -229,14 +238,16 @@ class StaticWordPressGUI(QMainWindow):
     @is_new_project
     @logging_decorator
     def extract_url_from_raw_text(self):
-        rtp = RawTextDialog(
+        raw_text_dialog = SWRawTextDialog(
             parent=self, src_url=self._project.src_url, dest_url=self._project.dst_url
         )
-        if rtp.exec_():
-            raw_text = rtp.textedit_raw_text_with_links.toPlainText()
+        if raw_text_dialog.exec_():
+            raw_text = raw_text_dialog.textedit_raw_text_with_links.toPlainText()
             if raw_text:
                 new_additional_links = extract_urls_from_raw_text(
-                    raw_text, rtp.lineedit_dest_url.text(), rtp.linedit_src_url.text()
+                    raw_text,
+                    raw_text_dialog.lineedit_dest_url.text(),
+                    raw_text_dialog.linedit_src_url.text(),
                 )
                 logging.info(f" {len(new_additional_links)} Additional Urls Found")
                 self._project.additional += new_additional_links
@@ -251,31 +262,33 @@ class StaticWordPressGUI(QMainWindow):
 
     def closeEvent(self, event):
         """ """
-        msgBox = QMessageBox(parent=self)
-        msgBox.setWindowTitle(f"Exiting {CONFIGS['APPLICATION_NAME']}")
-        msgBox.setIcon(QMessageBox.Question)
-        msgBox.setText(
+        message_box = QMessageBox(parent=self)
+        message_box.setWindowTitle(f"Exiting {CONFIGS['APPLICATION_NAME']}")
+        message_box.setIcon(QMessageBox.Question)
+        message_box.setText(
             "Do you really want to exit?.<br>Any unsaved changes will be lost!",
         )
 
-        pushbuttonOk = msgBox.addButton("OK", QMessageBox.YesRole)
+        pushbuttonOk = message_box.addButton("OK", QMessageBox.YesRole)
         pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
 
-        pushbuttonNo = msgBox.addButton("Cancel", QMessageBox.NoRole)
+        pushbuttonNo = message_box.addButton("Cancel", QMessageBox.NoRole)
         pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
 
-        msgBox.setDefaultButton(pushbuttonOk)
+        message_box.setDefaultButton(pushbuttonOk)
 
-        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
-        msgBox.setTextFormat(Qt.RichText)
-        msgBox.exec_()
+        message_box.setWindowIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+        )
+        message_box.setTextFormat(Qt.RichText)
+        message_box.exec_()
 
-        if msgBox.clickedButton() == pushbuttonOk:
+        if message_box.clickedButton() == pushbuttonOk:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
                 del self._bg_thread
                 del self._bg_worker
-                super(StaticWordPressGUI, self).closeEvent(event)
+                super(SWMainWindow, self).closeEvent(event)
 
             event.accept()
 
@@ -313,38 +326,51 @@ class StaticWordPressGUI(QMainWindow):
         if not QDesktopServices.openUrl(url):
             QMessageBox.warning(self, "Open Help URL", "Could not open Help URL")
 
+    def startIPython(self):
+        """ """
+        if self.findChild(QAction, "action_ipython_widget").isChecked():
+            if self.ipython_console is None:
+                self.ipython_console = SWIPythonWidget(interface_={"iface": self})
+                self.dockwidget_ipython.setWidget(self.ipython_console)
+
+            self.dockwidget_ipython.show()
+        else:
+            self.dockwidget_ipython.hide()
+
     @logging_decorator
     def show_configs(self):
         """Interface with System Configurations"""
-        w = ConfigDialog(parent=self)
-        if w.exec_():
+        config_dialog = SWConfigDialog(parent=self)
+        if config_dialog.exec_():
             logging.info("Saved/Updated Default Configurations")
 
     def about(self):
         """ """
-        msgBox = QMessageBox(parent=self)
-        msgBox.setText(
+        message_box = QMessageBox(parent=self)
+        message_box.setText(
             f"Copyright {date.today().year} - SERP Wings"
             f"<br><br>{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
             "<br><br>This work is an opensource project under <br>GNU General Public License v3 or later (GPLv3+)"
             f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>"
         )
-        msgBox.addButton(QMessageBox.Ok).setIcon(
+        message_box.addButton(QMessageBox.Ok).setIcon(
             QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
         )
-        msgBox.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
-        msgBox.setTextFormat(Qt.RichText)
-        msgBox.setWindowTitle("About Us")
-        msgBox.exec()
+        message_box.setWindowIcon(
+            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
+        )
+        message_box.setTextFormat(Qt.RichText)
+        message_box.setWindowTitle("About Us")
+        message_box.exec()
 
     @logging_decorator
     def new_project(self):
         """Closing current project will automatically start a new project."""
         self.close_project()
 
-        proj_dialog = ProjectDialog(self, self._project, title_="New Project")
-        if proj_dialog.exec_():
-            self._project = proj_dialog._project
+        project_dialog = SWProjectDialog(self, self._project, title_="New Project")
+        if project_dialog.exec_():
+            self._project = project_dialog._project
             self.app_configurations.setValue("last-project", self._project.output)
 
             if Path(self._project.output).is_dir():
@@ -377,7 +403,7 @@ class StaticWordPressGUI(QMainWindow):
             if project_path.exists():
                 self._project.open(project_path)
                 if self._project.is_open():
-                    project_dialog = ProjectDialog(
+                    project_dialog = SWProjectDialog(
                         parent=self, project_=self._project, title_="Project Properties"
                     )
 
@@ -418,7 +444,7 @@ class StaticWordPressGUI(QMainWindow):
     def show_project(self):
         """showing static-wordpress Project File"""
         if self._project.is_open():
-            project_dialog = ProjectDialog(
+            project_dialog = SWProjectDialog(
                 self, self._project, title_="Current Project"
             )
             if project_dialog.exec_():
@@ -500,7 +526,7 @@ class StaticWordPressGUI(QMainWindow):
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 
-            self._bg_worker = WorkflowGUI()
+            self._bg_worker = SWWorkflowObject()
             self._bg_worker.set_project(project_=self._project)
 
             if self._project.src_type == SOURCE.ZIP:
@@ -569,7 +595,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -583,7 +609,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -597,7 +623,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -611,7 +637,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -625,7 +651,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -639,7 +665,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -654,7 +680,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -689,7 +715,7 @@ class StaticWordPressGUI(QMainWindow):
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 
-            self._bg_worker = WorkflowGUI()
+            self._bg_worker = SWWorkflowObject()
             self._bg_worker.set_project(project_=self._project)
             self._bg_worker.set_project(project_=self._project)
             self._bg_worker.moveToThread(self._bg_thread)
@@ -705,7 +731,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -720,7 +746,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -735,7 +761,7 @@ class StaticWordPressGUI(QMainWindow):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
@@ -791,7 +817,7 @@ class StaticWordPressGUI(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    wind = StaticWordPressGUI()
+    wind = SWMainWindow()
     sys.exit(app.exec_())
 
 

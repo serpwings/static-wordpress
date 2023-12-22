@@ -73,9 +73,7 @@ extras_require = {
         "mkdocstrings[python]",
         "pymdown-extensions",
     ],
-    "gui": [
-        "pyqt5",
-    ],
+    "gui": ["pyqt5", "qtconsole"],
 }
 extras_require["all"] = list(
     {rq for target in extras_require.keys() for rq in extras_require[target]}

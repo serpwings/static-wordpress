@@ -41,7 +41,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class LoggerWidget(logging.Handler, QObject):
+class SWLoggerWidget(logging.Handler, QObject):
     append_text_message = pyqtSignal(str)
 
     def __init__(self, parent):

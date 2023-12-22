@@ -27,4 +27,4 @@ specific language governing rights and limitations under the License.
 # INTERNAL IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from .mainwindow import main
+from .main import main

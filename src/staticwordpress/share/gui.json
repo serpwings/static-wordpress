@@ -165,6 +165,19 @@
             "toolbar": "toolbar_edit"
         },
         {
+            "icon": "/icons/python.svg",
+            "name": "action_ipython_widget",
+            "visible": true,
+            "text": "&IPython",
+            "shortcut": "F10",
+            "tooltip": "IPython (F10)",
+            "function": "self.startIPython",
+            "setCheckable": true,
+            "menu": "menu_edit",
+            "seperator": false,
+            "toolbar": "toolbar_edit"
+        },
+        {
             "icon": "/icons/configs.svg",
             "name": "action_file_project_close",
             "visible": true,

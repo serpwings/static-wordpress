@@ -72,23 +72,23 @@ from ..core.constants import (
 
 from ..core.project import Project
 from ..core.utils import is_url_valid
-from ..gui.workflow import WorkflowGUI
+from ..gui.workflow import SWWorkflowObject
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class ProjectDialog(QDialog):
+class SWProjectDialog(QDialog):
     def __init__(self, parent, project_, title_="Project Settings"):
-        super(ProjectDialog, self).__init__(parent=parent)
+        super(SWProjectDialog, self).__init__(parent=parent)
         self.appConfigurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
 
         self._project = project_
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
 
         vertical_layout_project = QVBoxLayout()
         groupbox_general_settings = QGroupBox("General Settings")
@@ -390,7 +390,7 @@ class ProjectDialog(QDialog):
             self._bg_thread.quit()
 
         self._bg_thread = QThread(parent=self)
-        self._bg_worker = WorkflowGUI()
+        self._bg_worker = SWWorkflowObject()
         self._bg_worker.set_project(project_=self._project)
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)

@@ -44,7 +44,7 @@ from ..gui.utils import logging_decorator, progress_decorator
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class WorkflowGUI(QObject):
+class SWWorkflowObject(QObject):
     emit_sitemap_location = pyqtSignal(str)
     emit_progress = pyqtSignal(str, int)
     emit_verification = pyqtSignal(dict)

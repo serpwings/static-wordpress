@@ -69,7 +69,7 @@ from ..core.constants import (
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class ConfigTabBar(QTabBar):
+class SWConfigTabBar(QTabBar):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         return
@@ -102,15 +102,15 @@ class ConfigTabBar(QTabBar):
         return
 
 
-class ConfigDialog(QDialog):
+class SWConfigDialog(QDialog):
     def __init__(self, parent=None):
-        super(ConfigDialog, self).__init__(parent=parent)
+        super(SWConfigDialog, self).__init__(parent=parent)
         self.app_configurations = QSettings(
             CONFIGS["APPLICATION_NAME"], CONFIGS["APPLICATION_NAME"]
         )
 
         self.tabswidget_configs = QTabWidget()
-        self.tabswidget_configs.setTabBar(ConfigTabBar())
+        self.tabswidget_configs.setTabBar(SWConfigTabBar())
         self.tabswidget_configs.setTabPosition(QTabWidget.West)
 
         self.tab_general = QWidget()
