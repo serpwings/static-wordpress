@@ -401,7 +401,7 @@
         {
             "icon": "/icons/delete-outline.svg",
             "name": "action_tools_clean_output_folder",
-            "visible": false,
+            "visible": true,
             "text": "Clean &Output Directory",
             "shortcut": "Ctrl+F5",
             "tooltip": "Clean output directory (Ctrl+F5)",

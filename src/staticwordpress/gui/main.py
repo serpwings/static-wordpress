@@ -33,7 +33,7 @@ import os
 import shutil
 from pathlib import Path
 from datetime import date
-
+from collections import namedtuple
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 3rd PARTY LIBRARY IMPORTS
@@ -215,9 +215,9 @@ class SWMainWindow(QMainWindow):
         """Clean Output Directory"""
 
         message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Clean Output Folder Content")
+        message_box.setWindowTitle("Clean Output Directory Content")
         message_box.setText(
-            f"Existing content in Output folder will be delete?<br> {self._project.output}",
+            f"Existing content in Output Directory will be delete?<br> {self._project.output}",
         )
         pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
         pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
@@ -308,15 +308,22 @@ class SWMainWindow(QMainWindow):
             "action_crawler_crawl_webpages",
         ]
 
+        action_edit_set_expert_mode = self.findChild(
+            QAction, "action_edit_set_expert_mode"
+        )
+
         for widget_name in expert_widgets:
-            self.findChild(QAction, widget_name).setVisible(self.sender().isChecked())
+            self.findChild(QAction, widget_name).setVisible(
+                action_edit_set_expert_mode.isChecked()
+            )
 
         self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
-            self.sender().isChecked() and self._project.src_type != SOURCE.ZIP
+            action_edit_set_expert_mode.isChecked()
+            and self._project.src_type != SOURCE.ZIP
         )
 
     def set_debug_mode(self):
-        if self.sender().isChecked():
+        if self.findChild(QAction, "action_edit_set_debug_mode").isChecked():
             logging.getLogger().setLevel(
                 logging.INFO & logging.DEBUG & logging.ERROR & logging.WARNING
             )
@@ -334,12 +341,54 @@ class SWMainWindow(QMainWindow):
         """ """
         if self.findChild(QAction, "action_start_ipython_console").isChecked():
             if self.ipython_console is None:
-                self.ipython_console = SWIPythonWidget(interface_={"iface": self})
+                self.ipython_console = SWIPythonWidget(
+                    interface_={
+                        "self": self,  # TODO: Remove
+                        "ui": self._interface(),
+                        "worker": self._bg_worker.work_flow,
+                    }
+                )
                 self.dockwidget_ipython.setWidget(self.ipython_console)
 
             self.dockwidget_ipython.show()
         else:
             self.dockwidget_ipython.hide()
+
+    def _interface(self):
+        ui_interface_funcs = {
+            "about": self.about,
+            "clean_output_directory": self.clean_output_directory,
+            "clear_crawl_cache": self.clear_crawl_cache,
+            "close_project": self.close_project,
+            "commit_repository": self.commit_repository,
+            "crawl_additional_files": self.crawl_additional_files,
+            "crawl_webpages": self.crawl_webpages,
+            "create_404_page": self.create_404_page,
+            "create_github_repositoy": self.create_github_repositoy,
+            "create_redirects": self.create_redirects,
+            "create_robots_txt": self.create_robots_txt,
+            "create_search_index": self.create_search_index,
+            "delete_github_repository": self.delete_github_repository,
+            "extract_url_from_raw_text": self.extract_url_from_raw_text,
+            "help": self.help,
+            "initialize_repository": self.initialize_repository,
+            "new_project": self.new_project,
+            "open_project": self.open_project,
+            "publish_repository": self.publish_repository,
+            "set_debug_mode": self.set_debug_mode,
+            "set_expert_mode": self.set_expert_mode,
+            "show_configs": self.show_configs,
+            "show_project_settings": self.show_project_settings,
+            "start_batch_process": self.start_batch_process,
+            "start_ipython_console": self.start_ipython_console,
+            "stop_process": self.stop_process,
+            "update_statusbar": self.update_statusbar,
+            "update_widgets": self.update_widgets,
+        }
+
+        return namedtuple("UIInterface", ui_interface_funcs.keys())(
+            **ui_interface_funcs
+        )
 
     @logging_decorator
     def show_configs(self):

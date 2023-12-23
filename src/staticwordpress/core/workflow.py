@@ -74,7 +74,7 @@ class Workflow:
         self._project = Project()
         self._redirects = Redirects()
         self._search = Search()
-        self._crawler = Crawler(loc_="", type_=URL.NONE)
+        self._crawler = Crawler(loc_="", typ_=URL.NONE)
         self._urls = dict()
         self._github = None
         self._keep_running = True
@@ -82,6 +82,30 @@ class Workflow:
     @property
     def sitemap(self) -> str:
         return self._project.sitemap
+
+    @property
+    def project(self):
+        return self._project
+
+    @property
+    def redirects(self) -> Redirects:
+        return self._redirects
+
+    @property
+    def search(self) -> Search:
+        return self._search
+
+    @property
+    def crawler(self) -> Crawler:
+        return self._crawler
+
+    @property
+    def urls(self) -> dict:
+        return self._urls
+
+    @property
+    def github(self):
+        return self._github
 
     def clear(self):
         self._urls = dict()
@@ -121,6 +145,7 @@ class Workflow:
         self._project.src_url = src_url_
 
         # TODO: Add Support for GH Repo ??? Do We need it?
+        # for now keep it like this.
         if all(
             [
                 self._project.gh_token != "",
@@ -155,23 +180,18 @@ class Workflow:
         if self._project.src_type == SOURCE.ZIP:
             self._project.update_ss()
 
+    def start_calculations(self) -> None:
+        self._keep_running = True
+        logging.warn(f"Background Processings is Starting")
+
     def stop_calculations(self) -> None:
         self._keep_running = False
         logging.warn(f"Background Processings will Stop. Please wait!")
 
-    def open_project(self) -> None:
-        pass
-
-    def save_project(self) -> None:
-        pass
-
-    def close_project(self) -> None:
-        pass
-
     def download_zip_file(self) -> None:
         if self._keep_running:
             rm_dir_tree(self._project.output, delete_root_=False)
-            self._crawler = Crawler(loc_=self._project.zip_file_url, type_=URL.ZIP)
+            self._crawler = Crawler(loc_=self._project.zip_file_url, typ_=URL.ZIP)
             self._crawler.fetch()
             self._crawler.save(full_output_folder=self._project.output)
 
@@ -270,7 +290,7 @@ class Workflow:
         if self._keep_running:
             self._crawler = Crawler(
                 loc_=self._project._404_url,
-                type_=URL.HTML,
+                typ_=URL.HTML,
                 scheme_=self._project.scheme,
             )
             self._crawler.fetch()
@@ -307,11 +327,11 @@ class Workflow:
             self._urls[current_url._hash] = current_url
 
             custom_message = "Saved"
-            if current_url.status_code >= 400 or current_url._type == URL.NONE:
+            if current_url.status_code >= 400 or current_url._typ == URL.NONE:
                 custom_message = "Ignored"
 
             logging.info(
-                f"{custom_message}: {current_url.status_code} {current_url._type} {full_output_path}"
+                f"{custom_message}: {current_url.status_code} {current_url._typ} {full_output_path}"
             )
 
             for internal_link in current_url.internal_links:
@@ -326,6 +346,7 @@ class Workflow:
 
     def verify_src_url(self) -> bool:
         logging.info(f"Verifying Source Url!")
+        # TODO: replace with urllib implementation ???
         current_url = Crawler(loc_=self._project.src_url, scheme_=self._project.scheme)
         current_url.fetch()
         return current_url.status_code < 399  # non error status codes

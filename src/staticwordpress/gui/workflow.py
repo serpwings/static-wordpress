@@ -51,6 +51,10 @@ class SWWorkflowObject(QObject):
 
     _work_flow = Workflow()
 
+    @property
+    def work_flow(self) -> Workflow():
+        return self._work_flow
+
     def set_project(self, project_: Project) -> None:
         if project_.is_open():
             self._work_flow.set_project(project_=project_)

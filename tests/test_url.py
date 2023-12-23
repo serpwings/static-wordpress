@@ -32,20 +32,20 @@ from staticwordpress.core.constants import URL
 
 
 def test_url_valid():
-    my_url = Crawler(loc_="http://staticwp.local", type_=URL.HOME)
+    my_url = Crawler(loc_="http://staticwp.local", typ_=URL.HOME)
     assert my_url.is_valid == True
 
 
 def test_url_valid_2():
-    my_url = Crawler(loc_="staticwp.local", type_=URL.HOME)
+    my_url = Crawler(loc_="staticwp.local", typ_=URL.HOME)
     assert my_url.is_valid == True
 
 
 def test_url_valid_3():
-    my_url = Crawler(loc_="staticwp", type_=URL.HOME)
+    my_url = Crawler(loc_="staticwp", typ_=URL.HOME)
     assert my_url.is_valid == False
 
 
 def test_url_valid_4():
-    my_url = Crawler(loc_="http://staticwp.local/test", type_=URL.FOLDER)
+    my_url = Crawler(loc_="http://staticwp.local/test", typ_=URL.FOLDER)
     assert my_url.is_valid == True
