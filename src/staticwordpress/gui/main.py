@@ -301,17 +301,17 @@ class SWMainWindow(QMainWindow):
 
     def set_expert_mode(self):
         expert_widgets = [
-            "action_wordpress_create_404_page",
-            "action_wordpress_create_redirects",
-            "action_wordpress_create_robots_txt",
-            "action_wordpress_create_search_index",
-            "action_wordpress_crawl_webpages",
+            "action_crawler_create_404_page",
+            "action_crawler_create_redirects",
+            "action_crawler_create_robots_txt",
+            "action_crawler_create_search_index",
+            "action_crawler_crawl_webpages",
         ]
 
         for widget_name in expert_widgets:
             self.findChild(QAction, widget_name).setVisible(self.sender().isChecked())
 
-        self.findChild(QAction, "action_wordpress_crawl_additional_files").setVisible(
+        self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
             self.sender().isChecked() and self._project.src_type != SOURCE.ZIP
         )
 
@@ -786,7 +786,7 @@ class SWMainWindow(QMainWindow):
     def update_widgets(self) -> None:
         # Show Menus
         self.findChild(QMenu, "menu_github").setEnabled(self._project.has_github())
-        self.findChild(QMenu, "menu_wordpress").setEnabled(
+        self.findChild(QMenu, "menu_crawler").setEnabled(
             self._project.is_open()
             and (self._project.has_wordpress() or self._project.can_crawl())
         )
@@ -799,30 +799,28 @@ class SWMainWindow(QMainWindow):
         self.findChild(QToolBar, "toolbar_github").setEnabled(
             self._project.has_github()
         )
-        self.findChild(QToolBar, "toolbar_wordpres").setEnabled(
+        self.findChild(QToolBar, "toolbar_crawler").setEnabled(
             self._project.is_open()
             and (self._project.has_wordpress() or self._project.can_crawl())
         )
 
         # Show Menubar Icons
         if self._project.src_type == SOURCE.ZIP:
-            self.findChild(QAction, "action_wordpress_crawl_webpages").setText(
+            self.findChild(QAction, "action_crawler_crawl_webpages").setText(
                 "&Download Zip File"
             )
-            self.findChild(
-                QAction, "action_wordpress_crawl_additional_files"
-            ).setVisible(False)
+            self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
+                False
+            )
         else:
-            self.findChild(QAction, "action_wordpress_crawl_webpages").setText(
+            self.findChild(QAction, "action_crawler_crawl_webpages").setText(
                 "&Crawl Webpages"
             )
-            self.findChild(
-                QAction, "action_wordpress_crawl_additional_files"
-            ).setVisible(
+            self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
                 self.findChild(QAction, "action_edit_set_expert_mode").isChecked()
             )
 
-        self.findChild(QAction, "action_wordpress_crawl_additional_files").setVisible(
+        self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
             self.findChild(QAction, "action_edit_set_expert_mode").isChecked()
         )
 

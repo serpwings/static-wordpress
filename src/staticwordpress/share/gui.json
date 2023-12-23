@@ -15,8 +15,8 @@
             "parent": ""
         },
         {
-            "name": "menu_wordpress",
-            "text": "&WordPress",
+            "name": "menu_crawler",
+            "text": "&Crawler",
             "enable": false,
             "icon": "",
             "parent": ""
@@ -62,8 +62,8 @@
             "enable": true
         },
         {
-            "name": "toolbar_wordpres",
-            "text": "WordPress",
+            "name": "toolbar_crawler",
+            "text": "Crawler",
             "enable": false
         },
         {
@@ -205,7 +205,7 @@
         },
         {
             "icon": "/icons/crawl_website.svg",
-            "name": "action_wordpress_crawl_webpages",
+            "name": "action_crawler_crawl_webpages",
             "visible": false,
             "text": "&Crawl WebPages",
             "shortcut": "Ctrl+1",
@@ -213,12 +213,12 @@
             "seperator": false,
             "function": "self.crawl_webpages",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/additionals.svg",
-            "name": "action_wordpress_crawl_additional_files",
+            "name": "action_crawler_crawl_additional_files",
             "visible": false,
             "text": "Crawl &Additional Files",
             "shortcut": "Ctrl+2",
@@ -226,12 +226,12 @@
             "seperator": false,
             "function": "self.crawl_additional_files",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/search.svg",
-            "name": "action_wordpress_create_search_index",
+            "name": "action_crawler_create_search_index",
             "visible": false,
             "text": "Prepare &Search Index",
             "shortcut": "Ctrl+3",
@@ -239,12 +239,12 @@
             "seperator": false,
             "function": "self.create_search_index",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/error.svg",
-            "name": "action_wordpress_create_404_page",
+            "name": "action_crawler_create_404_page",
             "visible": false,
             "text": "Create &404 Page",
             "shortcut": "Ctrl+4",
@@ -252,12 +252,12 @@
             "seperator": false,
             "function": "self.create_404_page",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/redirects.svg",
-            "name": "action_wordpress_create_redirects",
+            "name": "action_crawler_create_redirects",
             "visible": false,
             "text": "Create &Redirects",
             "shortcut": "Ctrl+5",
@@ -265,12 +265,12 @@
             "seperator": false,
             "function": "self.create_redirects",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/robots_txt.svg",
-            "name": "action_wordpress_create_robots_txt",
+            "name": "action_crawler_create_robots_txt",
             "visible": false,
             "text": "Create Robots.&txt",
             "shortcut": "Ctrl+6",
@@ -278,25 +278,25 @@
             "seperator": true,
             "function": "self.create_robots_txt",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "toolbar": ""
         },
         {
             "icon": "/icons/play.svg",
-            "name": "action_wordpress_start_batch_process",
+            "name": "action_crawler_start_batch_process",
             "visible": true,
             "text": "Start &Batch Process",
             "shortcut": "Ctrl+F6",
             "tooltip": "Start Batch Process (Ctrl+F6)",
             "function": "self.start_batch_process",
             "setCheckable": false,
-            "menu": "menu_wordpress",
+            "menu": "menu_crawler",
             "seperator": false,
-            "toolbar": "toolbar_wordpres"
+            "toolbar": "toolbar_crawler"
         },
         {
             "icon": "/icons/stop.svg",
-            "name": "action_wordpress_stop_process",
+            "name": "action_crawler_stop_process",
             "visible": true,
             "text": "&Stop Process",
             "shortcut": "Ctrl+F7",
@@ -304,8 +304,8 @@
             "seperator": false,
             "function": "self.stop_process",
             "setCheckable": false,
-            "menu": "menu_wordpress",
-            "toolbar": "toolbar_wordpres"
+            "menu": "menu_crawler",
+            "toolbar": "toolbar_crawler"
         },
         {
             "icon": "/icons/pencil-outline.svg",
