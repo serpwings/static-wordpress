@@ -104,12 +104,12 @@ class SWMainWindow(QMainWindow):
         self.setCentralWidget(self.text_edit_logging.plaintext_edit)
 
         self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setAlignment(Qt.AlignCenter)
-        self.progress_bar.setFormat("No Brackground Process is running")
-        self.progress_bar.setFixedSize(QSize(300, 25))
-        self.progress_bar.setValue(0)
-        self.statusBar().addPermanentWidget(self.progress_bar)
+        self.progressbar = QProgressBar()
+        self.progressbar.setAlignment(Qt.AlignCenter)
+        self.progressbar.setFormat("No Brackground Process is running")
+        self.progressbar.setFixedSize(QSize(300, 25))
+        self.progressbar.setValue(0)
+        self.statusBar().addPermanentWidget(self.progressbar)
 
         # ALL menus
         for current_menu in GUI_SETTINGS["MENUS"]:
@@ -775,13 +775,13 @@ class SWMainWindow(QMainWindow):
 
     def update_statusbar(self, message_: str = "", percent_: int = 0) -> None:
         if percent_ >= 0:
-            self.progress_bar.setValue(percent_)
+            self.progressbar.setValue(percent_)
             self.statusBar().showMessage(message_)
         else:
-            self.progress_bar.setFormat(message_)
+            self.progressbar.setFormat(message_)
 
         if percent_ >= 100:
-            self.progress_bar.setFormat(message_)
+            self.progressbar.setFormat(message_)
 
     def update_widgets(self) -> None:
         # Show Menus

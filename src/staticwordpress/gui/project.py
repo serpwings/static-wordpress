@@ -53,6 +53,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QFileDialog,
     QPushButton,
+    QProgressBar,
 )
 from PyQt5.QtCore import Qt, QSettings, QSize, QThread
 from PyQt5.QtGui import QIcon
@@ -334,8 +335,16 @@ class SWProjectDialog(QDialog):
         self.pushbutton_cancel.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
         self.pushbutton_cancel.clicked.connect(self.reject)
 
+        self.progressbar = QProgressBar(self)
+        self.progressbar.setMinimumWidth(150)
+        self.progressbar.setMinimum(0)
+        self.progressbar.setMaximum(100)
+        self.progressbar.setValue(0)
+        self.progressbar.hide()
+
         horizontal_layout_buttons = QHBoxLayout()
         horizontal_layout_buttons.addWidget(self.pushbutton_verify)
+        horizontal_layout_buttons.addWidget(self.progressbar)
         horizontal_layout_buttons.addStretch()
         horizontal_layout_buttons.addWidget(self.pushbutton_save)
         horizontal_layout_buttons.addWidget(self.pushbutton_cancel)
@@ -395,15 +404,21 @@ class SWProjectDialog(QDialog):
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_thread.started.connect(self._bg_worker.find_sitemap)
+        self._bg_worker.emit_progress.connect(self.update_sitemap_progress)
         self._bg_worker.emit_sitemap_location.connect(self.update_sitemap_location)
         self._bg_thread.start()
+        self.progressbar.show()
 
-    def update_sitemap_location(self, sitemap_location_):
+    def update_sitemap_location(self, sitemap_location_: str = "/sitemap.xml"):
         if sitemap_location_:
             self.lineedit_sitemap.setText(sitemap_location_)
 
+    def update_sitemap_progress(self, message_: str = "", progress_: int = 0):
+        self.progressbar.setValue(progress_)
+
     def verify_project_settings(self):
         """"""
+        self.progressbar.show()
         # TODO: Add checks for WP_API and Gh_API and if not present then disable them.
         # TODO: Move these checks to background thread e.g. for WP_API or  SRC_URL or SRC or DST Path
         if not (self.lineedit_wp_api_token.text() and self.lineedit_wp_user.text()):
@@ -418,6 +433,8 @@ class SWProjectDialog(QDialog):
                 f"background-color: {CONFIGS['COLOR']['ERROR']}"
             )
 
+        self.progressbar.setValue(40)
+
         if is_url_valid(self.lineedit_src_url.text()):
             self.lineedit_src_url.setStyleSheet(
                 f"background-color: {CONFIGS['COLOR']['SUCCESS']}"
@@ -427,6 +444,8 @@ class SWProjectDialog(QDialog):
                 f"background-color: {CONFIGS['COLOR']['ERROR']}"
             )
 
+        self.progressbar.setValue(70)
+
         if self.lineedit_output.text() and Path(self.lineedit_output.text()).is_dir():
             self.lineedit_output.setStyleSheet(
                 f"background-color: {CONFIGS['COLOR']['SUCCESS']}"
@@ -435,6 +454,7 @@ class SWProjectDialog(QDialog):
             self.lineedit_output.setStyleSheet(
                 f"background-color: {CONFIGS['COLOR']['ERROR']}"
             )
+        self.progressbar.setValue(100)
 
     def reject(self) -> None:
         if self._bg_thread.isRunning():
@@ -456,7 +476,6 @@ class SWProjectDialog(QDialog):
             [
                 self.lineedit_project_name.text(),
                 self.lineedit_output.text(),
-                # is_url_valid(self.lineedit_src_url.text()),
                 Path(self.lineedit_output.text()).is_dir(),
             ]
         ):
