@@ -49,10 +49,12 @@ from PyQt5.QtWidgets import (
     QMenu,
     QToolBar,
     QDockWidget,
+    QTableView,
+    QHeaderView,
+    QSizePolicy,
 )
 from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl
-
+from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl, QSortFilterProxyModel
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # INTERNAL IMPORTS
@@ -76,8 +78,8 @@ from ..gui.editor import SWIPythonWidget
 from ..gui.rawtext import SWRawTextDialog
 from ..gui.config import SWConfigDialog
 from ..gui.project import SWProjectDialog
+from ..gui.table import SWDataTable
 from ..gui.utils import GUI_SETTINGS, logging_decorator
-
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -95,21 +97,25 @@ class SWMainWindow(QMainWindow):
         self._bg_thread = QThread(parent=self)
         self._bg_worker = SWWorkflowObject()
 
+        # docked widgets
+        self.dockwidget_ipython = QDockWidget("IPython Console", self)
+        self.dockwidget_ipython.setFloating(False)
+        self.dockwidget_ipython.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_ipython)
+        self.ipython_console = None
+
         self.text_edit_logging = SWLoggerWidget(self)
         self.text_edit_logging.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
         logging.getLogger().addHandler(self.text_edit_logging)
         logging.getLogger().setLevel(logging.INFO)
-        self.setCentralWidget(self.text_edit_logging.plaintext_edit)
-
-        self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
-        self.progressbar = QProgressBar()
-        self.progressbar.setAlignment(Qt.AlignCenter)
-        self.progressbar.setFormat("No Brackground Process is running")
-        self.progressbar.setFixedSize(QSize(300, 25))
-        self.progressbar.setValue(0)
-        self.statusBar().addPermanentWidget(self.progressbar)
+        self.dockwidget_debug_logger = QDockWidget("Debug Logs", self)
+        self.dockwidget_debug_logger.setFloating(False)
+        self.dockwidget_debug_logger.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_debug_logger)
+        self.dockwidget_debug_logger.setWidget(self.text_edit_logging.plaintext_edit)
+        self.tabifyDockWidget(self.dockwidget_debug_logger, self.dockwidget_ipython)
 
         # ALL menus
         for current_menu in GUI_SETTINGS["MENUS"]:
@@ -162,12 +168,56 @@ class SWMainWindow(QMainWindow):
             if current_toolbar:
                 current_toolbar.addAction(action)
 
-        # docked widgets
-        self.dockwidget_ipython = QDockWidget("IPython Console", self)
-        self.dockwidget_ipython.setFloating(False)
-        self.dockwidget_ipython.hide()
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_ipython)
-        self.ipython_console = None
+        # Debug Logs Widgets is shown by default
+        self.findChild(QAction, "action_edit_set_debug_mode").trigger()
+        # Central Widgets
+        self.tableview_crawl_data = QTableView()
+        self.tableview_crawl_data.clicked.connect(
+            lambda val: self.statusBar().showMessage(
+                f"Total Urls Crawled: {self.model_crawl_data.rowCount()}"
+            )
+        )
+        self.model_crawl_data = SWDataTable(
+            data_=[], header_=["Hash", "URL", "Path", "Type", "Code", "Message"]
+        )
+        self.tableview_crawl_data.setModel(self.model_crawl_data)
+
+        self.tableview_crawl_data.setAlternatingRowColors(True)
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            3, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            4, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            5, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Minimum
+        )
+        self.tableview_crawl_data.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+
+        self.proxy_model_crawl_data = QSortFilterProxyModel(self.model_crawl_data)
+        self.proxy_model_crawl_data.setFilterKeyColumn(0)
+        self.proxy_model_crawl_data.setSourceModel(self.model_crawl_data)
+        self.tableview_crawl_data.setModel(self.proxy_model_crawl_data)
+        self.tableview_crawl_data.setSortingEnabled(True)
+
+        self.setCentralWidget(self.tableview_crawl_data)
+
+        self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
+        self.progressbar = QProgressBar()
+        self.progressbar.setAlignment(Qt.AlignCenter)
+        self.progressbar.setFormat("No Brackground Process is running")
+        self.progressbar.setFixedSize(QSize(300, 25))
+        self.progressbar.setValue(0)
+        self.statusBar().addPermanentWidget(self.progressbar)
 
         self.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         self.setWindowTitle(f"{CONFIGS['APPLICATION_NAME']} Version - {VERISON}")
@@ -322,13 +372,19 @@ class SWMainWindow(QMainWindow):
             and self._project.src_type != SOURCE.ZIP
         )
 
-    def set_debug_mode(self):
-        if self.findChild(QAction, "action_edit_set_debug_mode").isChecked():
+        if action_edit_set_expert_mode.isChecked():
             logging.getLogger().setLevel(
                 logging.INFO & logging.DEBUG & logging.ERROR & logging.WARNING
             )
         else:
             logging.getLogger().setLevel(logging.INFO)
+
+    def set_debug_mode(self):
+        if self.findChild(QAction, "action_edit_set_debug_mode").isChecked():
+            self.dockwidget_debug_logger.show()
+            self.dockwidget_debug_logger.raise_()
+        else:
+            self.dockwidget_debug_logger.hide()
 
     def help(self):
         """ """
@@ -351,6 +407,7 @@ class SWMainWindow(QMainWindow):
                 self.dockwidget_ipython.setWidget(self.ipython_console)
 
             self.dockwidget_ipython.show()
+            self.dockwidget_ipython.raise_()
         else:
             self.dockwidget_ipython.hide()
 
@@ -613,8 +670,10 @@ class SWMainWindow(QMainWindow):
             self._bg_worker.moveToThread(self._bg_thread)
             self._bg_thread.finished.connect(self._bg_worker.deleteLater)
             self._bg_worker.emit_progress.connect(self.update_statusbar)
+            self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
             self._bg_thread.started.connect(self._bg_worker.batch_processing)
             self._bg_thread.start()
+            self.statusBar().showMessage("Batch Processing in Progress")
 
     @is_project_open
     def stop_process(self) -> None:
@@ -640,7 +699,7 @@ class SWMainWindow(QMainWindow):
 
             if message_box.clickedButton() == pushbutton_ok:
                 self._bg_worker.stop_calcualations()
-                self.update_statusbar("Stoping Processing", 100)
+                self.statusBar().showMessage("Stoping Processing", 100)
 
     @is_project_open
     def crawl_webpages(self) -> None:
@@ -653,8 +712,10 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
-        self._bg_thread.started.connect(self._bg_worker.pre_processing)
+        self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
+        self._bg_thread.started.connect(self._bg_worker.start_crawling)
         self._bg_thread.start()
+        self.statusBar().showMessage("Crawling WebPages in Progress")
 
     @is_project_open
     def crawl_additional_files(self) -> None:
@@ -667,8 +728,10 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
+        self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
         self._bg_thread.started.connect(self._bg_worker.crawl_additional_files)
         self._bg_thread.start()
+        self.statusBar().showMessage("Crwaling Additional Progress")
 
     @is_project_open
     def create_search_index(self) -> None:
@@ -683,6 +746,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_search)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Search Index")
 
     @is_project_open
     def create_404_page(self) -> None:
@@ -697,6 +761,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_404_page)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating 404 Page")
 
     @is_project_open
     def create_redirects(self) -> None:
@@ -711,6 +776,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_redirects)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Redirects")
 
     @is_project_open
     def create_robots_txt(self) -> None:
@@ -725,6 +791,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_robots_txt)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Robots.txt File")
 
     @is_project_open
     def create_github_repositoy(self) -> None:
@@ -740,6 +807,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.create_github_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating GitHub Repository")
 
     @is_project_open
     def delete_github_repository(self) -> None:
@@ -776,6 +844,7 @@ class SWMainWindow(QMainWindow):
             self._bg_worker.emit_progress.connect(self.update_statusbar)
             self._bg_thread.started.connect(self._bg_worker.delete_github_repositoy)
             self._bg_thread.start()
+            self.statusBar().showMessage("Deleting GitHub Repository")
 
     @is_project_open
     def initialize_repository(self) -> None:
@@ -791,6 +860,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.init_git_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Intializing Git Repository")
 
     @is_project_open
     def commit_repository(self) -> None:
@@ -806,6 +876,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.commit_git_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Updating Git Repository")
 
     @is_project_open
     def publish_repository(self) -> None:
@@ -821,16 +892,22 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.publish_github_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Publishing GitHub Repository")
+
+    def update_table(self, table_row_):
+        self.model_crawl_data.insertRow(
+            data=table_row_, row=self.model_crawl_data.rowCount()
+        )
+
+        tableview_crawl_data_scrollbar = self.tableview_crawl_data.verticalScrollBar()
+        tableview_crawl_data_scrollbar.setSliderPosition(
+            tableview_crawl_data_scrollbar.maximum() + 1
+        )
+        self.text_edit_logging.plaintext_edit.ensureCursorVisible()
 
     def update_statusbar(self, message_: str = "", percent_: int = 0) -> None:
-        if percent_ >= 0:
-            self.progressbar.setValue(percent_)
-            self.statusBar().showMessage(message_)
-        else:
-            self.progressbar.setFormat(message_)
-
-        if percent_ >= 100:
-            self.progressbar.setFormat(message_)
+        self.progressbar.setValue(percent_)
+        self.progressbar.setFormat(message_)
 
     def update_widgets(self) -> None:
         # Show Menus

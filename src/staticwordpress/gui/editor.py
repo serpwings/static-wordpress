@@ -35,6 +35,7 @@ from collections import namedtuple
 # 3rd PARTY LIBRARY IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from PyQt5.QtCore import QSize
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 from IPython.lib import guisupport
@@ -67,3 +68,6 @@ class SWIPythonWidget(RichJupyterWidget):
             guisupport.get_app_qt4().exit()
 
         self.exit_requested.connect(stop)
+
+    def sizeHint(self):
+        return QSize(620, 75)

@@ -317,25 +317,25 @@ class Workflow:
                 if self._keep_running:
                     self.crawl_url(loc_=sitemap_path)
 
-    def crawl_url(self, loc_) -> None:
-        current_url = Crawler(loc_=loc_, scheme_=self._project.scheme)
-        if current_url.hash not in self._urls:
-            current_url.fetch()
-            full_output_path = current_url.save(
+    def crawl_url(self, loc_: str) -> None:
+        current_crawler = Crawler(loc_=loc_, scheme_=self._project.scheme)
+        if current_crawler.hash not in self._urls:
+            time.sleep(self._project.delay + random.random() / 100)
+            current_crawler.fetch()
+            full_output_path = current_crawler.save(
                 self._project.output, dst_url=self._project.dst_url
             )
-            self._urls[current_url._hash] = current_url
+            self._urls[current_crawler._hash] = current_crawler
 
             custom_message = "Saved"
-            if current_url.status_code >= 400 or current_url._typ == URL.NONE:
+            if current_crawler.status_code >= 400 or current_crawler._typ == URL.NONE:
                 custom_message = "Ignored"
 
             logging.info(
-                f"{custom_message}: {current_url.status_code} {current_url._typ} {full_output_path}"
+                f"{custom_message}: {current_crawler.status_code} {current_crawler._typ} {full_output_path}"
             )
 
-            for internal_link in current_url.internal_links:
-                time.sleep(self._project.delay + random.random() / 100)
+            for internal_link in current_crawler.internal_links:
                 if self._keep_running:
                     self.crawl_url(internal_link)
 
