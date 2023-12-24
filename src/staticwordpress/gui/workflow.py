@@ -183,7 +183,7 @@ class SWWorkflowObject(QObject):
                 current_crawler.status_code,
                 custom_message,
             ]
-            self._approximate_crawl_count += len(current_crawler.internal_links)
+            self._approximate_crawl_count += len(current_crawler.internal_links) / 5
 
             self.emit_tabulate_crawl_data.emit(table_row)
             self.emit_progress.emit(

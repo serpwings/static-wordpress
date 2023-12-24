@@ -713,7 +713,7 @@ class SWMainWindow(QMainWindow):
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
-        self._bg_thread.started.connect(self._bg_worker.start_crawling)
+        self._bg_thread.started.connect(self._bg_worker.pre_processing)
         self._bg_thread.start()
         self.statusBar().showMessage("Crawling WebPages in Progress")
 
