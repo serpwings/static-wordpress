@@ -44,7 +44,6 @@ from PyQt5.QtWidgets import (
     QAction,
     QApplication,
     QFileDialog,
-    QMessageBox,
     QProgressBar,
     QMenu,
     QToolBar,
@@ -52,6 +51,7 @@ from PyQt5.QtWidgets import (
     QTableView,
     QHeaderView,
     QSizePolicy,
+    QMessageBox,
 )
 from PyQt5.QtGui import QIcon, QDesktopServices
 from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl, QSortFilterProxyModel
@@ -79,6 +79,7 @@ from ..gui.rawtext import SWRawTextDialog
 from ..gui.config import SWConfigDialog
 from ..gui.project import SWProjectDialog
 from ..gui.table import SWDataTable
+from ..gui.messagebox import SWMessageBox
 from ..gui.utils import GUI_SETTINGS, logging_decorator
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -264,26 +265,14 @@ class SWMainWindow(QMainWindow):
     def clean_output_directory(self):
         """Clean Output Directory"""
 
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Clean Output Directory Content")
-        message_box.setText(
-            f"Existing content in Output Directory will be delete?<br> {self._project.output}",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Clean Output Directory Content",
+            message_=f"Existing content in Output Directory will be delete?<br> {self._project.output}",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        message_box.exec()
 
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             rm_dir_tree(self._project.output)
             logging.info(
                 f"Content of output folder at {self._project.output} are deleted"
@@ -316,28 +305,14 @@ class SWMainWindow(QMainWindow):
 
     def closeEvent(self, event):
         """ """
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle(f"Exiting {CONFIGS['APPLICATION_NAME']}")
-        message_box.setIcon(QMessageBox.Question)
-        message_box.setText(
-            "Do you really want to exit?.<br>Any unsaved changes will be lost!",
+        message_box = SWMessageBox(
+            parent=self,
+            title_=f"Exiting {CONFIGS['APPLICATION_NAME']}",
+            message_="Do you really want to exit?.<br>Any unsaved changes will be lost!",
         )
+        message_box.exec()
 
-        pushbuttonOk = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-
-        pushbuttonNo = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbuttonOk)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbuttonOk:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
                 del self._bg_thread
@@ -456,21 +431,16 @@ class SWMainWindow(QMainWindow):
 
     def about(self):
         """ """
-        message_box = QMessageBox(parent=self)
-        message_box.setText(
-            f"Copyright {date.today().year} - SERP Wings"
+        message_box = SWMessageBox(
+            parent=self,
+            title_="About Us",
+            message_=f"Copyright {date.today().year} - SERP Wings"
             f"<br><br>{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
             "<br><br>This work is an opensource project under <br>GNU General Public License v3 or later (GPLv3+)"
-            f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>"
+            f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>",
+            icon_=QMessageBox.Information,
+            no_button_=False,
         )
-        message_box.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.setWindowTitle("About Us")
         message_box.exec()
 
     @logging_decorator
@@ -528,19 +498,12 @@ class SWMainWindow(QMainWindow):
                     logging.info(f"Open Project {self._project.path} Successfully")
                     self.app_configurations.setValue("last-project", project_folder)
             else:
-                message_box = QMessageBox(parent=self)
-                message_box.setText(
-                    f"Project cannot be opened or selected path invalid."
-                    f"<br>Please try again with project folder."
+                message_box = SWMessageBox(
+                    parent=self,
+                    title_="Open Project",
+                    message_=f"Project cannot be opened or selected path invalid."
+                    f"<br>Please try again with project folder.",
                 )
-                message_box.addButton(QMessageBox.Ok).setIcon(
-                    QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-                )
-                message_box.setWindowIcon(
-                    QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-                )
-                message_box.setTextFormat(Qt.RichText)
-                message_box.setWindowTitle("Open Project")
                 message_box.exec()
 
                 logging.info(
@@ -562,17 +525,13 @@ class SWMainWindow(QMainWindow):
             self._project.save()
             self.update_widgets()
         else:
-            message_box = QMessageBox(parent=self)
-            message_box.setText(f"No Project Available.")
-            message_box.addButton(QMessageBox.Ok).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Project Settings",
+                message_=f"No Project Available.",
             )
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.setWindowTitle("Project Settings")
             message_box.exec()
+
             logging.info("No New Project found.")
 
     @is_project_open
@@ -581,26 +540,16 @@ class SWMainWindow(QMainWindow):
         """Assign new project and old properties will be lost.
         Default is assigned as CLOSED project
         """
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Close Existing Project")
-        message_box.setText(
-            "Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Close Existing Project",
+            message_="Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+        message_box.exec()
 
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             self._project = Project()
+            self.model_crawl_data.clear()
             self.update_widgets()
 
     @is_project_open
@@ -608,27 +557,14 @@ class SWMainWindow(QMainWindow):
         """Start Crawling"""
 
         if not self._project.output.exists():
-            message_box = QMessageBox(parent=self)
-            message_box.setIcon(QMessageBox.Question)
-            message_box.setWindowTitle("Output Folder")
-            message_box.setText(
-                f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Output Folder",
+                message_=f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
             )
-            pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-            pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+            message_box.exec()
 
-            pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-            pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-            message_box.setDefaultButton(pushbutton_ok)
-
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.exec_()
-
-            if message_box.clickedButton() == pushbutton_ok:
+            if message_box.clickedButton() == message_box.pushbutton_ok:
                 os.mkdir(self._project.output)
             else:
                 return
@@ -641,29 +577,13 @@ class SWMainWindow(QMainWindow):
 
             if self._project.src_type == SOURCE.ZIP:
                 if not self._bg_worker._work_flow.verify_simply_static():
-                    message_box = QMessageBox(parent=self)
-                    message_box.setWindowTitle("ZIP File Missing")
-                    message_box.setIcon(QMessageBox.Question)
-                    message_box.setText(
-                        "ZIP File not found. Please check your project configurations?",
+                    message_box = SWMessageBox(
+                        parent=self,
+                        title_="ZIP File Missing",
+                        message_="ZIP File not found. Please check your project configurations?",
                     )
-                    pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-                    pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-
-                    pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-                    pushbutton_no.setIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-                    )
-
-                    message_box.setDefaultButton(pushbutton_ok)
-
-                    message_box.setWindowIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-                    )
-                    message_box.setTextFormat(Qt.RichText)
-                    message_box.exec_()
-
-                    if message_box.clickedButton() == pushbutton_ok:
+                    message_box.exec()
+                    if message_box.clickedButton() == message_box.pushbutton_ok:
                         return
 
             self._bg_thread = QThread(parent=self)
@@ -678,26 +598,14 @@ class SWMainWindow(QMainWindow):
     @is_project_open
     def stop_process(self) -> None:
         if self._bg_worker.is_running():
-            message_box = QMessageBox(parent=self)
-            message_box.setWindowTitle("Stop Crawling Process")
-            message_box.setText(
-                "Do you really want to Stop Crawling Thread?",
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Stop Crawling Process",
+                message_="Do you really want to Stop Crawling Thread?",
             )
-            pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-            pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+            message_box.exec()
 
-            pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-            pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-            message_box.setDefaultButton(pushbutton_ok)
-
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.exec_()
-
-            if message_box.clickedButton() == pushbutton_ok:
+            if message_box.clickedButton() == message_box.pushbutton_ok:
                 self._bg_worker.stop_calcualations()
                 self.statusBar().showMessage("Stoping Processing", 100)
 
@@ -713,7 +621,7 @@ class SWMainWindow(QMainWindow):
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
-        self._bg_thread.started.connect(self._bg_worker.pre_processing)
+        self._bg_thread.started.connect(self._bg_worker.batch_processing)
         self._bg_thread.start()
         self.statusBar().showMessage("Crawling WebPages in Progress")
 
@@ -812,27 +720,14 @@ class SWMainWindow(QMainWindow):
     @is_project_open
     def delete_github_repository(self) -> None:
         """"""
-
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Deleting Repository on GitHub")
-        message_box.setText(
-            f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Deleting Repository on GitHub",
+            message_=f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        message_box.exec()
 
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 

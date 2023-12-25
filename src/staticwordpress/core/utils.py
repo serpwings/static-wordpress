@@ -32,6 +32,7 @@ import re
 import stat
 import shutil
 from urllib import parse
+from urllib.request import urlopen
 from pathlib import Path
 from zipfile import ZipFile
 from functools import lru_cache
@@ -228,10 +229,7 @@ def is_url_valid(url_: str) -> bool:
     url_parsed_ = parse.urlparse(url_)
 
     if all([url_parsed_.scheme, url_parsed_.netloc]):
-        from urllib.request import urlopen
-
-        # print(url_parsed_)
-        # # return get_remote_content(url_parsed_, max_retires=1).status_code < 399
+        # return get_remote_content(url_parsed_, max_retires=1).status_code < 399
         try:
             return urlopen(url_).getcode() < 399
         except:

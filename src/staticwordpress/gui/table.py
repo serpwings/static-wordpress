@@ -72,6 +72,11 @@ class SWDataTable(QAbstractTableModel):
         self.endInsertRows()
         return True
 
+    def clear(self):
+        self.beginResetModel()
+        self._data = []
+        self.endResetModel()
+
 
 class DataframeQSortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self):
