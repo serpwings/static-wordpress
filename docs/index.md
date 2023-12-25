@@ -8,6 +8,10 @@ Python Package for Converting WordPress Installation to a Static Website.
 [![pypi_version](https://img.shields.io/pypi/v/staticwordpress.svg?style=flat-square "Available on PyPi - the Python Package Index")](https://pypi.python.org/pypi/staticwordpress)
 [![supported_python_versions](https://img.shields.io/pypi/pyversions/staticwordpress.svg?style=flat-square "Supported Python Version")](https://pypi.python.org/pypi/staticwordpress)
 
+## Desktop Version
+
+![staticwordpress-gui](docs/img/staticwordpress-gui.png)
+
 ## How to Install static-wordpress?
 
 ### Windows Installer
