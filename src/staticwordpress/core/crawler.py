@@ -54,7 +54,7 @@ from ..core.constants import CONFIGS, URL, LINK_REGEX
 
 
 class Crawler:
-    def __init__(self, loc_: str, type_: URL = URL.FOLDER, scheme_="") -> None:
+    def __init__(self, loc_: str, typ_: URL = URL.FOLDER, scheme_: str = "") -> None:
         loc_ = parse.unquote(loc_).replace("\/", "/")
         if not any([loc_.startswith(f"{scheme}://") for scheme in CONFIGS["SCHEMES"]]):
             loc_ = f"{CONFIGS['DEFAULT_SCHEME']}://{loc_}"
@@ -62,7 +62,7 @@ class Crawler:
         if CONFIGS["CLEAN"]["URL"]:
             loc_ = get_clean_url(loc_, "", scheme_)
 
-        self._type = type_
+        self._typ = typ_
         self._loc = loc_
         self._urlparse = parse.urlparse(self._loc)
 
@@ -70,14 +70,14 @@ class Crawler:
         if file_ext:
             for keys in CONFIGS["FORMATS"]:
                 if file_ext in CONFIGS["FORMATS"][keys]:
-                    self._type = URL[keys]
+                    self._typ = URL[keys]
 
         if any(
             [exclule_url in self._urlparse.path for exclule_url in CONFIGS["EXCLUDE"]]
         ):
-            self._type = URL.NONE
+            self._typ = URL.NONE
 
-        if self._type == URL.FOLDER:
+        if self._typ == URL.FOLDER:
             self._loc = (
                 f"{self._loc}{'/' if not self._urlparse.path.endswith('/') else ''}"
             )
@@ -91,6 +91,10 @@ class Crawler:
     @property
     def hash(self) -> str:
         return self._hash
+
+    @property
+    def typ(self) -> str:
+        return self._typ
 
     @property
     def external_links(self) -> list:
@@ -187,7 +191,7 @@ class Crawler:
                 len(self._urlparse.scheme) > 0,
                 len(self._urlparse.netloc) > 0,
                 len(self._urlparse.netloc.split(".")) > 1,
-                len(self._urlparse.path) > 0 or self._type == URL.HOME,
+                len(self._urlparse.path) > 0 or self._typ == URL.HOME,
             ]
         )
 
@@ -200,7 +204,7 @@ class Crawler:
         if self.is_valid:
             self._response = get_remote_content(self._urlparse)
 
-            if self._type in [URL.FOLDER, URL.HTML, URL.JS, URL.HOME]:
+            if self._typ in [URL.FOLDER, URL.HTML, URL.JS, URL.HOME]:
                 extracted_urls = set(
                     [link[0] for link in re.findall(LINK_REGEX, self._response.text)]
                 )
@@ -220,16 +224,16 @@ class Crawler:
         full_output_path = Path(f"{full_output_folder}/{folder_path}")
 
         if self._response.status_code == 404:
-            self._type = URL.HTML
+            self._typ = URL.HTML
             full_output_path = full_output_folder / Path("404.html")
 
-        if self._type in [URL.FOLDER, URL.HOME]:
+        if self._typ in [URL.FOLDER, URL.HOME]:
             full_output_path = full_output_path / Path("index.html")
 
-        if self._type not in [URL.NONE]:
+        if self._typ not in [URL.NONE]:
             full_output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if self._type in [
+        if self._typ in [
             URL.HTML,
             URL.XML,
             URL.FOLDER,
@@ -250,15 +254,15 @@ class Crawler:
             with open(full_output_path, "w", encoding="utf-8") as f:
                 f.write(_text)
 
-        elif self._type in [URL.IMAGE, URL.PDF, URL.BINARY]:
+        elif self._typ in [URL.IMAGE, URL.PDF, URL.BINARY]:
             with open(full_output_path, "wb") as file:
                 file.write(self._response.content)
 
-        elif self._type in [URL.JSON]:
+        elif self._typ in [URL.JSON]:
             with open(full_output_path, "w", encoding="utf-8") as file:
                 json.dump(json.loads(self._response.text), file, indent=4)
 
-        elif self._type == URL.ZIP:
+        elif self._typ == URL.ZIP:
             headers = CaseInsensitiveDict()
             headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
             headers["Pragma"] = "no-cache"
@@ -273,7 +277,7 @@ class Crawler:
                         fd.write(chunk)
             current_session.cookies.clear()
 
-        elif self._type == URL.FONTS:
+        elif self._typ == URL.FONTS:
             totalbits = 0
             if self._response.status_code == 200:
                 with open(full_output_path, "wb") as f:

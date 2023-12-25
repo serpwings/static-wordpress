@@ -68,6 +68,26 @@ class Search:
         )
         self._dst_url = dst_url_
 
+    @property
+    def search_index(self) -> list:
+        return self._search_index
+
+    @property
+    def search_path(self) -> str:
+        return self._search_path
+
+    @property
+    def search_path_lunr(self) -> Path:
+        return self._search_path_lunr
+
+    @property
+    def search_path_script(self) -> Path:
+        return self._search_path_script
+
+    @property
+    def dst_url(self) -> str:
+        return self._dst_url
+
     def update(self, soup_: BeautifulSoup, output_path_: str) -> None:
         """Update search page by adding new tags
 

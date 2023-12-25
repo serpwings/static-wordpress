@@ -25,9 +25,17 @@ specific language governing rights and limitations under the License.
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
+# INTERNAL IMPORTS
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+from collections import namedtuple
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 3rd PARTY LIBRARY IMPORTS
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from PyQt5.QtCore import QSize
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 from IPython.lib import guisupport
@@ -39,7 +47,7 @@ from IPython.lib import guisupport
 
 
 class SWIPythonWidget(RichJupyterWidget):
-    def __init__(self, interface_: dict = {"iface": None}, *args, **kwargs):
+    def __init__(self, interface_: dict = {}, *args, **kwargs):
         super(SWIPythonWidget, self).__init__(*args, **kwargs)
 
         self.ipython_kernal_manager = QtInProcessKernelManager()
@@ -51,7 +59,8 @@ class SWIPythonWidget(RichJupyterWidget):
         for module in import_custom_modules:
             self._execute(module, hidden=True)
 
-        self.ipython_kernal_manager.kernel.shell.push(interface_)
+        SWInterface = namedtuple("SWInterface", interface_.keys())(**interface_)
+        self.ipython_kernal_manager.kernel.shell.push({"iface": SWInterface})
 
         def stop():
             self.kernel_client.stop_channels()
@@ -59,3 +68,6 @@ class SWIPythonWidget(RichJupyterWidget):
             guisupport.get_app_qt4().exit()
 
         self.exit_requested.connect(stop)
+
+    def sizeHint(self):
+        return QSize(620, 75)

@@ -85,6 +85,10 @@ class Redirects:
     def __init__(self) -> None:
         self._items = dict()
 
+    @property
+    def items(self) -> dict():
+        return self._items
+
     def add_redirect(self, redirect_: Redirect) -> None:
         if redirect_.hash not in self._items:
             self._items[redirect_.hash] = redirect_

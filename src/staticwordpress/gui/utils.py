@@ -60,19 +60,3 @@ def logging_decorator(function):
         logging.info("".join(140 * ["-"]))
 
     return add_logs
-
-
-def progress_decorator(message, percent=10):
-    """ """
-
-    def decorator(function):
-        def wrapper(cls):
-            logging.info(f"{message}")
-            cls.emit_progress.emit(message, -1)
-            cls.emit_progress.emit(message, percent)
-            result = function(cls)
-            return result
-
-        return wrapper
-
-    return decorator

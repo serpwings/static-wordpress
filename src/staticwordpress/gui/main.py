@@ -33,7 +33,7 @@ import os
 import shutil
 from pathlib import Path
 from datetime import date
-
+from collections import namedtuple
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 3rd PARTY LIBRARY IMPORTS
@@ -44,15 +44,17 @@ from PyQt5.QtWidgets import (
     QAction,
     QApplication,
     QFileDialog,
-    QMessageBox,
     QProgressBar,
     QMenu,
     QToolBar,
     QDockWidget,
+    QTableView,
+    QHeaderView,
+    QSizePolicy,
+    QMessageBox,
 )
 from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl
-
+from PyQt5.QtCore import Qt, QThread, QSize, QSettings, QUrl, QSortFilterProxyModel
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # INTERNAL IMPORTS
@@ -76,8 +78,9 @@ from ..gui.editor import SWIPythonWidget
 from ..gui.rawtext import SWRawTextDialog
 from ..gui.config import SWConfigDialog
 from ..gui.project import SWProjectDialog
+from ..gui.table import SWDataTable
+from ..gui.messagebox import SWMessageBox
 from ..gui.utils import GUI_SETTINGS, logging_decorator
-
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++
 # IMPLEMENATIONS
@@ -95,21 +98,25 @@ class SWMainWindow(QMainWindow):
         self._bg_thread = QThread(parent=self)
         self._bg_worker = SWWorkflowObject()
 
+        # docked widgets
+        self.dockwidget_ipython = QDockWidget("IPython Console", self)
+        self.dockwidget_ipython.setFloating(False)
+        self.dockwidget_ipython.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_ipython)
+        self.ipython_console = None
+
         self.text_edit_logging = SWLoggerWidget(self)
         self.text_edit_logging.setFormatter(
             logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         )
         logging.getLogger().addHandler(self.text_edit_logging)
         logging.getLogger().setLevel(logging.INFO)
-        self.setCentralWidget(self.text_edit_logging.plaintext_edit)
-
-        self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
-        self.progressbar = QProgressBar()
-        self.progressbar.setAlignment(Qt.AlignCenter)
-        self.progressbar.setFormat("No Brackground Process is running")
-        self.progressbar.setFixedSize(QSize(300, 25))
-        self.progressbar.setValue(0)
-        self.statusBar().addPermanentWidget(self.progressbar)
+        self.dockwidget_debug_logger = QDockWidget("Debug Logs", self)
+        self.dockwidget_debug_logger.setFloating(False)
+        self.dockwidget_debug_logger.hide()
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_debug_logger)
+        self.dockwidget_debug_logger.setWidget(self.text_edit_logging.plaintext_edit)
+        self.tabifyDockWidget(self.dockwidget_debug_logger, self.dockwidget_ipython)
 
         # ALL menus
         for current_menu in GUI_SETTINGS["MENUS"]:
@@ -162,12 +169,56 @@ class SWMainWindow(QMainWindow):
             if current_toolbar:
                 current_toolbar.addAction(action)
 
-        # docked widgets
-        self.dockwidget_ipython = QDockWidget("IPython Console", self)
-        self.dockwidget_ipython.setFloating(False)
-        self.dockwidget_ipython.hide()
-        self.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget_ipython)
-        self.ipython_console = None
+        # Debug Logs Widgets is shown by default
+        self.findChild(QAction, "action_edit_set_debug_mode").trigger()
+        # Central Widgets
+        self.tableview_crawl_data = QTableView()
+        self.tableview_crawl_data.clicked.connect(
+            lambda val: self.statusBar().showMessage(
+                f"Total Urls Crawled: {self.model_crawl_data.rowCount()}"
+            )
+        )
+        self.model_crawl_data = SWDataTable(
+            data_=[], header_=["Hash", "URL", "Path", "Type", "Code", "Message"]
+        )
+        self.tableview_crawl_data.setModel(self.model_crawl_data)
+
+        self.tableview_crawl_data.setAlternatingRowColors(True)
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            3, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            4, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.horizontalHeader().setSectionResizeMode(
+            5, QHeaderView.ResizeToContents
+        )
+        self.tableview_crawl_data.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Minimum
+        )
+        self.tableview_crawl_data.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+
+        self.proxy_model_crawl_data = QSortFilterProxyModel(self.model_crawl_data)
+        self.proxy_model_crawl_data.setFilterKeyColumn(0)
+        self.proxy_model_crawl_data.setSourceModel(self.model_crawl_data)
+        self.tableview_crawl_data.setModel(self.proxy_model_crawl_data)
+        self.tableview_crawl_data.setSortingEnabled(True)
+
+        self.setCentralWidget(self.tableview_crawl_data)
+
+        self.statusBar().showMessage(f"{CONFIGS['APPLICATION_NAME']} is Ready")
+        self.progressbar = QProgressBar()
+        self.progressbar.setAlignment(Qt.AlignCenter)
+        self.progressbar.setFormat("No Brackground Process is running")
+        self.progressbar.setFixedSize(QSize(300, 25))
+        self.progressbar.setValue(0)
+        self.statusBar().addPermanentWidget(self.progressbar)
 
         self.setWindowIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg"))
         self.setWindowTitle(f"{CONFIGS['APPLICATION_NAME']} Version - {VERISON}")
@@ -214,26 +265,14 @@ class SWMainWindow(QMainWindow):
     def clean_output_directory(self):
         """Clean Output Directory"""
 
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Clean Output Folder Content")
-        message_box.setText(
-            f"Existing content in Output folder will be delete?<br> {self._project.output}",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Clean Output Directory Content",
+            message_=f"Existing content in Output Directory will be delete?<br> {self._project.output}",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        message_box.exec()
 
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             rm_dir_tree(self._project.output)
             logging.info(
                 f"Content of output folder at {self._project.output} are deleted"
@@ -266,28 +305,14 @@ class SWMainWindow(QMainWindow):
 
     def closeEvent(self, event):
         """ """
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle(f"Exiting {CONFIGS['APPLICATION_NAME']}")
-        message_box.setIcon(QMessageBox.Question)
-        message_box.setText(
-            "Do you really want to exit?.<br>Any unsaved changes will be lost!",
+        message_box = SWMessageBox(
+            parent=self,
+            title_=f"Exiting {CONFIGS['APPLICATION_NAME']}",
+            message_="Do you really want to exit?.<br>Any unsaved changes will be lost!",
         )
+        message_box.exec()
 
-        pushbuttonOk = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbuttonOk.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-
-        pushbuttonNo = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbuttonNo.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbuttonOk)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbuttonOk:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
                 del self._bg_thread
@@ -308,20 +333,33 @@ class SWMainWindow(QMainWindow):
             "action_crawler_crawl_webpages",
         ]
 
-        for widget_name in expert_widgets:
-            self.findChild(QAction, widget_name).setVisible(self.sender().isChecked())
-
-        self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
-            self.sender().isChecked() and self._project.src_type != SOURCE.ZIP
+        action_edit_set_expert_mode = self.findChild(
+            QAction, "action_edit_set_expert_mode"
         )
 
-    def set_debug_mode(self):
-        if self.sender().isChecked():
+        for widget_name in expert_widgets:
+            self.findChild(QAction, widget_name).setVisible(
+                action_edit_set_expert_mode.isChecked()
+            )
+
+        self.findChild(QAction, "action_crawler_crawl_additional_files").setVisible(
+            action_edit_set_expert_mode.isChecked()
+            and self._project.src_type != SOURCE.ZIP
+        )
+
+        if action_edit_set_expert_mode.isChecked():
             logging.getLogger().setLevel(
                 logging.INFO & logging.DEBUG & logging.ERROR & logging.WARNING
             )
         else:
             logging.getLogger().setLevel(logging.INFO)
+
+    def set_debug_mode(self):
+        if self.findChild(QAction, "action_edit_set_debug_mode").isChecked():
+            self.dockwidget_debug_logger.show()
+            self.dockwidget_debug_logger.raise_()
+        else:
+            self.dockwidget_debug_logger.hide()
 
     def help(self):
         """ """
@@ -334,12 +372,55 @@ class SWMainWindow(QMainWindow):
         """ """
         if self.findChild(QAction, "action_start_ipython_console").isChecked():
             if self.ipython_console is None:
-                self.ipython_console = SWIPythonWidget(interface_={"iface": self})
+                self.ipython_console = SWIPythonWidget(
+                    interface_={
+                        "self": self,  # TODO: Remove
+                        "ui": self._interface(),
+                        "worker": self._bg_worker.work_flow,
+                    }
+                )
                 self.dockwidget_ipython.setWidget(self.ipython_console)
 
             self.dockwidget_ipython.show()
+            self.dockwidget_ipython.raise_()
         else:
             self.dockwidget_ipython.hide()
+
+    def _interface(self):
+        ui_interface_funcs = {
+            "about": self.about,
+            "clean_output_directory": self.clean_output_directory,
+            "clear_crawl_cache": self.clear_crawl_cache,
+            "close_project": self.close_project,
+            "commit_repository": self.commit_repository,
+            "crawl_additional_files": self.crawl_additional_files,
+            "crawl_webpages": self.crawl_webpages,
+            "create_404_page": self.create_404_page,
+            "create_github_repositoy": self.create_github_repositoy,
+            "create_redirects": self.create_redirects,
+            "create_robots_txt": self.create_robots_txt,
+            "create_search_index": self.create_search_index,
+            "delete_github_repository": self.delete_github_repository,
+            "extract_url_from_raw_text": self.extract_url_from_raw_text,
+            "help": self.help,
+            "initialize_repository": self.initialize_repository,
+            "new_project": self.new_project,
+            "open_project": self.open_project,
+            "publish_repository": self.publish_repository,
+            "set_debug_mode": self.set_debug_mode,
+            "set_expert_mode": self.set_expert_mode,
+            "show_configs": self.show_configs,
+            "show_project_settings": self.show_project_settings,
+            "start_batch_process": self.start_batch_process,
+            "start_ipython_console": self.start_ipython_console,
+            "stop_process": self.stop_process,
+            "update_statusbar": self.update_statusbar,
+            "update_widgets": self.update_widgets,
+        }
+
+        return namedtuple("UIInterface", ui_interface_funcs.keys())(
+            **ui_interface_funcs
+        )
 
     @logging_decorator
     def show_configs(self):
@@ -350,21 +431,16 @@ class SWMainWindow(QMainWindow):
 
     def about(self):
         """ """
-        message_box = QMessageBox(parent=self)
-        message_box.setText(
-            f"Copyright {date.today().year} - SERP Wings"
+        message_box = SWMessageBox(
+            parent=self,
+            title_="About Us",
+            message_=f"Copyright {date.today().year} - SERP Wings"
             f"<br><br>{CONFIGS['APPLICATION_NAME']} Version - {VERISON}"
             "<br><br>This work is an opensource project under <br>GNU General Public License v3 or later (GPLv3+)"
-            f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>"
+            f"<br>More Information at <a href='https://{CONFIGS['ORGANIZATION_DOMAIN']}/'>{CONFIGS['ORGANIZATION_NAME']}</a>",
+            icon_=QMessageBox.Information,
+            no_button_=False,
         )
-        message_box.addButton(QMessageBox.Ok).setIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-        )
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.setWindowTitle("About Us")
         message_box.exec()
 
     @logging_decorator
@@ -422,19 +498,12 @@ class SWMainWindow(QMainWindow):
                     logging.info(f"Open Project {self._project.path} Successfully")
                     self.app_configurations.setValue("last-project", project_folder)
             else:
-                message_box = QMessageBox(parent=self)
-                message_box.setText(
-                    f"Project cannot be opened or selected path invalid."
-                    f"<br>Please try again with project folder."
+                message_box = SWMessageBox(
+                    parent=self,
+                    title_="Open Project",
+                    message_=f"Project cannot be opened or selected path invalid."
+                    f"<br>Please try again with project folder.",
                 )
-                message_box.addButton(QMessageBox.Ok).setIcon(
-                    QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
-                )
-                message_box.setWindowIcon(
-                    QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-                )
-                message_box.setTextFormat(Qt.RichText)
-                message_box.setWindowTitle("Open Project")
                 message_box.exec()
 
                 logging.info(
@@ -456,17 +525,13 @@ class SWMainWindow(QMainWindow):
             self._project.save()
             self.update_widgets()
         else:
-            message_box = QMessageBox(parent=self)
-            message_box.setText(f"No Project Available.")
-            message_box.addButton(QMessageBox.Ok).setIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg")
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Project Settings",
+                message_=f"No Project Available.",
             )
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.setWindowTitle("Project Settings")
             message_box.exec()
+
             logging.info("No New Project found.")
 
     @is_project_open
@@ -475,26 +540,16 @@ class SWMainWindow(QMainWindow):
         """Assign new project and old properties will be lost.
         Default is assigned as CLOSED project
         """
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Close Existing Project")
-        message_box.setText(
-            "Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Close Existing Project",
+            message_="Are you sure to close current project and open new one?.<br>All existing project properties will be lost!",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
+        message_box.exec()
 
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             self._project = Project()
+            self.model_crawl_data.clear()
             self.update_widgets()
 
     @is_project_open
@@ -502,27 +557,14 @@ class SWMainWindow(QMainWindow):
         """Start Crawling"""
 
         if not self._project.output.exists():
-            message_box = QMessageBox(parent=self)
-            message_box.setIcon(QMessageBox.Question)
-            message_box.setWindowTitle("Output Folder")
-            message_box.setText(
-                f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Output Folder",
+                message_=f"Following Output Folder doesnt not exit?.<br>{self._project.output}<br>Do You want to create it now?",
             )
-            pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-            pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+            message_box.exec()
 
-            pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-            pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-            message_box.setDefaultButton(pushbutton_ok)
-
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.exec_()
-
-            if message_box.clickedButton() == pushbutton_ok:
+            if message_box.clickedButton() == message_box.pushbutton_ok:
                 os.mkdir(self._project.output)
             else:
                 return
@@ -535,63 +577,37 @@ class SWMainWindow(QMainWindow):
 
             if self._project.src_type == SOURCE.ZIP:
                 if not self._bg_worker._work_flow.verify_simply_static():
-                    message_box = QMessageBox(parent=self)
-                    message_box.setWindowTitle("ZIP File Missing")
-                    message_box.setIcon(QMessageBox.Question)
-                    message_box.setText(
-                        "ZIP File not found. Please check your project configurations?",
+                    message_box = SWMessageBox(
+                        parent=self,
+                        title_="ZIP File Missing",
+                        message_="ZIP File not found. Please check your project configurations?",
                     )
-                    pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-                    pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
-
-                    pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-                    pushbutton_no.setIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg")
-                    )
-
-                    message_box.setDefaultButton(pushbutton_ok)
-
-                    message_box.setWindowIcon(
-                        QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-                    )
-                    message_box.setTextFormat(Qt.RichText)
-                    message_box.exec_()
-
-                    if message_box.clickedButton() == pushbutton_ok:
+                    message_box.exec()
+                    if message_box.clickedButton() == message_box.pushbutton_ok:
                         return
 
             self._bg_thread = QThread(parent=self)
             self._bg_worker.moveToThread(self._bg_thread)
             self._bg_thread.finished.connect(self._bg_worker.deleteLater)
             self._bg_worker.emit_progress.connect(self.update_statusbar)
+            self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
             self._bg_thread.started.connect(self._bg_worker.batch_processing)
             self._bg_thread.start()
+            self.statusBar().showMessage("Batch Processing in Progress")
 
     @is_project_open
     def stop_process(self) -> None:
         if self._bg_worker.is_running():
-            message_box = QMessageBox(parent=self)
-            message_box.setWindowTitle("Stop Crawling Process")
-            message_box.setText(
-                "Do you really want to Stop Crawling Thread?",
+            message_box = SWMessageBox(
+                parent=self,
+                title_="Stop Crawling Process",
+                message_="Do you really want to Stop Crawling Thread?",
             )
-            pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-            pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+            message_box.exec()
 
-            pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-            pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-            message_box.setDefaultButton(pushbutton_ok)
-
-            message_box.setWindowIcon(
-                QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-            )
-            message_box.setTextFormat(Qt.RichText)
-            message_box.exec_()
-
-            if message_box.clickedButton() == pushbutton_ok:
+            if message_box.clickedButton() == message_box.pushbutton_ok:
                 self._bg_worker.stop_calcualations()
-                self.update_statusbar("Stoping Processing", 100)
+                self.statusBar().showMessage("Stoping Processing", 100)
 
     @is_project_open
     def crawl_webpages(self) -> None:
@@ -604,8 +620,10 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
-        self._bg_thread.started.connect(self._bg_worker.pre_processing)
+        self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
+        self._bg_thread.started.connect(self._bg_worker.batch_processing)
         self._bg_thread.start()
+        self.statusBar().showMessage("Crawling WebPages in Progress")
 
     @is_project_open
     def crawl_additional_files(self) -> None:
@@ -618,8 +636,10 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.moveToThread(self._bg_thread)
         self._bg_thread.finished.connect(self._bg_worker.deleteLater)
         self._bg_worker.emit_progress.connect(self.update_statusbar)
+        self._bg_worker.emit_tabulate_crawl_data.connect(self.update_table)
         self._bg_thread.started.connect(self._bg_worker.crawl_additional_files)
         self._bg_thread.start()
+        self.statusBar().showMessage("Crwaling Additional Progress")
 
     @is_project_open
     def create_search_index(self) -> None:
@@ -634,6 +654,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_search)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Search Index")
 
     @is_project_open
     def create_404_page(self) -> None:
@@ -648,6 +669,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_404_page)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating 404 Page")
 
     @is_project_open
     def create_redirects(self) -> None:
@@ -662,6 +684,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_redirects)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Redirects")
 
     @is_project_open
     def create_robots_txt(self) -> None:
@@ -676,6 +699,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.add_robots_txt)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating Robots.txt File")
 
     @is_project_open
     def create_github_repositoy(self) -> None:
@@ -691,31 +715,19 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.create_github_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Creating GitHub Repository")
 
     @is_project_open
     def delete_github_repository(self) -> None:
         """"""
-
-        message_box = QMessageBox(parent=self)
-        message_box.setWindowTitle("Deleting Repository on GitHub")
-        message_box.setText(
-            f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
+        message_box = SWMessageBox(
+            parent=self,
+            title_="Deleting Repository on GitHub",
+            message_=f"Do you really want to delete {self._project.gh_repo} on GitHub?<br>This deletion is not reversible.",
         )
-        pushbutton_ok = message_box.addButton("OK", QMessageBox.YesRole)
-        pushbutton_ok.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/ok.svg"))
+        message_box.exec()
 
-        pushbutton_no = message_box.addButton("Cancel", QMessageBox.NoRole)
-        pushbutton_no.setIcon(QIcon(f"{SHARE_FOLDER_PATH}/icons/cancel.svg"))
-
-        message_box.setDefaultButton(pushbutton_ok)
-
-        message_box.setWindowIcon(
-            QIcon(f"{SHARE_FOLDER_PATH}/icons/static-wordpress.svg")
-        )
-        message_box.setTextFormat(Qt.RichText)
-        message_box.exec_()
-
-        if message_box.clickedButton() == pushbutton_ok:
+        if message_box.clickedButton() == message_box.pushbutton_ok:
             if self._bg_thread.isRunning():
                 self._bg_thread.quit()
 
@@ -727,6 +739,7 @@ class SWMainWindow(QMainWindow):
             self._bg_worker.emit_progress.connect(self.update_statusbar)
             self._bg_thread.started.connect(self._bg_worker.delete_github_repositoy)
             self._bg_thread.start()
+            self.statusBar().showMessage("Deleting GitHub Repository")
 
     @is_project_open
     def initialize_repository(self) -> None:
@@ -742,6 +755,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.init_git_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Intializing Git Repository")
 
     @is_project_open
     def commit_repository(self) -> None:
@@ -757,6 +771,7 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.commit_git_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Updating Git Repository")
 
     @is_project_open
     def publish_repository(self) -> None:
@@ -772,16 +787,22 @@ class SWMainWindow(QMainWindow):
         self._bg_worker.emit_progress.connect(self.update_statusbar)
         self._bg_thread.started.connect(self._bg_worker.publish_github_repositoy)
         self._bg_thread.start()
+        self.statusBar().showMessage("Publishing GitHub Repository")
+
+    def update_table(self, table_row_):
+        self.model_crawl_data.insertRow(
+            data=table_row_, row=self.model_crawl_data.rowCount()
+        )
+
+        tableview_crawl_data_scrollbar = self.tableview_crawl_data.verticalScrollBar()
+        tableview_crawl_data_scrollbar.setSliderPosition(
+            tableview_crawl_data_scrollbar.maximum() + 1
+        )
+        self.text_edit_logging.plaintext_edit.ensureCursorVisible()
 
     def update_statusbar(self, message_: str = "", percent_: int = 0) -> None:
-        if percent_ >= 0:
-            self.progressbar.setValue(percent_)
-            self.statusBar().showMessage(message_)
-        else:
-            self.progressbar.setFormat(message_)
-
-        if percent_ >= 100:
-            self.progressbar.setFormat(message_)
+        self.progressbar.setValue(percent_)
+        self.progressbar.setFormat(message_)
 
     def update_widgets(self) -> None:
         # Show Menus
