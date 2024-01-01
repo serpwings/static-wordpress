@@ -116,37 +116,37 @@
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
 <p>This package is available at <code>pypi</code> and you can install it with <code>pip install staticwordpress</code> command. It will also install required additional libraries/Python Packages automatically.</p>
 <p>Once installed, you can implement customized workflows. Here is an example of post processing simply-static-zip file. </p>
-<pre class="codehilite"><code class="language-python">import logging
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
 
-from staticwordpress.core.workflow import Workflow
-from staticwordpress.core.constants import SOURCE, HOST
+<span class="kn">from</span> <span class="nn">staticwordpress.core.workflow</span> <span class="kn">import</span> <span class="n">Workflow</span>
+<span class="kn">from</span> <span class="nn">staticwordpress.core.constants</span> <span class="kn">import</span> <span class="n">SOURCE</span><span class="p">,</span> <span class="n">HOST</span>
 
-# enable logging for all functions.
-logging.basicConfig(
-        format=&quot;%(asctime)s - %(levelname)s - %(message)s&quot;,
-        level=logging.DEBUG,
-        stream=sys.stdout,
-)
+<span class="c1"># enable logging for all functions.</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+<span class="p">)</span>
 
-swp = Workflow()
-swp.create_project(
-        project_name_=&quot;simply-static-zip-deploy&quot;,
-        wp_user_=env_wp_user, # your wordpress username
-        wp_api_token_=env_wp_api_token, # wordpress xml api token
-        src_url_=env_src_url, # source url where WordPress is hosted
-        dst_url_=env_dst_url, # destination url where you want to host Static version
-        output_folder_=env_output, # Output folder location, where processed files will be saved
-        src_type_=SOURCE.ZIP, # Data Source e.g. ZIP file from Simply Static WordPress Plugin
-        host_type_=HOST.NETLIFY, # Host, where you want to deplyo your website.
-    )
+<span class="n">swp</span> <span class="o">=</span> <span class="n">Workflow</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">create_project</span><span class="p">(</span>
+        <span class="n">project_name_</span><span class="o">=</span><span class="s2">&quot;simply-static-zip-deploy&quot;</span><span class="p">,</span>
+        <span class="n">wp_user_</span><span class="o">=</span><span class="n">env_wp_user</span><span class="p">,</span> <span class="c1"># your wordpress username</span>
+        <span class="n">wp_api_token_</span><span class="o">=</span><span class="n">env_wp_api_token</span><span class="p">,</span> <span class="c1"># wordpress xml api token</span>
+        <span class="n">src_url_</span><span class="o">=</span><span class="n">env_src_url</span><span class="p">,</span> <span class="c1"># source url where WordPress is hosted</span>
+        <span class="n">dst_url_</span><span class="o">=</span><span class="n">env_dst_url</span><span class="p">,</span> <span class="c1"># destination url where you want to host Static version</span>
+        <span class="n">output_folder_</span><span class="o">=</span><span class="n">env_output</span><span class="p">,</span> <span class="c1"># Output folder location, where processed files will be saved</span>
+        <span class="n">src_type_</span><span class="o">=</span><span class="n">SOURCE</span><span class="o">.</span><span class="n">ZIP</span><span class="p">,</span> <span class="c1"># Data Source e.g. ZIP file from Simply Static WordPress Plugin</span>
+        <span class="n">host_type_</span><span class="o">=</span><span class="n">HOST</span><span class="o">.</span><span class="n">NETLIFY</span><span class="p">,</span> <span class="c1"># Host, where you want to deplyo your website.</span>
+    <span class="p">)</span>
 
-swp.download_zip_file()
-swp.setup_zip_folders()
-swp.add_404_page()
-swp.add_robots_txt()
-swp.add_redirects()
-swp.add_search()
-</code></pre>
+<span class="n">swp</span><span class="o">.</span><span class="n">download_zip_file</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">setup_zip_folders</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">add_404_page</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">add_robots_txt</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">add_redirects</span><span class="p">()</span>
+<span class="n">swp</span><span class="o">.</span><span class="n">add_search</span><span class="p">()</span>
+</code></pre></div>
 
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <p>Detailed documentation of all features is available at <a href="https://static-wordpress-docs.netlify.app/">staticwordpress documentation</a>.</p>
@@ -209,5 +209,5 @@ swp.add_search()
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2023-12-25 02:00:44.916361+00:00
+Build Date UTC : 2024-01-01 00:36:48.831307+00:00
 -->
