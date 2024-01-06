@@ -514,6 +514,7 @@ class SWProjectDialog(QDialog):
             self._project.exclude = self.textedit_exclude_patterns.toPlainText().split(
                 "\n"
             )
+            self._project.save()
             return super().accept()
         else:
             logging.info(f"Current Project Settings are not valid.")
