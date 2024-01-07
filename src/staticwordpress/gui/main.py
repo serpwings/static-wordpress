@@ -478,10 +478,17 @@ class SWMainWindow(QMainWindow):
                 QFileDialog.ShowDirsOnly,
             )
 
-            project_path = Path(f"{project_folder}/._data/.project.json")
+            project_path = Path(f"{project_folder}/_data/.project.json")
 
             if project_path.exists():
                 self._project.open(project_path)
+
+                if Path(self._project.output).is_dir():
+                    src = Path(f"{SHARE_FOLDER_PATH}/_ignore")
+                    dst = Path(f"{self._project.output}/.gitignore")
+                    if src.exists():
+                        shutil.copyfile(src, dst)
+
                 if self._project.is_open():
                     project_dialog = SWProjectDialog(
                         parent=self, project_=self._project, title_="Project Properties"

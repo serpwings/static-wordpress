@@ -214,7 +214,7 @@ class SWWorkflowObject(QObject):
     @logging_decorator
     def init_git_repositoy(self):
         self._work_flow.init_git_repositoy()
-        self.emit_sitemap_location.emit("Initalized Static Website", 100)
+        self.emit_progress.emit("Initalized Static Website", 100)
 
     @logging_decorator
     def commit_git_repositoy(self):

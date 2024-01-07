@@ -490,7 +490,7 @@ class SWProjectDialog(QDialog):
                 self._project.create()
 
             self._project.output = Path(self.lineedit_output.text())
-            self._project.path = Path(f"{self._project.output}/._data/.project.json")
+            self._project.path = Path(f"{self._project.output}/_data/.project.json")
             self._project.name = self.lineedit_project_name.text()
             self._project.src_url = self.lineedit_src_url.text()
             self._project.sitemap = self.lineedit_sitemap.text()
@@ -514,6 +514,13 @@ class SWProjectDialog(QDialog):
             self._project.exclude = self.textedit_exclude_patterns.toPlainText().split(
                 "\n"
             )
+
+            # Create _data folder
+            import os
+
+            os.makedirs(Path(f"{self._project.output}/_data/"), exist_ok=True)
+
+            self._project.save()
             return super().accept()
         else:
             logging.info(f"Current Project Settings are not valid.")
