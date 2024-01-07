@@ -57,4 +57,7 @@ class SWLoggerWidget(logging.Handler, QObject):
         self.append_text_message.connect(self.plaintext_edit.appendPlainText)
 
     def emit(self, msg):
-        self.append_text_message.emit(self.format(msg))
+        try:
+            self.append_text_message.emit(self.format(msg))
+        except:
+            pass  # TODO: raise exception if append_text_message is not available

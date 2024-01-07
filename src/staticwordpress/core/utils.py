@@ -128,7 +128,7 @@ def rm_dir_tree(dir_path_: str = None, delete_root_: bool = False) -> None:
     for _path in dir_path_.glob("**/*"):
         if _path.is_file() and _path.stem not in [".gitignore", ".project"]:
             _path.unlink()
-        elif _path.is_dir() and _path.stem != "._data":
+        elif _path.is_dir() and _path.stem != "_data":
             shutil.rmtree(_path, onerror=rmtree_permission_error)
 
     if delete_root_:
