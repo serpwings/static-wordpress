@@ -523,7 +523,7 @@ class SWProjectDialog(QDialog):
             self._project.save()
             return super().accept()
         else:
-            logging.info(f"Current Project Settings are not valid.")
+            logging.info("Current Project Settings are not valid.")
 
             message_box = QMessageBox(parent=self)
             message_box.setText(

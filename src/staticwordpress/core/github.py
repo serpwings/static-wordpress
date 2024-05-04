@@ -82,12 +82,12 @@ class GitHub:
 
     @check_gh_token
     def is_token_valid(self) -> bool:
-        logging.info(f"Verifying Github Token.")
+        logging.info("Verifying Github Token.")
         return self._gh_object.get_user().name != ""
 
     @check_gh_token
     def is_repo_valid(self) -> bool:
-        logging.info(f"Verifying Github Repository.")
+        logging.info("Verifying Github Repository.")
         return self._gh_object.get_user().get_repo(self._gh_repo) is not None
 
     @check_gh_token
@@ -116,7 +116,7 @@ class GitHub:
     def initialize(self) -> None:
         """init repoinit repo"""
         logging.info(
-            f"Initializing Git Repository - Orgins to GitHub will be set automatically"
+            "Initializing Git Repository - Orgins to GitHub will be set automatically"
         )
 
         login = self._gh_object.get_user().login
@@ -134,25 +134,25 @@ class GitHub:
 
         assert origin.exists()
 
-        logging.info(f"Updating Local Copy of Git Repository")
+        logging.info("Updating Local Copy of Git Repository")
         origin.fetch()
 
     @check_repo_dir
     def commit(self) -> None:
         """commit to local repository"""
-        logging.info(f"Start Committing Changes to Local Repository")
+        logging.info("Start Committing Changes to Local Repository")
         now = datetime.now()
         date_time = now.strftime("%Y-%m-%d, %H:%M:%S")
         self._repo.git.add("--all")
         self._repo.index.commit(f"{date_time}: Update using static-wordpress software")
-        logging.info(f"All Changes Committed to Local Repository")
+        logging.info("All Changes Committed to Local Repository")
 
     @check_repo_dir
     def publish(self):
         """publish to github"""
         self._repo.create_head("main")
         if self._repo.remotes:
-            logging.info(f"Pushing Repository Changes to GitHub!")
+            logging.info("Pushing Repository Changes to GitHub!")
             self._repo.remotes[0].push("main")
         else:
-            logging.error(f"Pushing Remote Repository on GitHub Failed.!")
+            logging.error("Pushing Remote Repository on GitHub Failed.!")

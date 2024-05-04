@@ -62,7 +62,7 @@ class Project(dict):
         if isinstance(path_, str):
             path_ = Path(path_)
 
-        assert type(path_) == PosixPath or type(path_) == WindowsPath or path_ == None
+        assert type(path_) == PosixPath or type(path_) == WindowsPath or path_ is None
 
         self["version"] = VERISON
         self["path"] = path_

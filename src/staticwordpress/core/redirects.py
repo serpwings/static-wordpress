@@ -137,7 +137,7 @@ class Redirects:
                 )
         except ResponseNotValid:
             logging.info(
-                f"Redirects are not valid. Make sure that redirection plug is properly configured."
+                "Redirects are not valid. Make sure that redirection plug is properly configured."
             )
 
     def add_search(self, search_page_: str) -> None:
