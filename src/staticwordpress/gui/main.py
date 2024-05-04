@@ -509,6 +509,7 @@ class SWMainWindow(QMainWindow):
                     parent=self,
                     title_="Open Project",
                     message_="Project cannot be opened or selected path invalid."
+                    "<br>Please try again with project folder.",
                 )
                 message_box.exec()
 
