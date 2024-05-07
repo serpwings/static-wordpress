@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/gui/workflow.py
     
-    Copyright (C) 2020-2023 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
