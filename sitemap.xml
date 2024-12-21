@@ -2,12 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://static-wordpress-docs.netlify.app/</loc>
-         <lastmod>2024-05-07</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2024-12-21</lastmod>
     </url>
     <url>
          <loc>https://static-wordpress-docs.netlify.app/tutorial/</loc>
-         <lastmod>2024-05-07</lastmod>
-         <changefreq>daily</changefreq>
+         <lastmod>2024-12-21</lastmod>
     </url>
 </urlset>
