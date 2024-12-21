@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/core/search.py
     
-    Copyright (C) 2020-2023 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
@@ -142,9 +142,11 @@ class Search:
             self._search_index.append(
                 {
                     "title": title.string,
-                    "content": search_text
-                    if CONFIGS["SEARCH"]["INCLUDE"]["CONTENT"]
-                    else title.string,
+                    "content": (
+                        search_text
+                        if CONFIGS["SEARCH"]["INCLUDE"]["CONTENT"]
+                        else title.string
+                    ),
                     "href": clean_url,
                 }
             )

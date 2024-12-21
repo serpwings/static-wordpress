@@ -7,7 +7,7 @@ https://github.com/serpwings/staticwordpress
 
     src\staticwordpress\gui\table.py
     
-    Copyright (C) 2020-2023 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
