@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/core/workflow.py
     
-    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
@@ -182,11 +182,11 @@ class Workflow:
 
     def start_calculations(self) -> None:
         self._keep_running = True
-        logging.warn(f"Background Processings is Starting")
+        logging.warn("Background Processings is Starting")
 
     def stop_calculations(self) -> None:
         self._keep_running = False
-        logging.warn(f"Background Processings will Stop. Please wait!")
+        logging.warn("Background Processings will Stop. Please wait!")
 
     def download_zip_file(self) -> None:
         if self._keep_running:
@@ -341,22 +341,22 @@ class Workflow:
 
     # Project Verifications
     def verify_project_name(self) -> bool:
-        logging.info(f"Verifying Project Name!")
+        logging.info("Verifying Project Name!")
         return self._project.name != ""
 
     def verify_src_url(self) -> bool:
-        logging.info(f"Verifying Source Url!")
+        logging.info("Verifying Source Url!")
         # TODO: replace with urllib implementation ???
         current_url = Crawler(loc_=self._project.src_url, scheme_=self._project.scheme)
         current_url.fetch()
         return current_url.status_code < 399  # non error status codes
 
     def verify_output(self) -> bool:
-        logging.info(f"Verifying Output Folder!")
+        logging.info("Verifying Output Folder!")
         return self._project.output.exists()
 
     def verify_wp_user(self) -> bool:
-        logging.info(f"Verifying WordPress User Name!")
+        logging.info("Verifying WordPress User Name!")
 
         response = requests.get(
             self._project.redirects_api_url,
@@ -365,7 +365,7 @@ class Workflow:
         return response.status_code < 399
 
     def verify_sitemap(self) -> bool:
-        logging.info(f"Verifying Sitemap!")
+        logging.info("Verifying Sitemap!")
 
         response = requests.get(
             self._project.sitemap_url,
@@ -380,7 +380,7 @@ class Workflow:
         return self._github.is_repo_valid()
 
     def verify_simply_static(self):
-        logging.info(f"Verifying simply static plugin!")
+        logging.info("Verifying simply static plugin!")
 
         response = requests.get(
             self._project.src_url + CONFIGS["SIMPLYSTATIC"]["API"],

@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/core/project.py
     
-    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
@@ -62,7 +62,7 @@ class Project(dict):
         if isinstance(path_, str):
             path_ = Path(path_)
 
-        assert type(path_) == PosixPath or type(path_) == WindowsPath or path_ == None
+        assert type(path_) == PosixPath or type(path_) == WindowsPath or path_ is None
 
         self["version"] = VERISON
         self["path"] = path_

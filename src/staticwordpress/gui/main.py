@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/gui/mainwindow.py
     
-    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
@@ -300,7 +300,7 @@ class SWMainWindow(QMainWindow):
     @logging_decorator
     def clear_crawl_cache(self):
         """Clearing Crawl Cache"""
-        logging.info(f"Clearing Crawl Cache")
+        logging.info("Clearing Crawl Cache")
         get_remote_content.cache_clear()
 
     def closeEvent(self, event):
@@ -508,8 +508,8 @@ class SWMainWindow(QMainWindow):
                 message_box = SWMessageBox(
                     parent=self,
                     title_="Open Project",
-                    message_=f"Project cannot be opened or selected path invalid."
-                    f"<br>Please try again with project folder.",
+                    message_="Project cannot be opened or selected path invalid."
+                    "<br>Please try again with project folder.",
                 )
                 message_box.exec()
 
@@ -535,7 +535,7 @@ class SWMainWindow(QMainWindow):
             message_box = SWMessageBox(
                 parent=self,
                 title_="Project Settings",
-                message_=f"No Project Available.",
+                message_="No Project Available.",
             )
             message_box.exec()
 

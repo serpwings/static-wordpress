@@ -7,7 +7,7 @@ https://github.com/serpwings/staticwordpress
 
     src\staticwordpress\gui\project.py
     
-    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
@@ -523,7 +523,7 @@ class SWProjectDialog(QDialog):
             self._project.save()
             return super().accept()
         else:
-            logging.info(f"Current Project Settings are not valid.")
+            logging.info("Current Project Settings are not valid.")
 
             message_box = QMessageBox(parent=self)
             message_box.setText(

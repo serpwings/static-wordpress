@@ -7,7 +7,7 @@ https://github.com/serpwings/static-wordpress
 
     src/staticwordpress/gui/config.py
     
-    Copyright (C) 2020-2024 Faisal Shahzad <info@serpwings.com>
+    Copyright (C) 2020-2025 Faisal Shahzad <info@serpwings.com>
 
 <LICENSE_BLOCK>
 The contents of this file are subject to version 3 of the 
