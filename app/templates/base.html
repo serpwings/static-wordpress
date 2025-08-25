@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{ title }} - Online Banking</title>
+  </head>
+  <body>
+    <div>
+        Online Banking:
+        <a href="{{ url_for('main.index') }}">Home</a>
+        {% if current_user.is_anonymous %}
+        <a href="{{ url_for('main.login') }}">Login</a>
+        {% else %}
+        <a href="{{ url_for('main.logout') }}">Logout</a>
+        {% if current_user.is_admin %}
+        | <a href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        {% endif %}
+    </div>
+    <hr>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </body>
+</html>
