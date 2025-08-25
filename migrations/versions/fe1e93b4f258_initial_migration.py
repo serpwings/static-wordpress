@@ -1,8 +1,8 @@
-"""users, accounts, and transactions tables
+"""initial migration
 
-Revision ID: 5c4d1cb8846b
+Revision ID: fe1e93b4f258
 Revises:
-Create Date: 2025-08-25 13:00:05.176932
+Create Date: 2025-08-25 14:09:21.293173
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5c4d1cb8846b'
+revision = 'fe1e93b4f258'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,6 +23,7 @@ def upgrade():
     sa.Column('username', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=True),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -37,7 +37,7 @@ class Account(db.Model):
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Float)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=lambda: datetime.now(UTC))
     type = db.Column(db.String(64)) # e.g., 'deposit', 'withdrawal', 'transfer'
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
