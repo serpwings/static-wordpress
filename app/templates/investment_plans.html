@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Investment Plans</h1>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Return on Investment (ROI)</th>
+            <th>Duration (days)</th>
+            <th>Action</th>
+        </tr>
+        {% for plan in plans %}
+        <tr>
+            <td>{{ plan.name }}</td>
+            <td>{{ plan.description }}</td>
+            <td>{{ plan.roi }}%</td>
+            <td>{{ plan.duration }}</td>
+            <td>
+                <a href="{{ url_for('main.invest', plan_id=plan.id) }}">Invest</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">There are no investment plans available at the moment.</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

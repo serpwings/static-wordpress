@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_suspended = db.Column(db.Boolean, default=False)
     accounts = db.relationship('Account', backref='owner', lazy='dynamic')
+    investments = db.relationship('Investment', backref='investor', lazy='dynamic')
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -44,3 +45,24 @@ class Transaction(db.Model):
 
     def __repr__(self):
         return f'<Transaction {self.id} ({self.type}) of {self.amount}>'
+
+class InvestmentPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True, unique=True)
+    description = db.Column(db.Text)
+    roi = db.Column(db.Float) # Return on Investment as a percentage
+    duration = db.Column(db.Integer) # Duration in days
+    investments = db.relationship('Investment', backref='plan', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<InvestmentPlan {self.name}>'
+
+class Investment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float)
+    start_date = db.Column(db.DateTime, index=True, default=lambda: datetime.now(UTC))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    plan_id = db.Column(db.Integer, db.ForeignKey('investment_plan.id'))
+
+    def __repr__(self):
+        return f'<Investment {self.id} by User {self.user_id} in Plan {self.plan_id}>'

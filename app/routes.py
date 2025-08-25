@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app
 from app import db
-from app.forms import LoginForm, RegistrationForm, DepositForm, WithdrawForm, TransferForm
-from app.models import User, Account, Transaction
+from app.forms import LoginForm, RegistrationForm, DepositForm, WithdrawForm, TransferForm, InvestmentForm
+from app.models import User, Account, Transaction, InvestmentPlan, Investment
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from functools import wraps
@@ -23,6 +23,7 @@ def admin_required(fn):
 def index():
     page = request.args.get('page', 1, type=int)
     accounts = current_user.accounts.all()
+    investments = current_user.investments.all()
     account_ids = [account.id for account in accounts]
     transactions = Transaction.query.filter(Transaction.account_id.in_(account_ids)).order_by(Transaction.timestamp.desc()).paginate(
         page=page, per_page=current_app.config['TRANSACTIONS_PER_PAGE'], error_out=False)
@@ -30,7 +31,8 @@ def index():
         if transactions.has_next else None
     prev_url = url_for('main.index', page=transactions.prev_num) \
         if transactions.has_prev else None
-    return render_template('dashboard.html', title='Dashboard', accounts=accounts, transactions=transactions.items,
+    return render_template('dashboard.html', title='Dashboard', accounts=accounts,
+                           investments=investments, transactions=transactions.items,
                            next_url=next_url, prev_url=prev_url)
 
 @main.route('/login', methods=['GET', 'POST'])
@@ -123,6 +125,33 @@ def make_admin(user_id):
         db.session.commit()
         flash(f'User {user.username} is now {"an admin" if user.is_admin else "not an admin"}.')
     return redirect(url_for('main.user_details', user_id=user_id))
+
+@main.route('/investment-plans')
+@login_required
+def investment_plans():
+    plans = InvestmentPlan.query.all()
+    return render_template('investment_plans.html', title='Investment Plans', plans=plans)
+
+@main.route('/invest/<int:plan_id>', methods=['GET', 'POST'])
+@login_required
+def invest(plan_id):
+    plan = InvestmentPlan.query.get_or_404(plan_id)
+    form = InvestmentForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        account = current_user.accounts.filter_by(account_type='checking').first()
+        if account and account.balance >= amount:
+            account.balance -= amount
+            investment = Investment(amount=amount, user_id=current_user.id, plan_id=plan.id)
+            transaction = Transaction(amount=-amount, type='investment', account_id=account.id)
+            db.session.add(investment)
+            db.session.add(transaction)
+            db.session.commit()
+            flash(f'You have successfully invested ${amount:.2f} in {plan.name}.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Insufficient funds.')
+    return render_template('invest.html', title=f'Invest in {plan.name}', form=form, plan=plan)
 
 @main.route('/deposit', methods=['GET', 'POST'])
 @login_required

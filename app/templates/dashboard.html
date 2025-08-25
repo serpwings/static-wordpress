@@ -28,6 +28,26 @@
         <a href="{{ url_for('main.transfer') }}">Transfer</a>
     </p>
 
+    <h2>Your Investments</h2>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Plan</th>
+            <th>Amount Invested</th>
+            <th>Start Date</th>
+        </tr>
+        {% for investment in investments %}
+        <tr>
+            <td>{{ investment.plan.name }}</td>
+            <td>${{ "%.2f"|format(investment.amount) }}</td>
+            <td>{{ investment.start_date.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3">You have no active investments.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
     <h2>Recent Transactions</h2>
     <table border="1" cellpadding="5" cellspacing="5">
         <tr>

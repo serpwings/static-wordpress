@@ -7,6 +7,7 @@
     <div>
         Online Banking:
         <a href="{{ url_for('main.index') }}">Home</a>
+        | <a href="{{ url_for('main.investment_plans') }}">Investment Plans</a>
         {% if current_user.is_anonymous %}
         <a href="{{ url_for('main.login') }}">Login</a>
         {% else %}

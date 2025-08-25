@@ -39,3 +39,7 @@ class TransferForm(FlaskForm):
     recipient_email = StringField('Recipient Email', validators=[DataRequired(), Email()])
     amount = FloatField('Amount', validators=[DataRequired(), NumberRange(min=0.01)])
     submit = SubmitField('Transfer')
+
+class InvestmentForm(FlaskForm):
+    amount = FloatField('Amount', validators=[DataRequired(), NumberRange(min=0.01)])
+    submit = SubmitField('Invest')
