@@ -4,13 +4,22 @@
     <h1>Hi, {{ current_user.username }}!</h1>
 
     <h2>Your Accounts</h2>
-    <ul>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Account Type</th>
+            <th>Balance</th>
+        </tr>
         {% for account in accounts %}
-        <li>{{ account.account_type.capitalize() }}: ${{ "%.2f"|format(account.balance) }}</li>
+        <tr>
+            <td>{{ account.account_type.capitalize() }}</td>
+            <td>${{ "%.2f"|format(account.balance) }}</td>
+        </tr>
         {% else %}
-        <li>You have no accounts.</li>
+        <tr>
+            <td colspan="2">You have no accounts.</td>
+        </tr>
         {% endfor %}
-    </ul>
+    </table>
 
     <h2>Quick Actions</h2>
     <p>
@@ -19,4 +28,32 @@
         <a href="{{ url_for('main.transfer') }}">Transfer</a>
     </p>
 
+    <h2>Recent Transactions</h2>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Account</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ transaction.type.capitalize() }}</td>
+            <td>${{ "%.2f"|format(transaction.amount) }}</td>
+            <td>{{ transaction.account.account_type.capitalize() }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">You have no transactions yet.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Newer transactions</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}">Older transactions</a>
+    {% endif %}
 {% endblock %}

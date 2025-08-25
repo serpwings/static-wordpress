@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app
 from app import db
 from app.forms import LoginForm, RegistrationForm, DepositForm, WithdrawForm, TransferForm
 from app.models import User, Account, Transaction
@@ -21,8 +21,17 @@ def admin_required(fn):
 @main.route('/index')
 @login_required
 def index():
+    page = request.args.get('page', 1, type=int)
     accounts = current_user.accounts.all()
-    return render_template('dashboard.html', title='Dashboard', accounts=accounts)
+    account_ids = [account.id for account in accounts]
+    transactions = Transaction.query.filter(Transaction.account_id.in_(account_ids)).order_by(Transaction.timestamp.desc()).paginate(
+        page=page, per_page=current_app.config['TRANSACTIONS_PER_PAGE'], error_out=False)
+    next_url = url_for('main.index', page=transactions.next_num) \
+        if transactions.has_next else None
+    prev_url = url_for('main.index', page=transactions.prev_num) \
+        if transactions.has_prev else None
+    return render_template('dashboard.html', title='Dashboard', accounts=accounts, transactions=transactions.items,
+                           next_url=next_url, prev_url=prev_url)
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
