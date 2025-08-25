@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from app import db
-from app.forms import LoginForm, RegistrationForm
-from app.models import User
+from app.forms import LoginForm, RegistrationForm, DepositForm, WithdrawForm, TransferForm
+from app.models import User, Account, Transaction
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from functools import wraps
@@ -21,7 +21,8 @@ def admin_required(fn):
 @main.route('/index')
 @login_required
 def index():
-    return render_template('dashboard.html', title='Dashboard')
+    accounts = current_user.accounts.all()
+    return render_template('dashboard.html', title='Dashboard', accounts=accounts)
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -54,7 +55,15 @@ def register():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
+        db.session.commit()  # Commit user to get an ID
+
+        # Create default accounts for the new user
+        checking_account = Account(account_type='checking', user_id=user.id)
+        savings_account = Account(account_type='savings', user_id=user.id)
+        db.session.add(checking_account)
+        db.session.add(savings_account)
         db.session.commit()
+
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('main.login'))
     return render_template('register.html', title='Register', form=form)
@@ -64,3 +73,95 @@ def register():
 @admin_required
 def admin_dashboard():
     return render_template('admin_dashboard.html', title='Admin Dashboard')
+
+@main.route('/deposit', methods=['GET', 'POST'])
+@login_required
+def deposit():
+    form = DepositForm()
+    if form.validate_on_submit():
+        # For simplicity, we deposit to the user's checking account
+        account = current_user.accounts.filter_by(account_type='checking').first()
+        if account:
+            amount = form.amount.data
+            account.balance += amount
+            transaction = Transaction(amount=amount, type='deposit', account_id=account.id)
+            db.session.add(transaction)
+            db.session.commit()
+            flash(f'Successfully deposited ${amount:.2f}.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Checking account not found.')
+    return render_template('deposit.html', title='Deposit', form=form)
+
+@main.route('/withdraw', methods=['GET', 'POST'])
+@login_required
+def withdraw():
+    form = WithdrawForm()
+    if form.validate_on_submit():
+        # For simplicity, we withdraw from the user's checking account
+        account = current_user.accounts.filter_by(account_type='checking').first()
+        if account:
+            amount = form.amount.data
+            if account.balance >= amount:
+                account.balance -= amount
+                transaction = Transaction(amount=amount, type='withdrawal', account_id=account.id)
+                db.session.add(transaction)
+                db.session.commit()
+                flash(f'Successfully withdrew ${amount:.2f}.')
+                return redirect(url_for('main.index'))
+            else:
+                flash('Insufficient funds.')
+        else:
+            flash('Checking account not found.')
+    return render_template('withdraw.html', title='Withdraw', form=form)
+
+@main.route('/transfer', methods=['GET', 'POST'])
+@login_required
+def transfer():
+    form = TransferForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        recipient_email = form.recipient_email.data
+
+        sender_account = current_user.accounts.filter_by(account_type='checking').first()
+
+        if sender_account is None:
+            flash('Your checking account was not found.')
+            return redirect(url_for('main.transfer'))
+
+        if sender_account.balance < amount:
+            flash('Insufficient funds.')
+            return redirect(url_for('main.transfer'))
+
+        recipient = User.query.filter_by(email=recipient_email).first()
+        if recipient is None:
+            flash('Recipient not found.')
+            return redirect(url_for('main.transfer'))
+
+        if recipient.id == current_user.id:
+            flash('You cannot transfer money to yourself.')
+            return redirect(url_for('main.transfer'))
+
+        recipient_account = recipient.accounts.filter_by(account_type='checking').first()
+        if recipient_account is None:
+            flash('Recipient does not have a checking account.')
+            return redirect(url_for('main.transfer'))
+
+        try:
+            sender_account.balance -= amount
+            recipient_account.balance += amount
+
+            sender_transaction = Transaction(amount=-amount, type='transfer', account_id=sender_account.id)
+            recipient_transaction = Transaction(amount=amount, type='transfer', account_id=recipient_account.id)
+
+            db.session.add(sender_transaction)
+            db.session.add(recipient_transaction)
+            db.session.commit()
+
+            flash(f'Successfully transferred ${amount:.2f} to {recipient.username}.')
+            return redirect(url_for('main.index'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred during the transfer. Please try again.')
+
+    return render_template('transfer.html', title='Transfer', form=form)

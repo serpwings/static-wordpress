@@ -2,5 +2,21 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
-    <p>Welcome to your dashboard.</p>
+
+    <h2>Your Accounts</h2>
+    <ul>
+        {% for account in accounts %}
+        <li>{{ account.account_type.capitalize() }}: ${{ "%.2f"|format(account.balance) }}</li>
+        {% else %}
+        <li>You have no accounts.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Quick Actions</h2>
+    <p>
+        <a href="{{ url_for('main.deposit') }}">Deposit</a> |
+        <a href="{{ url_for('main.withdraw') }}">Withdraw</a> |
+        <a href="{{ url_for('main.transfer') }}">Transfer</a>
+    </p>
+
 {% endblock %}
