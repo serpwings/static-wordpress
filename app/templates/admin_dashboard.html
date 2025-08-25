@@ -3,4 +3,26 @@
 {% block content %}
     <h1>Admin Dashboard</h1>
     <p>Welcome, admin user!</p>
+
+    <h2>User Management</h2>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Is Admin?</th>
+            <th>Actions</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.is_admin }}</td>
+            <td>
+                <a href="{{ url_for('main.user_details', user_id=user.id) }}">View Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

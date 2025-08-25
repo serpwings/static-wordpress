@@ -43,6 +43,9 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('main.login'))
+        if user.is_suspended:
+            flash('Your account has been suspended.')
+            return redirect(url_for('main.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or urlparse(next_page).netloc != '':
@@ -81,7 +84,45 @@ def register():
 @login_required
 @admin_required
 def admin_dashboard():
-    return render_template('admin_dashboard.html', title='Admin Dashboard')
+    users = User.query.all()
+    return render_template('admin_dashboard.html', title='Admin Dashboard', users=users)
+
+@main.route('/user/<int:user_id>')
+@login_required
+@admin_required
+def user_details(user_id):
+    user = User.query.get_or_404(user_id)
+    accounts = user.accounts.all()
+    account_ids = [account.id for account in accounts]
+    transactions = Transaction.query.filter(Transaction.account_id.in_(account_ids)).order_by(Transaction.timestamp.desc()).all()
+    return render_template('user_details.html', title=f'Details for {user.username}',
+                           user=user, accounts=accounts, transactions=transactions)
+
+@main.route('/user/<int:user_id>/suspend', methods=['POST'])
+@login_required
+@admin_required
+def suspend_user(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.is_admin:
+        flash('You cannot suspend an admin user.')
+    else:
+        user.is_suspended = not user.is_suspended
+        db.session.commit()
+        flash(f'User {user.username} has been {"suspended" if user.is_suspended else "unsuspended"}.')
+    return redirect(url_for('main.user_details', user_id=user_id))
+
+@main.route('/user/<int:user_id>/make-admin', methods=['POST'])
+@login_required
+@admin_required
+def make_admin(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('You cannot change your own admin status.')
+    else:
+        user.is_admin = not user.is_admin
+        db.session.commit()
+        flash(f'User {user.username} is now {"an admin" if user.is_admin else "not an admin"}.')
+    return redirect(url_for('main.user_details', user_id=user_id))
 
 @main.route('/deposit', methods=['GET', 'POST'])
 @login_required

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Details for {{ user.username }}</h1>
+    <p>Email: {{ user.email }}</p>
+    <p>Admin: {{ user.is_admin }}</p>
+    <p>Suspended: {{ user.is_suspended }}</p>
+
+    <h2>Admin Actions</h2>
+    <form action="{{ url_for('main.suspend_user', user_id=user.id) }}" method="post" style="display:inline;">
+        {% if user.is_suspended %}
+        <input type="submit" value="Unsuspend User">
+        {% else %}
+        <input type="submit" value="Suspend User">
+        {% endif %}
+    </form>
+    <form action="{{ url_for('main.make_admin', user_id=user.id) }}" method="post" style="display:inline;">
+        {% if user.is_admin %}
+        <input type="submit" value="Remove Admin">
+        {% else %}
+        <input type="submit" value="Make Admin">
+        {% endif %}
+    </form>
+
+    <h2>Accounts</h2>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Account Type</th>
+            <th>Balance</th>
+        </tr>
+        {% for account in accounts %}
+        <tr>
+            <td>{{ account.account_type.capitalize() }}</td>
+            <td>${{ "%.2f"|format(account.balance) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="2">This user has no accounts.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Transactions</h2>
+    <table border="1" cellpadding="5" cellspacing="5">
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Account</th>
+        </tr>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>{{ transaction.type.capitalize() }}</td>
+            <td>${{ "%.2f"|format(transaction.amount) }}</td>
+            <td>{{ transaction.account.account_type.capitalize() }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">This user has no transactions.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('main.admin_dashboard') }}">Back to Admin Dashboard</a>
+{% endblock %}
